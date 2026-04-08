@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutor Uil 🦉</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ac: #1D9E75; --al: #E1F5EE; --at: #085041;
+      --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8;
+      --txt: #1a1a18; --txt2: #6b6b66;
+      --border: rgba(0,0,0,0.12);
+      --radius: 8px; --radius-lg: 12px;
+      --red: #A32D2D; --red-bg: #FCEBEB;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2c;
+        --txt: #f0efe8; --txt2: #a0a09a;
+        --border: rgba(255,255,255,0.1);
+      }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .app { width: 100%; max-width: 740px; min-height: 600px; max-height: 92vh; background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    /* LOGIN */
+    .login-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:40px 24px; }
+    .login-logo { font-size:52px; }
+    .login-title { font-size:22px; font-weight:600; color:var(--txt); }
+    .login-sub { font-size:14px; color:var(--txt2); text-align:center; }
+    .role-cards { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:360px; }
+    .role-card { padding:22px 16px; border:0.5px solid var(--border); border-radius:var(--radius-lg); cursor:pointer; text-align:center; display:flex; flex-direction:column; gap:8px; align-items:center; transition:all .15s; background:var(--bg); }
+    .role-card:hover { border-color:var(--ac); background:var(--al); }
+    .ri { font-size:32px; } .rl { font-size:14px; font-weight:600; color:var(--txt); } .rd { font-size:12px; color:var(--txt2); }
+    /* TABBAR */
+    .tabbar { display:flex; border-bottom:0.5px solid var(--border); flex-shrink:0; background:var(--bg2); }
+    .tab { flex:1; padding:11px 4px; font-size:12px; text-align:center; cursor:pointer; color:var(--txt2); border-bottom:2px solid transparent; transition:all .12s; }
+    .tab.active { color:var(--ac); border-bottom-color:var(--ac); background:var(--bg); font-weight:500; }
+    .tab-exit { flex:0 !important; padding:11px 14px !important; }
+    .page { flex:1; overflow-y:auto; display:none; flex-direction:column; }
+    .page.active { display:flex; }
+    /* CHAT */
+    .chat-hdr { padding:11px 14px; border-bottom:0.5px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .chat-id { display:flex; align-items:center; gap:10px; }
+    .av { width:34px; height:34px; border-radius:50%; background:var(--al); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .cn { font-size:14px; font-weight:600; color:var(--txt); } .cs { font-size:11px; color:var(--txt2); }
+    .chat-ctrl { display:flex; gap:6px; align-items:center; }
+    select { font-size:12px; padding:5px 8px; border:0.5px solid var(--border); border-radius:var(--radius); background:var(--bg2); color:var(--txt); cursor:pointer; }
+    select:focus { outline:none; border-color:var(--ac); }
+    .bdg { font-size:11px; padding:3px 9px; border-radius:20px; background:var(--al); color:var(--at); font-weight:600; }
+    .msgs { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+    .msg { display:flex; gap:8px; align-items:flex-start; }
+    .msg.user { flex-direction:row-reverse; }
+    .bbl { max-width:78%; padding:9px 13px; border-radius:13px; font-size:14px; line-height:1.65; }
+    .msg.tutor .bbl { background:var(--bg2); color:var(--txt); border-radius:3px 13px 13px 13px; border:0.5px solid var(--border); }
+    .msg.user .bbl { background:var(--al); color:var(--at); border-radius:13px 3px 13px 13px; }
+    .msg.ok .bbl { background:var(--al); color:var(--at); border:0.5px solid var(--ac); border-radius:3px 13px 13px 13px; }
+    .msg.fout .bbl { background:var(--red-bg); color:var(--red); border:0.5px solid #E24B4A; border-radius:3px 13px 13px 13px; }
+    .mav { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; background:var(--al); }
+    .dots { display:flex; gap:3px; align-items:center; }
+    .dot { width:6px; height:6px; border-radius:50%; background:var(--txt2); animation:bop 1.2s infinite; }
+    .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+    @keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+    .sugs { padding:0 14px 10px; display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; }
+    .sug { font-size:12px; padding:5px 11px; border:0.5px solid var(--border); border-radius:20px; background:var(--bg2); color:var(--txt2); cursor:pointer; }
+    .sug:hover { background:var(--al); color:var(--at); border-color:var(--ac); }
+    /* antwoord balk */
+    .ans-area { padding:10px 14px; background:var(--bg2); border-top:0.5px solid var(--border); flex-shrink:0; display:none; flex-direction:column; gap:8px; }
+    .ans-area.open { display:flex; }
+    .ans-label { font-size:12px; color:var(--txt2); font-weight:500; }
+    .ans-row { display:flex; gap:8px; }
+    .ans-row input { flex:1; padding:9px 13px; border:0.5px solid var(--border); border-radius:var(--radius-lg); font-size:14px; font-family:inherit; background:var(--bg); color:var(--txt); }
+    .ans-row input:focus { outline:none; border-color:var(--ac); }
+    .check-btn { padding:9px 16px; background:var(--ac); color:white; border:none; border-radius:var(--radius-lg); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
+    .check-btn:hover { background:var(--at); }
+    /* normale invoer */
+    .inp-area { padding:10px 14px; border-top:0.5px solid var(--border); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; }
+    .inp-area textarea { flex:1; resize:none; border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:9px 13px; font-size:14px; font-family:inherit; background:var(--bg); color:var(--txt); line-height:1.5; max-height:90px; overflow-y:auto; }
+    .inp-area textarea:focus { outline:none; border-color:var(--ac); }
+    .send-btn { width:36px; height:36px; border-radius:50%; background:var(--ac); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .send-btn:hover { background:var(--at); }
+    .send-btn svg { width:14px; height:14px; fill:white; }
+    .hw-banner { padding:8px 14px; background:var(--bg2); border-bottom:0.5px solid var(--border); flex-shrink:0; display:none; }
+    .hw-banner-t { font-size:11px; color:var(--txt2); margin-bottom:5px; }
+    .hw-chips { display:flex; gap:6px; flex-wrap:wrap; }
+    .hw-chip { font-size:11px; padding:3px 9px; border-radius:20px; border:0.5px solid var(--border); background:var(--bg); color:var(--txt); cursor:pointer; }
+    .hw-chip:hover { background:var(--al); border-color:var(--ac); color:var(--at); }
+    /* SETTINGS */
+    .sbody { padding:16px; display:flex; flex-direction:column; gap:14px; }
+    .sec { border:0.5px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+    .sec-title { padding:9px 14px; font-size:11px; font-weight:600; color:var(--txt2); background:var(--bg2); border-bottom:0.5px solid var(--border); text-transform:uppercase; letter-spacing:.04em; }
+    .frow { display:flex; align-items:center; padding:10px 14px; border-bottom:0.5px solid var(--border); gap:10px; }
+    .frow:last-child { border-bottom:none; }
+    .flabel { font-size:12px; color:var(--txt2); width:130px; flex-shrink:0; }
+    .frow input, .frow select { flex:1; font-size:13px; padding:6px 10px; border:0.5px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--txt); font-family:inherit; }
+    .frow input:focus, .frow select:focus { outline:none; border-color:var(--ac); }
+    .hint { padding:6px 14px 10px; font-size:11px; color:var(--txt2); border-top:0.5px solid var(--border); line-height:1.6; }
+    .hint a { color:var(--ac); }
+    .vak-grid { padding:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:7px; }
+    .vi { display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; padding:7px 10px; border:0.5px solid var(--border); border-radius:var(--radius); color:var(--txt); transition:all .12s; }
+    .vi.on { background:var(--al); border-color:var(--ac); color:var(--at); }
+    .vi input { width:14px; height:14px; accent-color:var(--ac); flex-shrink:0; }
+    .save-btn { margin:0 16px 16px; padding:11px; background:var(--ac); color:white; border:none; border-radius:var(--radius); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .save-btn:hover { background:var(--at); }
+    .saved-msg { text-align:center; font-size:12px; color:var(--ac); padding:0 16px 10px; display:none; }
+    /* HUISWERK */
+    .hw-page { display:flex; flex-direction:column; gap:0; flex:1; overflow-y:auto; }
+    .hw-toolbar { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:0.5px solid var(--border); flex-shrink:0; flex-wrap:wrap; }
+    .hw-filter-btn { font-size:11px; padding:4px 10px; border-radius:20px; border:0.5px solid var(--border); background:var(--bg2); color:var(--txt2); cursor:pointer; }
+    .hw-filter-btn.active { background:var(--al); border-color:var(--ac); color:var(--at); font-weight:500; }
+    .hw-progress { flex:1; min-width:80px; }
+    .hw-progress-track { height:5px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+    .hw-progress-fill { height:100%; background:var(--ac); border-radius:3px; transition:width .4s; }
+    .hw-progress-txt { font-size:10px; color:var(--txt2); margin-top:3px; }
+    .hw-group { }
+    .hw-group-title { padding:7px 14px 4px; font-size:10px; font-weight:600; color:var(--txt2); text-transform:uppercase; letter-spacing:.06em; background:var(--bg2); border-bottom:0.5px solid var(--border); display:flex; align-items:center; gap:6px; }
+    .hw-urgency { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .hw-card { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:0.5px solid var(--border); transition:background .1s; }
+    .hw-card:hover { background:var(--bg2); }
+    .hw-card.done { opacity:.55; }
+    .hw-chk { width:18px; height:18px; accent-color:var(--ac); cursor:pointer; flex-shrink:0; }
+    .hw-main { flex:1; min-width:0; }
+    .hw-txt { font-size:13px; color:var(--txt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hw-card.done .hw-txt { text-decoration:line-through; }
+    .hw-meta { display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap; }
+    .hw-tag { font-size:10px; padding:2px 7px; border-radius:20px; background:var(--al); color:var(--at); flex-shrink:0; }
+    .hw-date { font-size:10px; color:var(--txt2); }
+    .hw-date.urgent { color:#E24B4A; font-weight:600; }
+    .hw-date.soon { color:#ba7517; font-weight:500; }
+    .hw-actions { display:flex; gap:4px; flex-shrink:0; }
+    .hw-oef { font-size:11px; padding:3px 8px; border:0.5px solid var(--ac); border-radius:20px; background:none; color:var(--ac); cursor:pointer; white-space:nowrap; }
+    .hw-oef:hover { background:var(--al); }
+    .hw-del { background:none; border:none; cursor:pointer; color:var(--txt3); font-size:15px; padding:2px 4px; }
+    .hw-del:hover { color:#E24B4A; }
+    .hw-add-panel { border-top:0.5px solid var(--border); padding:12px 14px; background:var(--bg2); flex-shrink:0; }
+    .hw-add-row1 { display:flex; gap:7px; margin-bottom:7px; }
+    .hw-add-row2 { display:flex; gap:7px; }
+    .hw-add-panel input, .hw-add-panel select { font-size:12px; padding:6px 9px; border:0.5px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--txt); font-family:inherit; }
+    .hw-add-panel input:focus, .hw-add-panel select:focus { outline:none; border-color:var(--ac); }
+    .hw-empty { padding:32px 20px; text-align:center; color:var(--txt2); font-size:13px; }
+    .hw-empty .hw-empty-icon { font-size:36px; margin-bottom:8px; }
+    .add-btn { font-size:12px; padding:6px 12px; border:0.5px solid var(--ac); border-radius:var(--radius); background:var(--al); color:var(--at); cursor:pointer; white-space:nowrap; flex-shrink:0; }
+    /* OUDER */
+    .dash-hdr { padding:12px 16px; border-bottom:0.5px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+    .dash-title { font-size:15px; font-weight:600; color:var(--txt); } .dash-sub { font-size:11px; color:var(--txt2); margin-top:2px; }
+    .export-btn { font-size:12px; padding:6px 12px; border:0.5px solid var(--ac); border-radius:var(--radius); background:var(--al); color:var(--at); cursor:pointer; white-space:nowrap; }
+    .export-btn:hover { background:var(--at); color:white; }
+    .dash-body { padding:14px; display:flex; flex-direction:column; gap:14px; }
+    .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .stat-card { background:var(--bg2); border-radius:var(--radius); padding:12px 14px; display:flex; flex-direction:column; gap:4px; }
+    .stat-val { font-size:24px; font-weight:600; color:var(--txt); } .stat-lbl { font-size:11px; color:var(--txt2); }
+    .bar-row { display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:0.5px solid var(--border); }
+    .bar-row:last-child { border-bottom:none; }
+    .bar-name { font-size:12px; width:100px; flex-shrink:0; color:var(--txt); }
+    .bar-track { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+    .bar-fill { height:100%; background:var(--ac); border-radius:3px; }
+    .bar-pts { font-size:11px; color:var(--txt2); width:50px; text-align:right; flex-shrink:0; }
+    .empty { padding:20px; text-align:center; font-size:13px; color:var(--txt2); }
+    .conv-item { padding:11px 14px; border-bottom:0.5px solid var(--border); cursor:pointer; }
+    .conv-item:hover { background:var(--bg2); }
+    .conv-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+    .conv-vak { font-size:11px; padding:2px 8px; border-radius:20px; background:var(--al); color:var(--at); }
+    .conv-time { font-size:11px; color:var(--txt2); margin-left:auto; }
+    .conv-pts { font-size:11px; color:var(--ac); font-weight:600; }
+    .conv-preview { font-size:12px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .conv-detail { display:none; flex-direction:column; gap:7px; padding:10px 14px; background:var(--bg2); border-bottom:0.5px solid var(--border); }
+    .conv-detail.open { display:flex; }
+    .cmsg { display:flex; gap:6px; } .cmsg.u { flex-direction:row-reverse; }
+    .cbbl { max-width:80%; padding:6px 10px; border-radius:10px; font-size:12px; line-height:1.55; }
+    .cmsg.t .cbbl { background:var(--bg); border:0.5px solid var(--border); color:var(--txt); border-radius:3px 10px 10px 10px; }
+    .cmsg.u .cbbl { background:var(--al); color:var(--at); border-radius:10px 3px 10px 10px; }
+    .cmsg.c .cbbl { background:var(--al); color:var(--at); border-radius:3px 10px 10px 10px; font-style:italic; }
+    .cmsg.f .cbbl { background:var(--red-bg); color:var(--red); border-radius:3px 10px 10px 10px; font-style:italic; }
+    .cav { width:20px; height:20px; border-radius:50%; background:var(--al); display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; margin-top:2px; }
+    @media(max-width:520px){ body{padding:0;align-items:stretch;} .app{max-height:100vh;border-radius:0;border:none;min-height:100vh;} }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- LOGIN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-logo">🦉</div>
+    <div class="login-title">Tutor Uil</div>
+    <div class="login-sub">Jouw persoonlijke AI-tutor<br>Wie ben jij vandaag?</div>
+    <div class="role-cards">
+      <div class="role-card" onclick="login('leerling')"><div class="ri">🧒</div><div class="rl">Leerling</div><div class="rd">Leren & oefenen</div></div>
+      <div class="role-card" onclick="login('ouder')"><div class="ri">👨‍👩‍👧</div><div class="rl">Ouder</div><div class="rd">Voortgang bekijken</div></div>
+    </div>
+  </div>
+
+  <!-- LEERLING -->
+  <div id="leerling-app" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+    <div class="tabbar">
+      <div class="tab active" onclick="showLTab('chat')" id="ltab-chat">💬 Tutor</div>
+      <div class="tab" onclick="showLTab('huiswerk')" id="ltab-huiswerk">📋 Huiswerk</div>
+      <div class="tab" onclick="showLTab('instellingen')" id="ltab-instellingen">⚙️ Instellingen</div>
+      <div class="tab tab-exit" onclick="login(null)">↩</div>
+    </div>
+    <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <!-- CHAT -->
+      <div class="page active" id="lpage-chat" style="flex-direction:column;">
+        <div class="chat-hdr">
+          <div class="chat-id"><div class="av"><span class="tutor-av-icon">🦉</span></div><div><div class="cn" id="chat-naam">Tutor Uil</div><div class="cs" id="chat-sub">Stel je profiel in via ⚙️</div></div></div>
+          <div class="chat-ctrl"><select id="chat-vak" onchange="resetChat()"></select><span class="bdg" id="score-bdg">0 pts</span></div>
+        </div>
+        <div class="hw-banner" id="hw-banner"><div class="hw-banner-t">Openstaand huiswerk — klik om te oefenen:</div><div class="hw-chips" id="hw-chips"></div></div>
+        <div class="msgs" id="msgs">
+          <div class="msg tutor"><div class="mav">🦉</div><div class="bbl">Hoi! Ik ben Tutor Uil 🦉 Ik help je leren door vragen te stellen — ik geef geen antwoorden, maar ik controleer ze wel! Stel je profiel in via ⚙️ en kies een vak.</div></div>
+        </div>
+        <div class="sugs" id="sugs">
+          <div class="sug" onclick="useSug('Stel me een oefenvraag')">Oefenvraag</div>
+          <div class="sug" onclick="useSug('Leg dit onderwerp uit zonder het antwoord te geven')">Uitleg</div>
+          <div class="sug" onclick="useSug('Geef me een hint zonder het antwoord te zeggen')">Hint</div>
+          <div class="sug" onclick="useSug('Vat samen wat ik al begrijp')">Samenvatting</div>
+        </div>
+        <div class="ans-area" id="ans-area">
+          <div class="ans-label">Jouw antwoord:</div>
+          <div class="ans-row">
+            <input type="text" id="ans-input" placeholder="Typ je antwoord hier..." onkeydown="if(event.key==='Enter')checkAnswer()" />
+            <button class="check-btn" onclick="checkAnswer()">Controleer ✓</button>
+          </div>
+        </div>
+        <div class="inp-area">
+          <textarea id="user-input" placeholder="Stel een vraag of chat met Tutor Uil..." rows="1" onkeydown="handleKey(event)"></textarea>
+          <button class="send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+        </div>
+      </div>
+      <!-- HUISWERK -->
+      <div class="page" id="lpage-huiswerk" style="flex-direction:column;">
+        <div class="hw-toolbar">
+          <button class="hw-filter-btn active" id="hf-open" onclick="setHWFilter('open')">📋 Te doen</button>
+          <button class="hw-filter-btn" id="hf-all" onclick="setHWFilter('all')">Alles</button>
+          <button class="hw-filter-btn" id="hf-done" onclick="setHWFilter('done')">✅ Klaar</button>
+          <div class="hw-progress" id="hw-progress-bar">
+            <div class="hw-progress-track"><div class="hw-progress-fill" id="hw-pfill" style="width:0%"></div></div>
+            <div class="hw-progress-txt" id="hw-ptxt">0 van 0 klaar</div>
+          </div>
+        </div>
+        <div class="hw-page" id="hw-list"></div>
+        <div class="hw-add-panel">
+          <div class="hw-add-row1">
+            <select id="hw-vak-sel" style="width:120px;flex-shrink:0;"></select>
+            <input type="text" id="hw-txt" placeholder="Omschrijving, bijv. H4 opgave 12-18" style="flex:1;" onkeydown="if(event.key==='Enter')addHW()" />
+          </div>
+          <div class="hw-add-row2">
+            <input type="date" id="hw-datum" style="width:150px;flex-shrink:0;" />
+            <input type="text" id="hw-notitie" placeholder="Notitie (optioneel)" style="flex:1;" />
+            <button class="add-btn" onclick="addHW()">+ Toevoegen</button>
+          </div>
+        </div>
+      </div>
+      <!-- INSTELLINGEN -->
+      <div class="page" id="lpage-instellingen" style="flex-direction:column;">
+        <div class="sbody">
+          <div class="sec">
+            <div class="sec-title">Profiel</div>
+            <div class="frow"><span class="flabel">Naam</span><input type="text" id="s-naam" placeholder="bijv. Sophie" /></div>
+            <div class="frow"><span class="flabel">Leeftijd</span><input type="number" id="s-leeftijd" placeholder="bijv. 13" min="4" max="30" style="max-width:80px;" /></div>
+            <div class="frow">
+              <span class="flabel">Schoolniveau</span>
+              <select id="s-niveau">
+                <optgroup label="Basisschool"><option value="groep 5-6 (8-10 jaar)">Groep 5-6</option><option value="groep 7-8 (10-12 jaar)">Groep 7-8</option></optgroup>
+                <optgroup label="Middelbare school"><option value="vmbo klas 1-2">VMBO 1-2</option><option value="vmbo klas 3-4">VMBO 3-4</option><option value="havo klas 1-2">HAVO 1-2</option><option value="havo klas 3-5" selected>HAVO 3-5</option><option value="vwo klas 1-2">VWO 1-2</option><option value="vwo klas 3-6">VWO 3-6</option></optgroup>
+                <optgroup label="Hoger onderwijs"><option value="hbo propedeuse">HBO propedeuse</option><option value="hbo hoofdfase">HBO hoofdfase</option><option value="universiteit bachelor">Universiteit bachelor</option><option value="universiteit master">Universiteit master</option></optgroup>
+              </select>
+            </div>
+            <div class="frow">
+              <span class="flabel">Tutor stijl</span>
+              <select id="s-stijl"><option value="vriendelijk en aanmoedigend">Vriendelijk & aanmoedigend</option><option value="zakelijk en efficiënt">Zakelijk & efficiënt</option><option value="grappig en speels">Grappig & speels</option><option value="streng maar rechtvaardig">Streng maar rechtvaardig</option></select>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sec-title">Tutor personalisatie</div>
+            <div class="frow"><span class="flabel">Naam tutor</span><input type="text" id="s-tutor-naam" placeholder="bijv. Professor Pip, Meester Max..." /></div>
+            <div class="frow" style="flex-direction:column;align-items:flex-start;gap:10px;">
+              <span class="flabel" style="width:auto;">Avatar kiezen</span>
+              <div id="avatar-grid" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                <span style="font-size:12px;color:var(--txt2);">Of eigen emoji:</span>
+                <input type="text" id="s-tutor-avatar-custom" placeholder="🐉" style="width:60px;text-align:center;font-size:18px;" maxlength="2" />
+              </div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sec-title">Achtergrond</div>
+            <div class="frow" style="flex-direction:column;align-items:flex-start;gap:10px;">
+              <span style="font-size:12px;color:var(--txt2);">Kies een achtergrond voor de app:</span>
+              <div id="bg-grid" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sec-title">API Key</div>
+            <div class="frow"><span class="flabel">Anthropic API Key</span><input type="password" id="s-apikey" placeholder="sk-ant-api03-..." /></div>
+            <div class="hint">Vind je key op <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Wordt alleen lokaal opgeslagen.</div>
+          </div>
+          <div class="sec">
+            <div class="sec-title">Magister iCal</div>
+            <div class="frow"><span class="flabel">iCal URL</span><input type="text" id="s-ical" placeholder="webcal://..." /></div>
+            <div class="hint">Magister → Instellingen → Agenda delen → iCal link genereren.</div>
+          </div>
+          <div class="sec">
+            <div class="sec-title">Vakkenpakket</div>
+            <div class="vak-grid" id="vak-grid"></div>
+          </div>
+        </div>
+          <div class="sec">
+            <div class="sec-title">Back-up & herstel</div>
+            <div class="frow" style="flex-direction:column;align-items:flex-start;gap:10px;">
+              <div style="font-size:12px;color:var(--txt2);line-height:1.6;">
+                Exporteer al je data (gesprekken, punten, huiswerk, instellingen) als JSON bestand.<br>
+                Sla het op of mail het naar jezelf — zo ben je nooit data kwijt bij een update.<br>
+                <strong style="color:var(--txt);">De API key wordt NIET meegeëxporteerd</strong> (veiligheid).
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="add-btn" onclick="exportJSON()" style="font-size:13px;padding:8px 16px;">⬇️ Exporteer JSON back-up</button>
+                <button class="add-btn" onclick="importJSON()" style="font-size:13px;padding:8px 16px;background:var(--bg);border-color:var(--border);color:var(--txt);">⬆️ Importeer JSON back-up</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="save-btn" onclick="saveSettings()">Opslaan & starten</button>
+        <div class="saved-msg" id="saved-msg">✓ Instellingen opgeslagen!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUDER -->
+  <div id="ouder-app" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+    <div class="tabbar">
+      <div class="tab active" onclick="showOTab('dashboard')" id="otab-dashboard">📊 Dashboard</div>
+      <div class="tab" onclick="showOTab('gesprekken')" id="otab-gesprekken">💬 Gesprekken</div>
+      <div class="tab tab-exit" onclick="login(null)">↩</div>
+    </div>
+    <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <div class="page active" id="opage-dashboard" style="flex-direction:column;">
+        <div class="dash-hdr">
+          <div><div class="dash-title" id="ouder-titel">Voortgang</div><div class="dash-sub" id="ouder-sub">Laatste activiteit: —</div></div>
+          <button class="export-btn" onclick="exportRapport()">📄 Exporteer rapport</button>
+        </div>
+        <div class="dash-body">
+          <div class="stat-grid">
+            <div class="stat-card"><div class="stat-val" id="s-pts">0</div><div class="stat-lbl">Totaal punten</div></div>
+            <div class="stat-card"><div class="stat-val" id="s-sess">0</div><div class="stat-lbl">Gesprekken</div></div>
+            <div class="stat-card"><div class="stat-val" id="s-correct">—</div><div class="stat-lbl">% Correct</div></div>
+          </div>
+          <div class="sec"><div class="sec-title">Punten per vak</div><div id="vak-bars"></div></div>
+          <div class="sec"><div class="sec-title">Antwoorden overzicht</div><div id="ans-overzicht"></div></div>
+          <div class="sec"><div class="sec-title">Huiswerk status</div><div id="hw-ouder"></div></div>
+        </div>
+      </div>
+      <div class="page" id="opage-gesprekken" style="flex-direction:column;">
+        <div class="dash-body"><div class="sec"><div class="sec-title">Recente gesprekken</div><div id="conv-list"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const VAKKEN=['Wiskunde','Nederlands','Engels','Duits','Frans','Biologie','Scheikunde','Natuurkunde','Geschiedenis','Aardrijkskunde','Economie','Informatica','Maatschappijleer','Muziek','Tekenen'];
+let profile={naam:'',leeftijd:'12',niveau:'havo klas 3-5',stijl:'vriendelijk en aanmoedigend',vakken:['Wiskunde','Nederlands','Engels','Biologie'],ical:'',tutorNaam:'Tutor Uil',tutorAvatar:'🦉',background:'none'};
+const BACKGROUNDS=[
+  {id:'none',    label:'Geen',        style:'background:#f5f5f3'},
+  {id:'sky',     label:'Lucht',       style:'background:linear-gradient(160deg,#c9e8ff 0%,#e8f4ff 50%,#fff9e6 100%)'},
+  {id:'sunset',  label:'Zonsonder',   style:'background:linear-gradient(160deg,#ff9a6c 0%,#ffcb8a 40%,#ffe0b2 100%)'},
+  {id:'forest',  label:'Bos',         style:'background:linear-gradient(160deg,#1a472a 0%,#2d6a4f 40%,#95d5b2 100%)'},
+  {id:'ocean',   label:'Oceaan',      style:'background:linear-gradient(160deg,#0077b6 0%,#00b4d8 50%,#90e0ef 100%)'},
+  {id:'lavender',label:'Lavendel',    style:'background:linear-gradient(160deg,#c8b6e2 0%,#dfd3f0 50%,#f0ebff 100%)'},
+  {id:'mint',    label:'Mint',        style:'background:linear-gradient(160deg,#1D9E75 0%,#52c78a 50%,#c8f7dc 100%)'},
+  {id:'peach',   label:'Perzik',      style:'background:linear-gradient(160deg,#f7a072 0%,#ffc9a0 50%,#fff0e8 100%)'},
+  {id:'night',   label:'Nacht',       style:'background:linear-gradient(160deg,#0d1b2a 0%,#1b2a4a 50%,#2c3e6b 100%)'},
+  {id:'aurora',  label:'Aurora',      style:'background:linear-gradient(160deg,#0d3b2e 0%,#1a6b52 30%,#6b3fa0 70%,#2d1b4e 100%)'},
+  {id:'desert',  label:'Woestijn',    style:'background:linear-gradient(160deg,#c9764b 0%,#e8a96b 40%,#f7d4a0 100%)'},
+  {id:'rose',    label:'Roos',        style:'background:linear-gradient(160deg,#b5446e 0%,#e07fa0 50%,#ffd6e5 100%)'},
+  {id:'space',   label:'Ruimte',      style:'background:radial-gradient(ellipse at top,#1a1a3e 0%,#0d0d1e 60%,#000 100%)'},
+  {id:'spring',  label:'Lente',       style:'background:linear-gradient(160deg,#a8e063 0%,#c8f59a 40%,#fffde7 100%)'},
+  {id:'candy',   label:'Snoep',       style:'background:linear-gradient(160deg,#ff6fb7 0%,#ffb347 33%,#87ceeb 66%,#ff6fb7 100%)'},
+  {id:'arctic',  label:'Arctisch',    style:'background:linear-gradient(160deg,#e0f7fa 0%,#b2ebf2 40%,#e8f5e9 100%)'},
+  {id:'gold',    label:'Goud',        style:'background:linear-gradient(160deg,#b8860b 0%,#daa520 40%,#fffacd 100%)'},
+  {id:'dusk',    label:'Schemering',  style:'background:linear-gradient(160deg,#2c1654 0%,#7b3fa0 40%,#ff7c7c 80%,#ffb347 100%)'},
+  {id:'paper',   label:'Papier',      style:'background:#fdf6e3;background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,#e8dcc8 28px)'},
+  {id:'cyber',   label:'Cyber',       style:'background:#0a0a0a;background-image:linear-gradient(rgba(0,255,100,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,100,.07) 1px,transparent 1px);background-size:30px 30px'},
+];
+const AVATARS=['🦉','🐶','🦊','🐱','🐻','🐼','🦁','🐯','🐸','🦄','🤖','👨200d🏫','👩200d🏫','🧙','🧑200d🚀','🦸','🧑200d🔬','🐙','🦋','⭐'];
+let huiswerk=[],convHistory=[],score=0,vakScores={},allConversations=[],allAnswers=[],currentConv=null,lastQuestion='';
+
+const sv=(k,v)=>{try{localStorage.setItem('tu_'+k,JSON.stringify(v));}catch(e){}};
+const ld=(k,d)=>{try{const v=localStorage.getItem('tu_'+k);return v?JSON.parse(v):d;}catch(e){return d;}};
+const getKey=()=>ld('apikey','');
+
+function loadAll(){
+  profile=ld('profile',profile);huiswerk=ld('hw',[]);score=ld('score',0);
+  vakScores=ld('vakScores',{});allConversations=ld('convs',[]);allAnswers=ld('answers',[]);
+}
+
+function login(role){
+  loadAll();
+  document.getElementById('login-screen').style.display=role?'none':'flex';
+  const la=document.getElementById('leerling-app'),oa=document.getElementById('ouder-app');
+  la.style.display='none';oa.style.display='none';
+  if(role==='leerling'){
+    la.style.display='flex';
+    renderVakGrid();renderSelects();renderHWList();renderHWBanner();updateHdr();
+    // set default date to today
+    const today=new Date().toISOString().slice(0,10);
+    const datEl=document.getElementById('hw-datum');if(datEl)datEl.value=today;
+    document.getElementById('score-bdg').textContent=score+' pts';
+    document.getElementById('s-naam').value=profile.naam||'';
+    document.getElementById('s-leeftijd').value=profile.leeftijd||'';
+    document.getElementById('s-niveau').value=profile.niveau;
+    document.getElementById('s-stijl').value=profile.stijl;
+    document.getElementById('s-ical').value=profile.ical||'';
+    document.getElementById('s-apikey').value=getKey();
+    document.getElementById('s-tutor-naam').value=profile.tutorNaam||'Tutor Uil';
+    renderAvatarGrid();
+    renderBgGrid();
+    applyBackground();
+  }else if(role==='ouder'){oa.style.display='flex';applyBackground();renderDash();}
+}
+
+function renderVakGrid(){
+  const g=document.getElementById('vak-grid');g.innerHTML='';
+  VAKKEN.forEach(v=>{
+    const on=profile.vakken.includes(v);
+    const d=document.createElement('div');d.className='vi'+(on?' on':'');
+    d.innerHTML=`<input type="checkbox" ${on?'checked':''}><span>${v}</span>`;
+    d.onclick=()=>{const i=profile.vakken.indexOf(v);if(i>=0)profile.vakken.splice(i,1);else profile.vakken.push(v);renderVakGrid();};
+    g.appendChild(d);
+  });
+}
+
+function renderSelects(){
+  ['chat-vak','hw-vak-sel'].forEach(id=>{
+    const s=document.getElementById(id);if(!s)return;
+    s.innerHTML=profile.vakken.map(v=>`<option value="${v}">${v}</option>`).join('');
+  });
+}
+
+let hwFilter='open';
+function setHWFilter(f){
+  hwFilter=f;
+  ['open','all','done'].forEach(x=>document.getElementById('hf-'+x).classList.toggle('active',x===f));
+  renderHWList();
+}
+
+function urgencyLabel(datum){
+  if(!datum)return{cls:'',txt:''};
+  const d=new Date(datum),now=new Date();
+  now.setHours(0,0,0,0);d.setHours(0,0,0,0);
+  const diff=Math.round((d-now)/(1000*60*60*24));
+  if(diff<0)return{cls:'urgent',txt:'⚠️ Te laat'};
+  if(diff===0)return{cls:'urgent',txt:'⏰ Vandaag!'};
+  if(diff===1)return{cls:'soon',txt:'⚡ Morgen'};
+  if(diff<=3)return{cls:'soon',txt:`📅 Over ${diff} dagen`};
+  return{cls:'',txt:`📅 ${new Date(datum).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'})}`};
+}
+
+function renderHWList(){
+  const l=document.getElementById('hw-list');
+  // progress
+  const tot=huiswerk.length,done=huiswerk.filter(h=>h.done).length;
+  const pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('hw-pfill').style.width=pct+'%';
+  document.getElementById('hw-ptxt').textContent=`${done} van ${tot} klaar`;
+
+  let items=huiswerk.map((h,i)=>({...h,i}));
+  if(hwFilter==='open')items=items.filter(h=>!h.done);
+  else if(hwFilter==='done')items=items.filter(h=>h.done);
+
+  if(!items.length){
+    l.innerHTML=`<div class="hw-empty"><div class="hw-empty-icon">${hwFilter==='done'?'🎉':hwFilter==='open'?'✅':' 📋'}</div>${hwFilter==='open'?'Geen openstaand huiswerk!<br><small>Goed bezig!</small>':hwFilter==='done'?'Nog niets afgevinkt':' Nog geen huiswerk ingevoerd'}</div>`;
+    return;
+  }
+
+  // sort: undone by date, done at bottom
+  items.sort((a,b)=>{
+    if(a.done!==b.done)return a.done?1:-1;
+    if(!a.datum&&!b.datum)return 0;
+    if(!a.datum)return 1; if(!b.datum)return -1;
+    return new Date(a.datum)-new Date(b.datum);
+  });
+
+  // group by urgency for open items
+  l.innerHTML='';
+  if(hwFilter==='open'){
+    const groups=[
+      {key:'urgent',label:'Vandaag & te laat',color:'#E24B4A',items:[]},
+      {key:'soon',  label:'Binnenkort (2-3 dagen)',color:'#ba7517',items:[]},
+      {key:'later', label:'Later',color:'#1D9E75',items:[]},
+      {key:'nodate',label:'Geen deadline',color:'#888',items:[]},
+    ];
+    items.forEach(h=>{
+      if(!h.datum){groups[3].items.push(h);return;}
+      const d=new Date(h.datum),now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);
+      const diff=Math.round((d-now)/(1000*60*60*24));
+      if(diff<=0)groups[0].items.push(h);
+      else if(diff<=3)groups[1].items.push(h);
+      else groups[2].items.push(h);
+    });
+    groups.forEach(g=>{
+      if(!g.items.length)return;
+      const gh=document.createElement('div');gh.className='hw-group';
+      const gt=document.createElement('div');gt.className='hw-group-title';
+      gt.innerHTML=`<div class="hw-urgency" style="background:${g.color}"></div>${g.label} <span style="margin-left:auto;font-weight:400;">${g.items.length}</span>`;
+      gh.appendChild(gt);
+      g.items.forEach(h=>gh.appendChild(makeHWCard(h)));
+      l.appendChild(gh);
+    });
+  } else {
+    items.forEach(h=>l.appendChild(makeHWCard(h)));
+  }
+}
+
+function makeHWCard(h){
+  const d=document.createElement('div');
+  d.className='hw-card'+(h.done?' done':'');
+  const urg=urgencyLabel(h.datum);
+  const notitie=h.notitie?`<span style="font-size:10px;color:var(--txt2);">💬 ${h.notitie}</span>`:'';
+  d.innerHTML=`
+    <input type="checkbox" class="hw-chk" ${h.done?'checked':''}>
+    <div class="hw-main">
+      <div class="hw-txt">${h.tekst}</div>
+      <div class="hw-meta">
+        <span class="hw-tag">${h.vak}</span>
+        ${urg.txt?`<span class="hw-date ${urg.cls}">${urg.txt}</span>`:''}
+        ${notitie}
+      </div>
+    </div>
+    <div class="hw-actions">
+      ${!h.done?`<button class="hw-oef" onclick="oefenHW('${h.vak}','${encodeURIComponent(h.tekst)}')">Oefenen →</button>`:''}
+      <button class="hw-del">×</button>
+    </div>`;
+  d.querySelector('.hw-chk').onchange=e=>{huiswerk[h.i].done=e.target.checked;sv('hw',huiswerk);renderHWList();renderHWBanner();};
+  d.querySelector('.hw-del').onclick=()=>{huiswerk.splice(h.i,1);sv('hw',huiswerk);renderHWList();renderHWBanner();};
+  return d;
+}
+
+function addHW(){
+  const t=document.getElementById('hw-txt').value.trim();
+  const v=document.getElementById('hw-vak-sel').value;
+  const datum=document.getElementById('hw-datum').value;
+  const notitie=document.getElementById('hw-notitie').value.trim();
+  if(!t)return;
+  huiswerk.push({tekst:t,vak:v,done:false,datum:datum||null,notitie:notitie||null});
+  document.getElementById('hw-txt').value='';
+  document.getElementById('hw-notitie').value='';
+  sv('hw',huiswerk);renderHWList();renderHWBanner();
+}
+
+function renderHWBanner(){
+  const open=huiswerk.filter(h=>!h.done),banner=document.getElementById('hw-banner');
+  if(!open.length){banner.style.display='none';return;}
+  banner.style.display='block';
+  document.getElementById('hw-chips').innerHTML=open.map(h=>`<div class="hw-chip" onclick="oefenHW('${h.vak}','${encodeURIComponent(h.tekst)}')">${h.vak}: ${h.tekst}</div>`).join('');
+}
+
+function oefenHW(vak,tekst){
+  const t=decodeURIComponent(tekst),s=document.getElementById('chat-vak');
+  for(let o of s.options)if(o.value===vak)s.value=vak;
+  resetChat();setTimeout(()=>{document.getElementById('user-input').value=`Ik moet oefenen met: ${t}`;sendMsg();},200);showLTab('chat');
+}
+
+function saveSettings(){
+  profile.naam=document.getElementById('s-naam').value.trim()||'Leerling';
+  profile.leeftijd=document.getElementById('s-leeftijd').value||'12';
+  profile.niveau=document.getElementById('s-niveau').value;
+  profile.stijl=document.getElementById('s-stijl').value;
+  profile.ical=document.getElementById('s-ical').value.trim();
+  profile.tutorNaam=document.getElementById('s-tutor-naam').value.trim()||'Tutor Uil';
+  const custom=document.getElementById('s-tutor-avatar-custom').value.trim();
+  if(custom) profile.tutorAvatar=custom;
+  sv('profile',profile);
+  applyBackground();
+  const k=document.getElementById('s-apikey').value.trim();if(k)sv('apikey',k);
+  updateHdr();renderSelects();resetChat();
+  document.getElementById('saved-msg').style.display='block';
+  setTimeout(()=>document.getElementById('saved-msg').style.display='none',2200);showLTab('chat');
+}
+
+function updateHdr(){
+  const tn=profile.tutorNaam||'Tutor Uil';
+  const ta=profile.tutorAvatar||'🦉';
+  document.getElementById('chat-naam').textContent=profile.naam?`Hoi ${profile.naam}!`:tn;
+  document.getElementById('chat-sub').textContent=profile.niveau||'Stel je profiel in via ⚙️';
+  // update alle tutor avatars in header
+  document.querySelectorAll('.tutor-av-icon').forEach(el=>el.textContent=ta);
+  document.querySelectorAll('.tutor-name-display').forEach(el=>el.textContent=tn);
+}
+
+function renderAvatarGrid(){
+  const grid=document.getElementById('avatar-grid');
+  if(!grid)return;
+  const cur=profile.tutorAvatar||'🦉';
+  grid.innerHTML='';
+  AVATARS.forEach(a=>{
+    const btn=document.createElement('button');
+    btn.textContent=a;
+    btn.title=a;
+    btn.style.cssText=`font-size:22px;width:40px;height:40px;border-radius:8px;border:2px solid ${a===cur?'var(--ac)':'var(--border)'};background:${a===cur?'var(--al)':'var(--bg)'};cursor:pointer;transition:all .12s;`;
+    btn.onclick=()=>{profile.tutorAvatar=a;document.getElementById('s-tutor-avatar-custom').value='';renderAvatarGrid();};
+    grid.appendChild(btn);
+  });
+}
+
+function sysPrompt(mode='chat'){
+  const vak=document.getElementById('chat-vak').value;
+  const hw=huiswerk.filter(h=>!h.done&&h.vak===vak).map(h=>h.tekst);
+  const hwT=hw.length?`\nOpenstaand huiswerk: ${hw.join(', ')}.`:'';
+  if(mode==='check'){
+    return `Je bent ${profile.tutorNaam||'Tutor Uil'}, een nauwkeurige tutor voor ${profile.naam||'de leerling'} (${profile.niveau}, vak: ${vak}).
+Je taak: controleer het antwoord van de leerling.
+Bij GOED: begin met "✅ Correct!" en leg kort uit waarom. Stel dan een vervolgvraag en eindig met [VRAAG].
+Bij FOUT: begin met "❌ Helaas, dat klopt niet." Geef NOOIT het correcte antwoord. Geef een kleine hint en herhaal de vraag. Eindig met [VRAAG].
+Max 3 zinnen. Reageer in het Nederlands.`;
+  }
+  return `Je bent "${profile.tutorNaam||'Tutor Uil'}", een ${profile.stijl} AI-tutor.
+Leerling: ${profile.naam||'de leerling'}, ${profile.leeftijd} jaar, ${profile.niveau}. Vak: ${vak}.
+ABSOLUTE REGELS:
+1. Geef NOOIT een direct antwoord op een inhoudelijke vraag
+2. Gebruik ALTIJD de Socratische methode: stel vragen die de leerling zelf laat nadenken
+3. Als de leerling om het antwoord vraagt: weiger vriendelijk en geef een hint
+4. Als je een vraag stelt waarop de leerling een antwoord moet geven: eindig met [VRAAG]
+5. Bij uitleg zonder directe vraag: geen [VRAAG] nodig
+Max 3-4 zinnen. Reageer in het Nederlands.${hwT}`;
+}
+
+async function checkAnswer(){
+  const antwoord=document.getElementById('ans-input').value.trim();if(!antwoord)return;
+  document.getElementById('ans-area').classList.remove('open');
+  addMsg('user',`Mijn antwoord: ${antwoord}`);
+  const vak=document.getElementById('chat-vak').value;
+  const rec={vak,vraag:lastQuestion,antwoord,correct:null,tijd:new Date().toISOString()};
+  if(!currentConv)startNewConv();
+  currentConv.messages.push({role:'user',text:`Mijn antwoord: ${antwoord}`});
+  const tid=addThinking();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:sysPrompt('check'),
+        messages:[...convHistory,{role:'user',content:`De leerling antwoordt op "${lastQuestion}": "${antwoord}". Controleer dit.`}]})
+    });
+    const data=await res.json();removeThinking(tid);
+    let reply=data.content?.[0]?.text||'Fout.';
+    const heeftVraag=reply.includes('[VRAAG]');
+    reply=reply.replace('[VRAAG]','').trim();
+    const isOk=/✅|Correct!|Goed!|Juist!/i.test(reply);
+    rec.correct=isOk;allAnswers.push(rec);sv('answers',allAnswers);
+    addMsgCls(isOk?'ok':'fout',reply);
+    currentConv.messages.push({role:isOk?'check-ok':'check-fout',text:reply});
+    if(isOk){score+=10;vakScores[vak]=(vakScores[vak]||0)+10;currentConv.pts+=10;document.getElementById('score-bdg').textContent=score+' pts';sv('score',score);sv('vakScores',vakScores);}
+    convHistory.push({role:'user',content:`Mijn antwoord: ${antwoord}`});
+    convHistory.push({role:'assistant',content:reply});
+    saveConv();document.getElementById('ans-input').value='';
+    if(heeftVraag){lastQuestion=reply;setTimeout(()=>document.getElementById('ans-area').classList.add('open'),400);}
+  }catch(e){removeThinking(tid);addMsg('tutor','Verbindingsfout.');}
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('user-input'),text=inp.value.trim();if(!text)return;
+  addMsg('user',text);inp.value='';inp.style.height='auto';
+  document.getElementById('sugs').style.display='none';
+  document.getElementById('ans-area').classList.remove('open');
+  if(!currentConv)startNewConv();
+  currentConv.messages.push({role:'user',text});
+  const tid=addThinking();
+  convHistory.push({role:'user',content:text});
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt('chat'),messages:convHistory})
+    });
+    const data=await res.json();removeThinking(tid);
+    if(data.error){addMsg('tutor',`Fout: ${data.error.message} — controleer je API key via ⚙️.`);return;}
+    let reply=data.content?.[0]?.text||'Oeps!';
+    const heeftVraag=reply.includes('[VRAAG]');
+    reply=reply.replace('[VRAAG]','').trim();
+    convHistory.push({role:'assistant',content:reply});
+    addMsg('tutor',reply);currentConv.messages.push({role:'tutor',text:reply});
+    if(heeftVraag){lastQuestion=reply;setTimeout(()=>document.getElementById('ans-area').classList.add('open'),300);}
+    saveConv();
+  }catch(e){removeThinking(tid);addMsg('tutor','Verbindingsfout.');}
+}
+
+function startNewConv(){
+  const vak=document.getElementById('chat-vak').value;
+  currentConv={id:Date.now(),vak,time:new Date().toISOString(),messages:[],pts:0};
+  allConversations.unshift(currentConv);
+  if(allConversations.length>100)allConversations=allConversations.slice(0,100);
+}
+
+function saveConv(){
+  const i=allConversations.findIndex(c=>c.id===currentConv.id);
+  if(i>=0)allConversations[i]=currentConv;sv('convs',allConversations);
+}
+
+function renderBgGrid(){
+  const grid=document.getElementById('bg-grid');
+  if(!grid)return;
+  const cur=profile.background||'none';
+  grid.innerHTML='';
+  BACKGROUNDS.forEach(bg=>{
+    const btn=document.createElement('button');
+    btn.title=bg.label;
+    btn.style.cssText=`width:52px;height:36px;border-radius:8px;border:2px solid ${bg.id===cur?'var(--ac)':'var(--border)'};cursor:pointer;position:relative;overflow:hidden;${bg.style};transition:all .12s;`;
+    const lbl=document.createElement('span');
+    lbl.textContent=bg.label;
+    lbl.style.cssText='position:absolute;bottom:1px;left:0;right:0;font-size:8px;text-align:center;background:rgba(0,0,0,.35);color:white;padding:1px 0;';
+    btn.appendChild(lbl);
+    btn.onclick=()=>{profile.background=bg.id;applyBackground();renderBgGrid();};
+    grid.appendChild(btn);
+  });
+}
+
+function applyBackground(){
+  const bg=BACKGROUNDS.find(b=>b.id===(profile.background||'none'));
+  document.body.style.cssText=bg?bg.style:'';
+}
+
+function getTutorAvatar(){return profile.tutorAvatar||'🦉';}
+function getLeerlingAvatar(){return profile.leerlingAvatar||'🧒';}
+function addMsg(role,text){
+  const m=document.getElementById('msgs'),d=document.createElement('div');d.className='msg '+role;
+  d.innerHTML=`<div class="mav">${role==='tutor'?getTutorAvatar():'🧒'}</div><div class="bbl">${text}</div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+
+function addMsgCls(cls,text){
+  const m=document.getElementById('msgs'),d=document.createElement('div');d.className='msg '+cls;
+  d.innerHTML=`<div class="mav">🦉</div><div class="bbl">${text}</div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;
+}
+
+function addThinking(){
+  const m=document.getElementById('msgs'),id='t'+Date.now(),d=document.createElement('div');
+  d.className='msg tutor';d.id=id;
+  d.innerHTML=`<div class="mav">${getTutorAvatar()}</div><div class="bbl"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  m.appendChild(d);m.scrollTop=m.scrollHeight;return id;
+}
+
+function removeThinking(id){const e=document.getElementById(id);if(e)e.remove();}
+
+function resetChat(){
+  convHistory=[];currentConv=null;lastQuestion='';
+  document.getElementById('ans-area').classList.remove('open');
+  const m=document.getElementById('msgs');m.innerHTML='';
+  const vak=document.getElementById('chat-vak')?.value||'';
+  addMsg('tutor',profile.naam?`Hoi ${profile.naam}! We gaan aan de slag met ${vak}. Waar wil je mee beginnen?`:'Hoi! Wat wil je vandaag leren?');
+  document.getElementById('sugs').style.display='flex';
+}
+
+function handleKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+  const ta=document.getElementById('user-input');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,90)+'px';
+}
+
+function useSug(t){document.getElementById('user-input').value=t;sendMsg();}
+
+// OUDER DASHBOARD
+function renderDash(){
+  const naam=profile.naam||'je kind';
+  document.getElementById('ouder-titel').textContent=`Voortgang van ${naam}`;
+  const last=allConversations[0];
+  document.getElementById('ouder-sub').textContent=last?'Laatste activiteit: '+new Date(last.time).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Nog geen activiteit';
+  document.getElementById('s-pts').textContent=score;
+  document.getElementById('s-sess').textContent=allConversations.length;
+  const tot=allAnswers.length,cor=allAnswers.filter(a=>a.correct).length;
+  document.getElementById('s-correct').textContent=tot?Math.round(cor/tot*100)+'%':'—';
+  // vak bars
+  const bars=document.getElementById('vak-bars'),entries=Object.entries(vakScores).sort((a,b)=>b[1]-a[1]);
+  const maxP=Math.max(...entries.map(e=>e[1]),10);
+  if(!entries.length){bars.innerHTML='<div class="empty">Nog geen punten verdiend</div>';}
+  else{bars.innerHTML='';entries.forEach(([v,p])=>{const r=document.createElement('div');r.className='bar-row';r.innerHTML=`<span class="bar-name">${v}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(p/maxP*100)}%"></div></div><span class="bar-pts">${p} pts</span>`;bars.appendChild(r);});}
+  // antwoorden
+  const ao=document.getElementById('ans-overzicht');
+  if(!allAnswers.length){ao.innerHTML='<div class="empty">Nog geen antwoorden</div>';}
+  else{ao.innerHTML='';allAnswers.slice(-15).reverse().forEach(a=>{const r=document.createElement('div');r.className='bar-row';r.style.cssText='flex-direction:column;align-items:flex-start;gap:4px;';const t=new Date(a.tijd).toLocaleDateString('nl-NL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});r.innerHTML=`<div style="display:flex;gap:8px;align-items:center;width:100%"><span style="font-size:14px">${a.correct?'✅':'❌'}</span><span class="hw-tag">${a.vak}</span><span style="font-size:11px;color:var(--txt2);margin-left:auto">${t}</span></div><div style="font-size:12px;color:var(--txt2)">V: ${(a.vraag||'').substring(0,55)}…</div><div style="font-size:12px;color:var(--txt)">A: <strong>${a.antwoord}</strong></div>`;ao.appendChild(r);});}
+  // hw
+  const hwO=document.getElementById('hw-ouder');
+  if(!huiswerk.length){hwO.innerHTML='<div class="empty">Geen huiswerk</div>';}
+  else{hwO.innerHTML='';huiswerk.forEach(h=>{const r=document.createElement('div');r.className='bar-row';r.innerHTML=`<span style="font-size:14px">${h.done?'✅':'⏳'}</span><span style="flex:1;font-size:13px;${h.done?'color:var(--txt2);':''}">${h.tekst}</span><span class="hw-tag">${h.vak}</span>`;hwO.appendChild(r);});}
+  renderConvList();
+}
+
+function renderConvList(){
+  const list=document.getElementById('conv-list');
+  if(!allConversations.length){list.innerHTML='<div class="empty">Nog geen gesprekken</div>';return;}
+  list.innerHTML='';
+  allConversations.slice(0,30).forEach((conv,i)=>{
+    const wrap=document.createElement('div'),item=document.createElement('div');item.className='conv-item';
+    const first=conv.messages.find(m=>m.role==='user');
+    const preview=first?first.text.substring(0,65)+(first.text.length>65?'…':''):'—';
+    const ts=new Date(conv.time).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    item.innerHTML=`<div class="conv-top"><span class="conv-vak">${conv.vak}</span><span class="conv-pts">+${conv.pts} pts</span><span class="conv-time">${ts}</span></div><div class="conv-preview">${preview}</div>`;
+    const detail=document.createElement('div');detail.className='conv-detail';detail.id='cd'+i;
+    conv.messages.forEach(msg=>{
+      const md=document.createElement('div');
+      const isOk=msg.role==='check-ok',isFout=msg.role==='check-fout';
+      md.className='cmsg '+(msg.role==='user'?'u':isOk?'c':isFout?'f':'t');
+      md.innerHTML=`<div class="cav">${msg.role==='user'?'🧒':'🦉'}</div><div class="cbbl">${msg.text}</div>`;
+      detail.appendChild(md);
+    });
+    item.onclick=()=>document.getElementById('cd'+i).classList.toggle('open');
+    wrap.appendChild(item);wrap.appendChild(detail);list.appendChild(wrap);
+  });
+}
+
+function exportRapport(){
+  const naam=profile.naam||'Leerling',datum=new Date().toLocaleDateString('nl-NL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const tot=allAnswers.length,cor=allAnswers.filter(a=>a.correct).length,pct=tot?Math.round(cor/tot*100):0;
+  let t=`TUTOR UIL — VOORTGANGSRAPPORT\n${'='.repeat(40)}\n`;
+  t+=`Leerling : ${naam}\nNiveau   : ${profile.niveau}\nDatum    : ${datum}\n\n`;
+  t+=`SAMENVATTING\n${'-'.repeat(40)}\n`;
+  t+=`Punten       : ${score}\nGesprekken   : ${allConversations.length}\nAntwoorden   : ${tot} (${cor} goed, ${tot-cor} fout, ${pct}%)\n\n`;
+  t+=`PUNTEN PER VAK\n${'-'.repeat(40)}\n`;
+  Object.entries(vakScores).sort((a,b)=>b[1]-a[1]).forEach(([v,p])=>{t+=`${v.padEnd(20)} ${p} pts\n`;});
+  t+=`\nALLE ANTWOORDEN\n${'-'.repeat(40)}\n`;
+  allAnswers.forEach((a,i)=>{
+    const ts=new Date(a.tijd).toLocaleDateString('nl-NL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    t+=`${i+1}. [${a.correct?'GOED':'FOUT'}] ${a.vak} — ${ts}\n   Vraag   : ${(a.vraag||'').substring(0,80)}\n   Antwoord: ${a.antwoord}\n\n`;
+  });
+  t+=`GESPREKKEN\n${'-'.repeat(40)}\n`;
+  allConversations.slice(0,10).forEach((conv,ci)=>{
+    t+=`\nGesprek ${ci+1}: ${conv.vak} — ${new Date(conv.time).toLocaleDateString('nl-NL')}\n`;
+    conv.messages.forEach(m=>{const who=m.role==='user'?naam:'Tutor Uil';t+=`  ${who}: ${m.text}\n`;});
+  });
+  const blob=new Blob([t],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=`tutor-uil-${naam}-${new Date().toISOString().slice(0,10)}.txt`;a.click();URL.revokeObjectURL(url);
+}
+
+function showLTab(n){['chat','huiswerk','instellingen'].forEach(t=>{document.getElementById('lpage-'+t).classList.toggle('active',t===n);document.getElementById('ltab-'+t).classList.toggle('active',t===n);});}
+function showOTab(n){['dashboard','gesprekken'].forEach(t=>{document.getElementById('opage-'+t).classList.toggle('active',t===n);document.getElementById('otab-'+t).classList.toggle('active',t===n);});if(n==='gesprekken')renderConvList();}
+
+// ── JSON EXPORT ──
+function exportJSON(){
+  const data={
+    exportDatum: new Date().toISOString(),
+    versie: '1.0',
+    profile,
+    huiswerk,
+    score,
+    vakScores,
+    allAnswers,
+    allConversations
+    // API key wordt NIET meegeexporteerd (veiligheid)
+  };
+  const naam=profile.naam||'leerling';
+  const datum=new Date().toISOString().slice(0,10);
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`tutor-uil-backup-${naam}-${datum}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── JSON IMPORT ──
+function importJSON(){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0]; if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const data=JSON.parse(ev.target.result);
+        if(!data.profile||!data.versie){alert('Ongeldig back-upbestand.');return;}
+        if(!confirm(`Back-up inladen van ${data.profile.naam||'onbekend'} (${new Date(data.exportDatum).toLocaleDateString('nl-NL')})?\n\nLet op: huidige data wordt overschreven.`))return;
+        profile=data.profile||profile;
+        huiswerk=data.huiswerk||[];
+        score=data.score||0;
+        vakScores=data.vakScores||{};
+        allAnswers=data.allAnswers||[];
+        allConversations=data.allConversations||[];
+        sv('profile',profile); sv('hw',huiswerk); sv('score',score);
+        sv('vakScores',vakScores); sv('answers',allAnswers); sv('convs',allConversations);
+        alert(`✅ Back-up geladen!\n${allConversations.length} gesprekken, ${score} punten, ${huiswerk.length} huiswerktaken hersteld.`);
+        // scherm verversen
+        renderVakGrid(); renderSelects(); renderHWList(); renderHWBanner(); updateHdr();
+        document.getElementById('score-bdg').textContent=score+' pts';
+        document.getElementById('s-naam').value=profile.naam||'';
+        document.getElementById('s-leeftijd').value=profile.leeftijd||'';
+        document.getElementById('s-niveau').value=profile.niveau;
+        document.getElementById('s-stijl').value=profile.stijl;
+      }catch(err){alert('Fout bij inladen: '+err.message);}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+</script>
+</body>
+</html>
