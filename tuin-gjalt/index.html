@@ -242,6 +242,8 @@
       <button class="btn danger" onclick="removeBackground()">Tekening verwijderen</button>
     </div>
 
+    <h3>Opslag</h3>
+    <p id="cloud-status">Opslag: alleen in deze browser</p>
     <h3>Reservekopie</h3>
     <p>Alles wordt in deze browser bewaard. Maak regelmatig een reservekopie, zeker vóór je van apparaat wisselt.</p>
     <div class="btns">
@@ -252,7 +254,7 @@
     <div class="btns">
       <button class="btn danger" onclick="resetAll()">Alles wissen</button>
     </div>
-    <p style="margin-top:16px">Tuin Gjalt · versie 0.1 · gegevens blijven op dit apparaat.</p>
+    <p style="margin-top:16px">Tuin Gjalt · versie 0.2</p>
   </div>
 </div>
 
@@ -330,6 +332,11 @@ function toast(msg) { const t = document.getElementById('toast'); t.textContent 
 function fmt(n, d = 1) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: d }); }
 
 // ---------- Opslag ----------
+// Lokaal altijd in localStorage. Als de pagina als Claude-artifact draait,
+// wordt de stand ook in de gedeelde cloud-database gezet (db), de tekening
+// in de asset-opslag (assets) en loopt exporteren via downloads.
+const clientId = uid();
+let db = null, assets = null, downloads = null, dbDoc = null;
 let state;
 function load() {
   try {
@@ -339,12 +346,65 @@ function load() {
   state = defaultState();
 }
 let saveTimer;
-function save() {
+function save(opts = {}) {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     catch (e) { toast('Opslaan mislukt (te weinig ruimte?) — maak een export'); console.error(e); }
+    if (dbDoc && !opts.local) pushToDb();
   }, 150);
+}
+function forDb(st) {
+  // Kopie zonder ingebedde afbeeldingen (die passen niet in een db-document)
+  const c = JSON.parse(JSON.stringify(st));
+  Object.values(c.gardens).forEach(g => { if (g.bg) { delete g.bg.dataUrl; if (!g.bg.url) g.bg = null; } });
+  return c;
+}
+let pushBusy = false, pushAgain = false;
+async function pushToDb() {
+  if (!dbDoc) return;
+  if (pushBusy) { pushAgain = true; return; }
+  pushBusy = true;
+  try {
+    state.rev = (state.rev || 0) + 1; state.origin = clientId;
+    await dbDoc.set(forDb(state));
+    setCloudStatus('☁️ gesynchroniseerd');
+  } catch (e) { console.warn('db set', e); setCloudStatus('⚠️ synchroniseren mislukt: ' + (e.message || e.code)); }
+  pushBusy = false;
+  if (pushAgain) { pushAgain = false; pushToDb(); }
+}
+function applyRemote(d) {
+  const local = state;
+  state = JSON.parse(JSON.stringify(d));
+  // Lokale afbeeldingen bewaren als de cloud-versie er geen heeft
+  Object.values(state.gardens).forEach(g => { const lg = local && local.gardens[g.id]; if (!g.bg && lg && lg.bg && lg.bg.dataUrl) g.bg = lg.bg; });
+  if (!state.gardens[state.activeGarden]) state.activeGarden = Object.keys(state.gardens)[0];
+  save({ local: true });
+  if (selected && !(garden().velden.some(v => v.id === selected.id) || garden().planten.some(p => p.id === selected.id))) { selected = null; hideSheet(); }
+  renderGardenSelect(); renderPlantPick(); render(); renderSettings();
+  if (document.getElementById('page-planten').classList.contains('active')) renderPlanten();
+  if (document.getElementById('page-bloei').classList.contains('active')) renderKalender();
+  if (selected) showSheet();
+}
+function setCloudStatus(t) { const el = document.getElementById('cloud-status'); if (el) el.textContent = t; }
+async function initCloud() {
+  if (!window.claude || typeof window.claude.use !== 'function') { setCloudStatus('Opslag: alleen in deze browser'); return; }
+  setCloudStatus('☁️ verbinden…');
+  [db, assets, downloads] = await Promise.all([claude.use('db'), claude.use('assets'), claude.use('downloads')]);
+  if (!db) { setCloudStatus('Opslag: alleen in deze browser'); return; }
+  try {
+    dbDoc = db.doc('tuin/state');
+    const snap = await dbDoc.get();
+    if (snap.exists) applyRemote(snap.data()); else await pushToDb();
+    dbDoc.onSnapshot(sn => {
+      if (!sn.exists) return;
+      const d = sn.data();
+      if (d.origin === clientId || drag) return;
+      if (d.origin === state.origin && (d.rev || 0) <= (state.rev || 0)) return;
+      applyRemote(d);
+    }, e => { console.warn('db snapshot', e); setCloudStatus('⚠️ live-verbinding weg, herlaad de pagina'); });
+    setCloudStatus('☁️ gesynchroniseerd tussen je apparaten');
+  } catch (e) { console.warn('db init', e); dbDoc = null; setCloudStatus('⚠️ cloud niet beschikbaar: ' + (e.message || e.code)); }
 }
 function garden() { return state.gardens[state.activeGarden]; }
 function speciesById(id) { return state.species.find(s => s.id === id); }
@@ -566,7 +626,7 @@ function render() {
   const upp = unitsPerPx();
   const fs = 12 * upp;   // lettergrootte die op het scherm altijd 12px is
   let out = '';
-  if (g.bg) out += `<image href="${g.bg.dataUrl}" x="0" y="0" width="${g.bg.w}" height="${g.bg.h}" opacity="${g.bgOpacity ?? 0.85}" preserveAspectRatio="none" />`;
+  if (g.bg && (g.bg.url || g.bg.dataUrl)) out += `<image href="${g.bg.url || g.bg.dataUrl}" x="0" y="0" width="${g.bg.w}" height="${g.bg.h}" opacity="${g.bgOpacity ?? 0.85}" preserveAspectRatio="none" />`;
   // Vlakken
   for (const v of g.velden) {
     const t = VELD_TYPES[v.type] || VELD_TYPES.overig;
@@ -616,11 +676,18 @@ function loadBackground(file) {
     const c = document.createElement('canvas');
     c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    const dataUrl = c.toDataURL('image/jpeg', 0.82);
     const g = garden();
-    g.bg = { dataUrl, w: c.width, h: c.height };
-    g.view = null; save(); fitView(); renderSettings();
-    toast('Tekening geladen. Stel nu de schaal in met 📏');
+    const done = () => { g.view = null; save(); fitView(); renderSettings(); toast('Tekening geladen. Stel nu de schaal in met 📏'); };
+    if (assets) {
+      toast('Tekening uploaden…');
+      c.toBlob(async blob => {
+        try { const r = await assets.upload(blob); g.bg = { assetId: r.id, url: r.url, w: c.width, h: c.height }; done(); }
+        catch (e) { console.warn('upload', e); toast('Uploaden mislukt: ' + (e.message || e.code)); }
+      }, 'image/jpeg', 0.85);
+    } else {
+      g.bg = { dataUrl: c.toDataURL('image/jpeg', 0.82), w: c.width, h: c.height };
+      done();
+    }
     URL.revokeObjectURL(img.src);
   };
   img.src = URL.createObjectURL(file);
@@ -833,10 +900,17 @@ function saveGardenMeta() {
   save(); renderGardenSelect();
 }
 function exportData() {
-  const blob = new Blob([JSON.stringify(state, null, 1)], { type: 'application/json' });
+  const json = JSON.stringify(state, null, 1);
+  const filename = `tuin-gjalt-${new Date().toISOString().slice(0, 10)}.json`;
+  if (downloads) {
+    downloads.save({ filename, data: json }).then(() => toast('Reservekopie opgeslagen'))
+      .catch(e => { if (e.code !== 'declined') toast('Exporteren lukt hier niet: ' + (e.message || e.code)); });
+    return;
+  }
+  const blob = new Blob([json], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `tuin-gjalt-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = filename;
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 function importData(file) {
@@ -867,6 +941,7 @@ renderPlantPick();
 render();
 renderSettings();
 setMode('select');
+initCloud();
 </script>
 </body>
 </html>
