@@ -3,359 +3,307 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<title>Tuin Gjalt 🌳</title>
+<title>Tuin Gjalt</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --ac: #1D9E75; --al: #E1F5EE; --at: #085041;
-    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede8;
-    --txt: #1a1a18; --txt2: #6b6b66;
-    --border: rgba(0,0,0,0.12);
-    --radius: 8px; --radius-lg: 12px;
-    --red: #A32D2D; --red-bg: #FCEBEB;
-    --canvas: #e9efe6;
+    --paper: #F2F4EE; --paper-2: #E7EBE1; --paper-3: #DCE2D4;
+    --ink: #1B2A21; --ink-2: #5A6A60; --line: #C6CFBF;
+    --moss: #2F6B3F; --moss-soft: #D9E8DB;
+    --marigold: #D99A00; --clay: #B8542F; --water: #4C86B4;
+    --panel: #FBFCF9;
+    --font-ui: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+    --r: 10px;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2c;
-      --txt: #f0efe8; --txt2: #a0a09a;
-      --border: rgba(255,255,255,0.12);
-      --al: #1f3d33; --at: #a8e6cf;
-      --canvas: #23291f;
+      --paper: #131A15; --paper-2: #1B241D; --paper-3: #253128;
+      --ink: #E8EEE5; --ink-2: #98A79C; --line: #2F3D33;
+      --moss: #5FAF73; --moss-soft: #1F3527;
+      --marigold: #E8B33A; --clay: #D9764F; --water: #6FA6D6;
+      --panel: #182119;
     }
   }
   :root[data-theme="dark"] {
-      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2c;
-      --txt: #f0efe8; --txt2: #a0a09a;
-      --border: rgba(255,255,255,0.12);
-      --al: #1f3d33; --at: #a8e6cf;
-      --canvas: #23291f;
+    --paper: #131A15; --paper-2: #1B241D; --paper-3: #253128;
+    --ink: #E8EEE5; --ink-2: #98A79C; --line: #2F3D33;
+    --moss: #5FAF73; --moss-soft: #1F3527;
+    --marigold: #E8B33A; --clay: #D9764F; --water: #6FA6D6;
+    --panel: #182119;
   }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt); display: flex; flex-direction: column; height: 100dvh; overflow: hidden; -webkit-tap-highlight-color: transparent; }
-  button, select, input, textarea { font: inherit; color: inherit; }
-  button { cursor: pointer; }
+  body { font-family: var(--font-ui); font-size: 14px; color: var(--ink); background: var(--paper); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; background: none; border: none; }
+  :focus-visible { outline: 2px solid var(--marigold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
-  /* ---------- Kop ---------- */
-  .top { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 0.5px solid var(--border); background: var(--bg2); flex-shrink: 0; }
-  .top .logo { font-size: 20px; }
-  .top .title { font-weight: 600; font-size: 15px; white-space: nowrap; }
-  .top select { margin-left: auto; font-size: 13px; padding: 6px 8px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg); max-width: 55%; }
-  .tabbar { display: flex; border-bottom: 0.5px solid var(--border); background: var(--bg2); flex-shrink: 0; }
-  .tab { flex: 1; padding: 10px 4px; font-size: 12px; text-align: center; cursor: pointer; color: var(--txt2); border-bottom: 2px solid transparent; user-select: none; }
-  .tab.active { color: var(--ac); border-bottom-color: var(--ac); background: var(--bg); font-weight: 500; }
-  .page { flex: 1; display: none; flex-direction: column; min-height: 0; }
-  .page.active { display: flex; }
-
-  /* ---------- Plattegrond ---------- */
-  .toolbar { display: flex; gap: 6px; padding: 6px 8px; border-bottom: 0.5px solid var(--border); overflow-x: auto; flex-shrink: 0; background: var(--bg); align-items: center; }
-  .toolbar::-webkit-scrollbar { display: none; }
-  .tool { flex-shrink: 0; padding: 7px 10px; font-size: 12px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--bg2); white-space: nowrap; }
-  .tool.active { background: var(--ac); color: #fff; border-color: var(--ac); }
-  .tool.danger { color: var(--red); }
-  .toolbar select { flex-shrink: 0; font-size: 12px; padding: 6px 8px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--bg2); max-width: 160px; }
-  .hint { font-size: 12px; color: var(--txt2); padding: 6px 12px; background: var(--al); color: var(--at); flex-shrink: 0; display: none; }
-  .hint.show { display: block; }
-  .canvas-wrap { flex: 1; position: relative; min-height: 0; background: var(--canvas); }
-  svg.plan { width: 100%; height: 100%; touch-action: none; display: block; cursor: grab; }
-  svg.plan.drawing { cursor: crosshair; }
-  .plan text { pointer-events: none; user-select: none; }
-  .plan .veld { stroke-width: 2; vector-effect: non-scaling-stroke; cursor: pointer; }
-  .plan .veld.sel { stroke: #ff9500; stroke-width: 3; stroke-dasharray: 6 3; }
-  .plan .plant { cursor: pointer; }
-  .plan .plant circle { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-  .plan .plant.sel circle { stroke: #ff9500; stroke-width: 3; }
-  .plan .handle { fill: #fff; stroke: #ff9500; stroke-width: 2; vector-effect: non-scaling-stroke; cursor: move; }
-  .plan .preview { fill: rgba(255,149,0,0.15); stroke: #ff9500; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 6 3; pointer-events: none; }
-  .overlay-info { position: absolute; left: 8px; bottom: 8px; font-size: 11px; background: rgba(255,255,255,0.85); color: #222; padding: 4px 8px; border-radius: 6px; pointer-events: none; }
-  .zoom-btns { position: absolute; right: 8px; bottom: 8px; display: flex; flex-direction: column; gap: 4px; }
-  .zoom-btns button { width: 36px; height: 36px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg); font-size: 18px; }
-  .empty-plan { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; color: var(--txt2); font-size: 14px; pointer-events: none; }
-
-  /* ---------- Eigenschappen-paneel ---------- */
-  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--bg); border-top: 0.5px solid var(--border); border-radius: 14px 14px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.12); padding: 12px 14px 16px; max-height: 60%; overflow-y: auto; display: none; z-index: 5; }
-  .sheet.show { display: block; }
-  .sheet h3 { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-  .sheet h3 .close { margin-left: auto; background: none; border: none; font-size: 18px; color: var(--txt2); }
-  .frow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .frow label { font-size: 12px; color: var(--txt2); width: 96px; flex-shrink: 0; }
-  .frow input, .frow select, .frow textarea { flex: 1; min-width: 0; padding: 7px 9px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg2); font-size: 13px; }
-  .frow textarea { resize: vertical; min-height: 48px; }
-  .frow .val { font-size: 13px; }
-  .btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .btn { padding: 8px 14px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--bg2); font-size: 13px; }
-  .btn.primary { background: var(--ac); color: #fff; border-color: var(--ac); }
-  .btn.danger { background: var(--red-bg); color: var(--red); border-color: transparent; }
-  @media (min-width: 900px) {
-    .canvas-wrap { display: flex; }
-    .sheet { position: static; width: 320px; max-height: none; border-top: none; border-left: 0.5px solid var(--border); border-radius: 0; box-shadow: none; order: 2; }
-    .sheet.show { display: block; }
-    .canvas-wrap svg.plan { flex: 1; width: auto; }
+  /* ---------- Kopbalk ---------- */
+  .bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--paper); flex-shrink: 0; }
+  .brand { font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; line-height: 1; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; background: var(--paper-2); }
+  .seg button { padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .views { margin-left: auto; display: flex; gap: 4px; }
+  .views button { padding: 7px 12px; border-radius: 8px; font-weight: 600; color: var(--ink-2); font-size: 13px; }
+  .views button[aria-pressed="true"] { color: var(--ink); background: var(--paper-3); }
+  @media (max-width: 520px) {
+    .bar { flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+    .views { margin-left: auto; }
   }
 
-  /* ---------- Lijsten ---------- */
-  .list-head { display: flex; gap: 6px; padding: 8px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; flex-shrink: 0; align-items: center; }
-  .list-head input[type=search] { flex: 1; min-width: 140px; padding: 7px 10px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--bg2); font-size: 13px; }
-  .list-head select { font-size: 12px; padding: 6px 8px; border: 0.5px solid var(--border); border-radius: 20px; background: var(--bg2); }
-  .list-body { flex: 1; overflow-y: auto; padding: 8px; }
-  .card { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; background: var(--bg); }
-  .card:hover { border-color: var(--ac); }
-  .swatch { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 15px; }
-  .card .cn { font-size: 14px; font-weight: 600; }
-  .card .cl { font-size: 12px; color: var(--txt2); font-style: italic; }
-  .card .cm { font-size: 12px; color: var(--txt2); margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
-  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--bg3); }
-  .pill.aanwezig { background: var(--al); color: var(--at); }
-  .pill.gewenst { background: #fff3d6; color: #7a4d00; }
-  .pill.verplanten { background: #e6ecff; color: #26418f; }
-  .pill.weg { background: var(--red-bg); color: var(--red); }
-  .pill.inheems { background: #e5f4d8; color: #2f5d12; }
-  .count { font-size: 12px; color: var(--txt2); padding: 4px 8px; }
+  main { flex: 1; min-height: 0; position: relative; }
+  .view { position: absolute; inset: 0; display: none; }
+  .view.on { display: flex; }
 
-  /* ---------- Modal ---------- */
-  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
-  .modal-bg.show { display: flex; }
-  .modal { background: var(--bg); width: 100%; max-width: 520px; max-height: 92dvh; overflow-y: auto; border-radius: 14px 14px 0 0; padding: 14px 16px 24px; }
-  @media (min-width: 600px) { .modal-bg { align-items: center; } .modal { border-radius: var(--radius-lg); } }
-  .modal h3 { font-size: 15px; margin-bottom: 10px; }
-  .months { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; flex: 1; }
-  .months label { width: auto; font-size: 11px; text-align: center; padding: 5px 0; border: 0.5px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--txt); }
-  .months input { display: none; }
-  .months input:checked + span { display: block; background: var(--ac); color: #fff; border-radius: 5px; }
-  .months label span { display: block; }
-  .checks { display: flex; gap: 14px; flex: 1; font-size: 13px; }
-  .checks label { width: auto; display: flex; align-items: center; gap: 5px; color: var(--txt); }
+  /* ---------- Kaart ---------- */
+  #view-kaart { flex-direction: row; }
+  .map { flex: 1; position: relative; min-width: 0; background: var(--paper-2); }
+  svg.plan { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+  svg.plan.crosshair { cursor: crosshair; }
+  .plan text { pointer-events: none; user-select: none; font-family: var(--font-ui); }
+  .plan .veld { stroke-width: 1.5; vector-effect: non-scaling-stroke; cursor: pointer; }
+  .plan .veld.sel { stroke: var(--marigold); stroke-width: 3; }
+  .plan .plant { cursor: pointer; }
+  .plan .plant circle.kroon { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .plan .plant.sel circle.kroon { stroke: var(--marigold); stroke-width: 3; }
+  .plan .handle { fill: var(--panel); stroke: var(--marigold); stroke-width: 2; vector-effect: non-scaling-stroke; cursor: move; }
+  .plan .preview { fill: rgba(217,154,0,0.15); stroke: var(--marigold); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-dasharray: 6 4; pointer-events: none; }
+  .plan .grid { stroke: var(--ink); stroke-opacity: 0.07; vector-effect: non-scaling-stroke; }
+  .plan .grid.major { stroke-opacity: 0.16; }
 
-  /* ---------- Bloeikalender ---------- */
-  .kal-wrap { flex: 1; overflow: auto; padding: 8px; }
-  table.kal { border-collapse: collapse; font-size: 12px; min-width: 600px; }
-  .kal th, .kal td { border: 0.5px solid var(--border); padding: 4px 6px; text-align: center; }
-  .kal th.n, .kal td.n { text-align: left; white-space: nowrap; position: sticky; left: 0; background: var(--bg); }
-  .kal td.b { position: relative; }
-  .kal td.b span { display: block; height: 16px; border-radius: 4px; }
-  .kal tr.tot td { font-weight: 600; background: var(--bg2); }
-  .kal td.gap { background: var(--red-bg); color: var(--red); }
+  .tools { position: absolute; left: 12px; top: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+  .tools button { width: 44px; height: 44px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-size: 18px; display: flex; align-items: center; justify-content: center; }
+  .tools button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .tools .sep { height: 6px; }
+  .zoom { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+  .zoom button { width: 40px; height: 40px; border-radius: 10px; background: var(--panel); border: 1px solid var(--line); font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .status { position: absolute; left: 12px; bottom: 12px; z-index: 3; font-size: 12px; color: var(--ink-2); background: var(--panel); border: 1px solid var(--line); padding: 5px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; max-width: calc(100% - 80px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hint { position: absolute; left: 68px; right: 12px; top: 12px; z-index: 3; background: var(--ink); color: var(--paper); padding: 10px 14px; border-radius: 12px; font-size: 13px; display: none; align-items: center; gap: 10px; }
+  .hint.on { display: flex; }
+  .hint .grow { flex: 1; }
+  .hint button { padding: 6px 12px; border-radius: 8px; background: var(--paper); color: var(--ink); font-weight: 600; font-size: 13px; }
+  .hint button.quiet { background: transparent; color: var(--paper); border: 1px solid rgba(255,255,255,0.35); }
+  .plantkeuze { position: absolute; left: 68px; right: 12px; top: 64px; z-index: 3; display: none; }
+  .plantkeuze.on { display: block; }
+  .plantkeuze select { width: 100%; max-width: 360px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); font-weight: 500; }
+  .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px 72px; color: var(--ink-2); pointer-events: none; font-size: 14px; line-height: 1.5; }
 
-  /* ---------- Instellingen ---------- */
-  .settings { padding: 14px; overflow-y: auto; }
-  .settings h3 { font-size: 14px; margin: 14px 0 6px; }
-  .settings p { font-size: 13px; color: var(--txt2); margin-bottom: 8px; line-height: 1.5; }
-  .toast { position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%); background: var(--txt); color: var(--bg); padding: 8px 14px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
-  .toast.show { opacity: 1; }
+  /* ---------- Eigenschappen ---------- */
+  .panel { width: 340px; flex-shrink: 0; background: var(--panel); border-left: 1px solid var(--line); padding: 16px; overflow-y: auto; display: none; }
+  .panel.on { display: block; }
+  .panel h2 { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .panel h2 .x { margin-left: auto; color: var(--ink-2); font-size: 20px; padding: 4px; }
+  .row { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .row label, .row .lab { font-size: 12px; color: var(--ink-2); font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; }
+  .row input, .row select, .row textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+  .row textarea { min-height: 64px; resize: vertical; }
+  .row .val { font-variant-numeric: tabular-nums; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font-weight: 500; }
+  .btn.primary { background: var(--moss); color: #fff; border-color: var(--moss); }
+  .btn.danger { color: var(--clay); border-color: var(--clay); }
+  .note { font-size: 12px; color: var(--ink-2); margin-top: 10px; line-height: 1.5; }
+  @media (max-width: 899px) {
+    .panel { position: absolute; left: 0; right: 0; bottom: 0; width: auto; max-height: 46%; border-left: none; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,0.14); z-index: 4; }
+  }
+
+  /* ---------- Menu ---------- */
+  .menu { position: absolute; left: 64px; top: 12px; z-index: 5; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.14); min-width: 240px; padding: 6px; display: none; }
+  .menu.on { display: block; }
+  .menu button, .menu label { display: block; width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+  .menu button:hover, .menu label:hover { background: var(--paper-2); }
+  .menu .sub { font-size: 12px; color: var(--ink-2); padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .menu .slider { display: flex; align-items: center; gap: 8px; padding: 6px 12px 10px; font-size: 13px; }
+  .menu input[type=range] { flex: 1; }
+
+  /* ---------- Planten ---------- */
+  #view-planten { flex-direction: column; }
+  .lijstkop { padding: 12px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: var(--paper); }
+  .lijstkop input[type=search] { flex: 1; min-width: 160px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; color: var(--ink-2); background: var(--panel); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .lijst { flex: 1; overflow-y: auto; padding: 8px 16px 24px; }
+  .lijst .kop { font-size: 12px; color: var(--ink-2); padding: 12px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .item { display: grid; grid-template-columns: 14px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .item .dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink); }
+  .item .dot.gewenst { border-style: dashed; border-color: var(--marigold); }
+  .item .dot.verplanten { border-style: dashed; border-color: var(--clay); }
+  .item .dot.weg { border-color: var(--ink-2); opacity: 0.5; }
+  .item .naam { font-weight: 600; font-size: 15px; }
+  .item .latijn { font-style: italic; color: var(--ink-2); font-size: 13px; }
+  .item .meta { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+  .item .kaart { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .fab { position: absolute; right: 16px; bottom: 16px; padding: 12px 18px; border-radius: 999px; background: var(--moss); color: #fff; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,0.18); font-size: 14px; }
+
+  /* ---------- Formulier ---------- */
+  .dim { position: fixed; inset: 0; background: rgba(0,0,0,0.42); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
+  .dim.on { display: flex; }
+  .form { background: var(--panel); width: 100%; max-width: 560px; max-height: 92dvh; overflow-y: auto; border-radius: 16px 16px 0 0; padding: 18px 18px 28px; }
+  @media (min-width: 600px) { .dim { align-items: center; } .form { border-radius: 16px; } }
+  .form h2 { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.01em; }
+  .maanden { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .maanden label { display: block; text-align: center; font-size: 12px; padding: 6px 0; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; text-transform: none; letter-spacing: 0; color: var(--ink); }
+  .maanden input { display: none; }
+  .maanden input:checked + span { display: block; background: var(--moss); color: #fff; border-radius: 4px; }
+  .checks { display: flex; gap: 16px; }
+  .checks label { display: flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--ink); }
+  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: 999px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 30; }
+  .toast.on { opacity: 1; }
 </style>
 </head>
 <body>
 
-<div class="top">
-  <span class="logo">🌳</span>
-  <span class="title">Tuin Gjalt</span>
-  <select id="garden-select" onchange="switchGarden(this.value)"></select>
-</div>
-<div class="tabbar">
-  <div class="tab active" data-tab="plan" onclick="showTab('plan')">🗺️ Plattegrond</div>
-  <div class="tab" data-tab="planten" onclick="showTab('planten')">🌿 Planten</div>
-  <div class="tab" data-tab="bloei" onclick="showTab('bloei')">🌸 Bloeikalender</div>
-  <div class="tab" data-tab="instellingen" onclick="showTab('instellingen')">⚙️</div>
-</div>
+<header class="bar">
+  <div class="brand">Tuin</div>
+  <div class="seg" id="tuin-seg"></div>
+  <nav class="views">
+    <button id="nav-kaart" aria-pressed="true" onclick="showView('kaart')">Kaart</button>
+    <button id="nav-planten" aria-pressed="false" onclick="showView('planten')">Planten</button>
+  </nav>
+</header>
 
-<!-- ================= PLATTEGROND ================= -->
-<div class="page active" id="page-plan">
-  <div class="toolbar">
-    <button class="tool active" data-mode="select" onclick="setMode('select')">👆 Selecteer</button>
-    <button class="tool" data-mode="veld" onclick="setMode('veld')">✏️ Vlak tekenen</button>
-    <button class="tool" data-mode="plant" onclick="setMode('plant')">🌱 Plant plaatsen</button>
-    <select id="plant-pick" title="Welke plant plaatsen" onchange="onPlantPick(this.value)"></select>
-    <button class="tool" data-mode="schaal" onclick="setMode('schaal')">📏 Schaal</button>
-    <button class="tool" onclick="document.getElementById('bg-file').click()">🖼️ Tekening</button>
-    <input type="file" id="bg-file" accept="image/*" style="display:none" onchange="loadBackground(this.files[0])" />
-    <button class="tool" id="tool-klaar" style="display:none" onclick="finishDraw()">✅ Klaar</button>
-    <button class="tool danger" id="tool-annuleer" style="display:none" onclick="cancelDraw()">✖ Annuleer</button>
-  </div>
-  <div class="hint" id="hint"></div>
-  <div class="canvas-wrap" id="canvas-wrap">
-    <svg class="plan" id="plan" xmlns="http://www.w3.org/2000/svg"></svg>
-    <div class="empty-plan" id="empty-plan">Nog geen plattegrond.<br>Tik op 🖼️ Tekening om de tekening van de tuin te laden, of teken direct vlakken met ✏️.</div>
-    <div class="overlay-info" id="overlay-info"></div>
-    <div class="zoom-btns">
-      <button onclick="zoomBy(1.4)">+</button>
-      <button onclick="zoomBy(1/1.4)">−</button>
-      <button onclick="fitView()" title="Alles in beeld">⛶</button>
+<main>
+  <!-- ============ KAART ============ -->
+  <section class="view on" id="view-kaart">
+    <div class="map" id="map">
+      <svg class="plan" id="plan" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="empty" id="empty">Nog geen plattegrond.<br>Open het menu ☰ om de tekening te laden, of teken meteen een vlak met ▱.</div>
+
+      <div class="tools">
+        <button title="Menu" onclick="toggleMenu()">☰</button>
+        <div class="sep"></div>
+        <button title="Selecteren en verschuiven" data-mode="select" aria-pressed="true" onclick="setMode('select')">↖</button>
+        <button title="Vlak tekenen" data-mode="veld" aria-pressed="false" onclick="setMode('veld')">▱</button>
+        <button title="Plant plaatsen" data-mode="plant" aria-pressed="false" onclick="setMode('plant')">✿</button>
+      </div>
+      <div class="menu" id="menu">
+        <div class="sub">Tekening</div>
+        <label for="bg-file">Tekening laden…</label>
+        <input type="file" id="bg-file" accept="image/*" style="display:none" onchange="loadBackground(this.files[0])" />
+        <div class="slider"><span>Zichtbaar</span><input type="range" id="bg-opacity" min="0.1" max="1" step="0.05" oninput="setBgOpacity(this.value)" /></div>
+        <button onclick="setMode('schaal');toggleMenu(false)">Schaal instellen…</button>
+        <button id="menu-bg-weg" onclick="removeBackground()">Tekening verwijderen</button>
+        <div class="sub">Gegevens</div>
+        <div class="slider" id="cloud-status" style="padding-top:2px">—</div>
+        <button onclick="exportData();toggleMenu(false)">Reservekopie opslaan (JSON)</button>
+        <label for="import-file">Reservekopie terugzetten…</label>
+        <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="importData(this.files[0])" />
+      </div>
+
+      <div class="hint" id="hint"><span class="grow" id="hint-text"></span><button id="hint-klaar" onclick="finishDraw()">Klaar</button><button class="quiet" onclick="cancelDraw()">Annuleer</button></div>
+      <div class="plantkeuze" id="plantkeuze"><select id="plant-pick" onchange="onPlantPick(this.value)"></select></div>
+
+      <div class="zoom">
+        <button onclick="zoomBy(1.4)" title="Inzoomen">+</button>
+        <button onclick="zoomBy(1/1.4)" title="Uitzoomen">−</button>
+        <button onclick="fitView()" title="Alles in beeld">⛶</button>
+      </div>
+      <div class="status" id="status"></div>
     </div>
-    <div class="sheet" id="sheet"></div>
-  </div>
-</div>
+    <aside class="panel" id="panel"></aside>
+  </section>
 
-<!-- ================= PLANTEN ================= -->
-<div class="page" id="page-planten">
-  <div class="list-head">
-    <input type="search" id="pl-zoek" placeholder="Zoek plant…" oninput="renderPlanten()" />
-    <select id="pl-status" onchange="renderPlanten()">
-      <option value="">Alle statussen</option>
-      <option value="aanwezig">Aanwezig</option>
-      <option value="gewenst">Gewenst</option>
-      <option value="verplanten">Verplanten</option>
-      <option value="weg">Weg</option>
-    </select>
-    <select id="pl-type" onchange="renderPlanten()">
-      <option value="">Alle types</option>
-    </select>
-    <select id="pl-licht" onchange="renderPlanten()">
-      <option value="">Alle standplaatsen</option>
-      <option value="zon">Zon</option>
-      <option value="halfschaduw">Halfschaduw</option>
-      <option value="schaduw">Schaduw</option>
-    </select>
-    <select id="pl-extra" onchange="renderPlanten()">
-      <option value="">Alles</option>
-      <option value="inheems">Alleen inheems</option>
-      <option value="bessen">Met bessen/vruchten</option>
-    </select>
-    <button class="btn primary" onclick="editSpecies(null)">+ Nieuw</button>
-  </div>
-  <div class="list-body" id="pl-list"></div>
-</div>
-
-<!-- ================= BLOEIKALENDER ================= -->
-<div class="page" id="page-bloei">
-  <div class="list-head">
-    <select id="kal-status" onchange="renderKalender()">
-      <option value="aanwezig">Wat er nu staat</option>
-      <option value="plan">Aanwezig + gewenst</option>
-      <option value="">Alle planten</option>
-    </select>
-    <span class="count" id="kal-info"></span>
-  </div>
-  <div class="kal-wrap" id="kal-wrap"></div>
-</div>
-
-<!-- ================= INSTELLINGEN ================= -->
-<div class="page" id="page-instellingen">
-  <div class="settings">
-    <h3>Deze tuin</h3>
-    <div class="frow"><label>Naam</label><input id="g-naam" onchange="saveGardenMeta()" /></div>
-    <div class="frow"><label>Adres</label><input id="g-adres" onchange="saveGardenMeta()" /></div>
-    <div class="frow"><label>Notities</label><textarea id="g-notitie" onchange="saveGardenMeta()"></textarea></div>
-    <div class="frow"><label>Tekening</label><input type="range" id="g-opacity" min="0.1" max="1" step="0.05" oninput="setBgOpacity(this.value)" /><span class="val" id="g-opacity-val"></span></div>
-    <div class="frow"><label>Schaal</label><span class="val" id="g-schaal"></span></div>
-    <div class="btns">
-      <button class="btn danger" onclick="removeBackground()">Tekening verwijderen</button>
+  <!-- ============ PLANTEN ============ -->
+  <section class="view" id="view-planten">
+    <div class="lijstkop">
+      <input type="search" id="zoek" placeholder="Zoek op naam" oninput="renderPlanten()" />
+      <div class="chips" id="status-chips">
+        <button class="chip" data-st="" aria-pressed="true" onclick="setStatusFilter('')">Alles</button>
+        <button class="chip" data-st="aanwezig" aria-pressed="false" onclick="setStatusFilter('aanwezig')">Aanwezig</button>
+        <button class="chip" data-st="gewenst" aria-pressed="false" onclick="setStatusFilter('gewenst')">Gewenst</button>
+        <button class="chip" data-st="verplanten" aria-pressed="false" onclick="setStatusFilter('verplanten')">Verplanten</button>
+      </div>
     </div>
+    <div class="lijst" id="lijst"></div>
+    <button class="fab" onclick="editSpecies(null)">+ Plant</button>
+  </section>
+</main>
 
-    <h3>Opslag</h3>
-    <p id="cloud-status">Opslag: alleen in deze browser</p>
-    <h3>Reservekopie</h3>
-    <p>Alles wordt in deze browser bewaard. Maak regelmatig een reservekopie, zeker vóór je van apparaat wisselt.</p>
-    <div class="btns">
-      <button class="btn primary" onclick="exportData()">⬇️ Exporteer alles (JSON)</button>
-      <button class="btn" onclick="document.getElementById('import-file').click()">⬆️ Importeer</button>
-      <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="importData(this.files[0])" />
-    </div>
-    <div class="btns">
-      <button class="btn danger" onclick="resetAll()">Alles wissen</button>
-    </div>
-    <p style="margin-top:16px">Tuin Gjalt · versie 0.2</p>
-  </div>
-</div>
-
-<div class="modal-bg" id="modal-bg" onclick="if(event.target===this) closeModal()">
-  <div class="modal" id="modal"></div>
-</div>
+<div class="dim" id="dim" onclick="if(event.target===this) closeForm()"><div class="form" id="form"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-/* =====================================================================
-   TUIN GJALT — plattegrond, plantenlijst en bloeikalender
-   Eén bestand, geen externe bibliotheken. Gegevens in localStorage.
-   ===================================================================== */
-
+/* Tuin — plattegrond en plantenlijst. Eén bestand, geen bibliotheken. */
 const STORAGE_KEY = 'tuin-gjalt-v1';
 const MAANDEN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
-
-// Soorten vlakken op de plattegrond, met kleur
 const VELD_TYPES = {
-  border:     { naam: 'Border',      fill: 'rgba(120,80,40,0.35)',   stroke: '#7a4a1e' },
-  gazon:      { naam: 'Gazon',       fill: 'rgba(110,190,90,0.35)',  stroke: '#3f8f2e' },
-  haag:       { naam: 'Haag',        fill: 'rgba(30,110,50,0.55)',   stroke: '#1d5c2c' },
-  bos:        { naam: 'Bosgrond',    fill: 'rgba(60,120,60,0.35)',   stroke: '#2d5a2d' },
-  water:      { naam: 'Water/vijver',fill: 'rgba(70,150,220,0.4)',   stroke: '#2a6fb0' },
-  bestrating: { naam: 'Bestrating',  fill: 'rgba(160,160,160,0.4)',  stroke: '#777' },
-  gebouw:     { naam: 'Gebouw',      fill: 'rgba(90,90,90,0.55)',    stroke: '#333' },
-  overig:     { naam: 'Overig',      fill: 'rgba(200,180,60,0.35)',  stroke: '#8a7a1a' },
+  border:     { naam: 'Border',       fill: 'rgba(139,94,52,0.32)',   stroke: '#7A4E24' },
+  gazon:      { naam: 'Gazon',        fill: 'rgba(122,178,96,0.35)',  stroke: '#4E8A3A' },
+  haag:       { naam: 'Haag',         fill: 'rgba(38,92,52,0.55)',    stroke: '#1E4A2C' },
+  bos:        { naam: 'Bosgrond',     fill: 'rgba(72,110,66,0.32)',   stroke: '#3B5C38' },
+  water:      { naam: 'Water',        fill: 'rgba(76,134,180,0.4)',   stroke: '#2E6494' },
+  bestrating: { naam: 'Bestrating',   fill: 'rgba(150,150,145,0.38)', stroke: '#6E6E6A' },
+  gebouw:     { naam: 'Gebouw',       fill: 'rgba(70,70,68,0.6)',     stroke: '#2B2B2A' },
+  overig:     { naam: 'Overig',       fill: 'rgba(196,170,72,0.32)',  stroke: '#8A7420' },
 };
 const PLANT_TYPES = ['boom','struik','haag','vaste plant','bol/knol','siergras','klimmer','oever/water','fruit','overig'];
 const LICHT = ['zon','halfschaduw','schaduw'];
 const VOCHT = ['droog','normaal','vochtig'];
 const STATUS = ['aanwezig','gewenst','verplanten','weg'];
+const STATUS_KLEUR = { aanwezig: '#2F6B3F', gewenst: '#D99A00', verplanten: '#B8542F', weg: '#7a7a7a' };
 
-// ---------- Startgegevens: wat we tot nu toe weten ----------
+// Plantenlijst zoals besproken: alleen wat je zelf hebt genoemd.
 function seedSpecies() {
-  const s = (o) => Object.assign({ id: uid(), bloei: [], kleur: '#cccccc', hoogte: '', licht: 'zon', vocht: 'normaal', inheems: false, bessen: false, status: 'aanwezig', spread: 1, tuin: 'beide', notitie: '' }, o);
+  const s = (o) => Object.assign({ id: uid(), latijn: '', bloei: [], kleur: '#d9a0c0', hoogte: '', licht: 'zon', vocht: 'normaal', inheems: false, bessen: false, status: 'aanwezig', spread: 1, tuin: 'beide', notitie: '' }, o);
   return [
-    s({ naam: 'Amerikaanse eik', latijn: 'Quercus rubra', type: 'boom', spread: 15, hoogte: '20-25 m', licht: 'zon', vocht: 'droog', tuin: 'molenveldlaan', notitie: 'Meerdere exemplaren. Flink terugsnoeien gewenst. De grootste (stamomtrek 2,5-3 m) trekt veel vocht uit de grond: droge schaduw eronder.' }),
-    s({ naam: 'Beuk', latijn: 'Fagus sylvatica', type: 'boom', spread: 15, hoogte: '20-30 m', licht: 'zon', inheems: true, tuin: 'beide', notitie: 'Molenveldlaan: hele grote beuk, dichte schaduw, weinig groeit eronder. Friesland: ook een beuk.' }),
-    s({ naam: 'Taxus (haag)', latijn: 'Taxus baccata', type: 'haag', spread: 1, hoogte: '1,5-2 m', licht: 'halfschaduw', inheems: true, bessen: true, tuin: 'molenveldlaan', notitie: 'Doet het op verschillende plekken niet goed. Plan: deels vermengen met haagbeuk, Gelderse roos, meidoorn.' }),
-    s({ naam: 'Fluweelhortensia', latijn: 'Hydrangea aspera', type: 'struik', bloei: [7,8], kleur: '#d98cb3', spread: 2, hoogte: '2-3 m', licht: 'halfschaduw', vocht: 'vochtig', status: 'verplanten', tuin: 'molenveldlaan', notitie: '3 stuks onder de grootste eik; doen het niet. Willen koele, humusrijke, vochtige grond en beschutting. Verplanten.' }),
-    s({ naam: 'Zegge', latijn: 'Carex spec.', type: 'siergras', spread: 0.5, hoogte: '40-60 cm', licht: 'schaduw', vocht: 'droog', status: 'verplanten', tuin: 'molenveldlaan', notitie: 'Doet het redelijk onder de beuk. Grote hoeveelheid in de border tegen het huis (ochtendzon tot 15u): daar weghalen en verhuizen naar onder beuk/eiken. Bloeit niet.' }),
-    s({ naam: 'Haagbeuk', latijn: 'Carpinus betulus', type: 'haag', spread: 1, hoogte: '2-3 m (haag)', licht: 'halfschaduw', inheems: true, status: 'gewenst', tuin: 'molenveldlaan', notitie: 'Om de taxushaag mee te vermengen. Houdt in de winter het dorre blad vast.' }),
-    s({ naam: 'Gelderse roos', latijn: 'Viburnum opulus', type: 'struik', bloei: [5,6], kleur: '#ffffff', spread: 3, hoogte: '2-4 m', licht: 'halfschaduw', vocht: 'normaal', inheems: true, bessen: true, status: 'gewenst', tuin: 'molenveldlaan', notitie: 'Witte schermbloemen in mei-juni, rode bessen in de herfst, mooi herfstblad.' }),
-    s({ naam: 'Eenstijlige meidoorn', latijn: 'Crataegus monogyna', type: 'struik', bloei: [5], kleur: '#ffffff', spread: 3, hoogte: '3-6 m', licht: 'zon', vocht: 'droog', inheems: true, bessen: true, status: 'gewenst', tuin: 'molenveldlaan', notitie: 'Witte bloei in mei, rode bessen. Kan prima op droge zandgrond, ook als haag.' }),
-    s({ naam: 'Boerenhortensia', latijn: 'Hydrangea macrophylla', type: 'struik', bloei: [7,8,9], kleur: '#8fa8e0', spread: 1.5, hoogte: '1-1,5 m', licht: 'halfschaduw', vocht: 'vochtig', tuin: 'friesland', notitie: 'Een paar stuks in Friesland.' }),
-    s({ naam: 'Pruim', latijn: 'Prunus domestica', type: 'fruit', bloei: [4], kleur: '#ffffff', spread: 4, hoogte: '4-6 m', licht: 'zon', bessen: true, tuin: 'friesland' }),
-    s({ naam: 'Appel', latijn: 'Malus domestica', type: 'fruit', bloei: [4,5], kleur: '#f7c8d6', spread: 4, hoogte: '3-5 m', licht: 'zon', bessen: true, tuin: 'friesland', notitie: 'Eén zeker, waarschijnlijk twee.' }),
-    s({ naam: 'Berk', latijn: 'Betula pendula', type: 'boom', spread: 6, hoogte: '15-20 m', licht: 'zon', vocht: 'droog', inheems: true, tuin: 'friesland', notitie: 'Een paar berken.' }),
-    s({ naam: 'Pitrus', latijn: 'Juncus effusus', type: 'oever/water', spread: 0.6, hoogte: '50-100 cm', licht: 'zon', vocht: 'vochtig', inheems: true, tuin: 'friesland', notitie: 'Walkant langs de sloot.' }),
-    s({ naam: 'Riet', latijn: 'Phragmites australis', type: 'oever/water', bloei: [8,9], kleur: '#b39b7a', spread: 1, hoogte: '1-3 m', licht: 'zon', vocht: 'vochtig', inheems: true, tuin: 'friesland', notitie: 'Walkant langs de sloot.' }),
+    s({ naam: 'Amerikaanse eik', latijn: 'Quercus rubra', type: 'boom', spread: 15, vocht: 'droog', tuin: 'molenveldlaan', notitie: 'Meerdere. Flink snoeien. De grootste (stamomtrek 2,5–3 m) trekt veel vocht weg; eronder is het droog.' }),
+    s({ naam: 'Beuk', latijn: 'Fagus sylvatica', type: 'boom', spread: 15, inheems: true, tuin: 'beide', notitie: 'Molenveldlaan: hele grote beuk, weinig groeit eronder. Friesland: ook een beuk.' }),
+    s({ naam: 'Taxus (haag)', latijn: 'Taxus baccata', type: 'haag', spread: 1, licht: 'halfschaduw', tuin: 'molenveldlaan', notitie: 'Doet het op verschillende plekken niet goed. Deels vermengen met haagbeuk, Gelderse roos, meidoorn.' }),
+    s({ naam: 'Fluweelhortensia', latijn: 'Hydrangea aspera', type: 'struik', bloei: [7,8], kleur: '#D98CB3', spread: 2, licht: 'halfschaduw', vocht: 'vochtig', status: 'verplanten', tuin: 'molenveldlaan', notitie: '3 stuks onder de grootste eik, doen het niet. Moeten daar weg.' }),
+    s({ naam: 'Carex (zegge)', latijn: 'Carex', type: 'siergras', spread: 0.5, licht: 'schaduw', status: 'verplanten', tuin: 'molenveldlaan', notitie: 'Staat tegen het huis (ochtendzon tot ± 15 u). Weghalen, verhuizen naar onder de beuk en misschien de eiken.' }),
+    s({ naam: 'Haagbeuk', latijn: 'Carpinus betulus', type: 'haag', spread: 1, licht: 'halfschaduw', inheems: true, status: 'gewenst', tuin: 'molenveldlaan', notitie: 'Om in de taxushaag te mengen.' }),
+    s({ naam: 'Gelderse roos', latijn: 'Viburnum opulus', type: 'struik', bloei: [5,6], kleur: '#FFFFFF', spread: 3, licht: 'halfschaduw', inheems: true, bessen: true, status: 'gewenst', tuin: 'molenveldlaan' }),
+    s({ naam: 'Meidoorn', latijn: 'Crataegus monogyna', type: 'struik', bloei: [5], kleur: '#FFFFFF', spread: 3, inheems: true, bessen: true, status: 'gewenst', tuin: 'molenveldlaan' }),
+    s({ naam: 'Hortensia', latijn: 'Hydrangea macrophylla', type: 'struik', bloei: [7,8,9], kleur: '#8FA8E0', spread: 1.5, licht: 'halfschaduw', vocht: 'vochtig', tuin: 'friesland' }),
+    s({ naam: 'Pruim', latijn: 'Prunus domestica', type: 'fruit', bloei: [4], kleur: '#FFFFFF', spread: 4, bessen: true, tuin: 'friesland' }),
+    s({ naam: 'Appel', latijn: 'Malus domestica', type: 'fruit', bloei: [4,5], kleur: '#F7C8D6', spread: 4, bessen: true, tuin: 'friesland', notitie: 'Eén zeker, waarschijnlijk twee.' }),
+    s({ naam: 'Berk', latijn: 'Betula pendula', type: 'boom', spread: 6, vocht: 'droog', inheems: true, tuin: 'friesland', notitie: 'Een paar.' }),
+    s({ naam: 'Pitrus', latijn: 'Juncus effusus', type: 'oever/water', spread: 0.6, vocht: 'vochtig', inheems: true, tuin: 'friesland', notitie: 'Walkant langs de sloot.' }),
+    s({ naam: 'Riet', latijn: 'Phragmites australis', type: 'oever/water', spread: 1, vocht: 'vochtig', inheems: true, tuin: 'friesland', notitie: 'Walkant langs de sloot.' }),
   ];
 }
-
-function newGarden(id, naam, adres, notitie) {
-  return { id, naam, adres, notitie, bg: null, bgOpacity: 0.85, metersPerUnit: null, velden: [], planten: [], view: null };
-}
-
+function newGarden(id, naam) { return { id, naam, bg: null, bgOpacity: 0.9, metersPerUnit: null, velden: [], planten: [], view: null }; }
 function defaultState() {
-  return {
-    version: 1,
-    activeGarden: 'molenveldlaan',
-    gardens: {
-      molenveldlaan: newGarden('molenveldlaan', 'Molenveldlaan 13', 'Molenveldlaan 13', 'Zandgrond, droogt snel. Perceel ca. 2.400 m², gazon ca. 600 m² (Husqvarna robotmaaier), borders en bosgrond ca. 1.500 m². Automatische beregening (druppelslang langs hagen, gazon en borders), ca. 3x per week. Zwemvijver met plantenfilter (jaarlijks schoonmaken in de herfst). Elk jaar engerlingen (meikever) in het gazon.'),
-      friesland: newGarden('friesland', 'Friesland', 'Langaerderdyk 35-16, bij Sint Nicolaasga', 'Zandgrond, redelijk droog. Perceel ca. 550 m², tuin ca. 400 m². Gras, hortensia\'s, 3 fruitbomen, beuk, paar berken. Aan een grote sloot met steiger; walkant met pitrus en riet.'),
-    },
-    species: seedSpecies(),
-  };
+  return { version: 2, activeGarden: 'molenveldlaan', gardens: { molenveldlaan: newGarden('molenveldlaan', 'Molenveldlaan'), friesland: newGarden('friesland', 'Friesland') }, species: seedSpecies() };
+}
+function migrate(st) {
+  if (!st.version || st.version < 2) {
+    const placed = Object.values(st.gardens).some(g => g.planten.length);
+    if (!placed) st.species = seedSpecies();      // oude voorgevulde lijst vervangen zolang er niets op de kaart staat
+    st.gardens.molenveldlaan && (st.gardens.molenveldlaan.naam = 'Molenveldlaan');
+    st.gardens.friesland && (st.gardens.friesland.naam = 'Friesland');
+    st.version = 2;
+  }
+  return st;
 }
 
 // ---------- Hulpjes ----------
 function uid() { return Math.random().toString(36).slice(2, 10); }
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1800); }
-function fmt(n, d = 1) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: d }); }
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
+function fmt(n, d = 0) { return Number(n).toLocaleString('nl-NL', { maximumFractionDigits: d }); }
 
-// ---------- Opslag ----------
-// Lokaal altijd in localStorage. Als de pagina als Claude-artifact draait,
-// wordt de stand ook in de gedeelde cloud-database gezet (db), de tekening
-// in de asset-opslag (assets) en loopt exporteren via downloads.
+// ---------- Opslag: lokaal, en in de cloud als de pagina als artifact draait ----------
 const clientId = uid();
 let db = null, assets = null, downloads = null, dbDoc = null;
 let state;
 function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { state = JSON.parse(raw); return; }
-  } catch (e) { console.warn('Laden mislukt', e); }
+  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) { state = migrate(JSON.parse(raw)); return; } } catch (e) { console.warn(e); }
   state = defaultState();
 }
 let saveTimer;
 function save(opts = {}) {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    catch (e) { toast('Opslaan mislukt (te weinig ruimte?) — maak een export'); console.error(e); }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { toast('Opslaan in de browser mislukt: maak een reservekopie'); }
     if (dbDoc && !opts.local) pushToDb();
   }, 150);
 }
 function forDb(st) {
-  // Kopie zonder ingebedde afbeeldingen (die passen niet in een db-document)
   const c = JSON.parse(JSON.stringify(st));
   Object.values(c.gardens).forEach(g => { if (g.bg) { delete g.bg.dataUrl; if (!g.bg.url) g.bg = null; } });
   return c;
@@ -365,31 +313,24 @@ async function pushToDb() {
   if (!dbDoc) return;
   if (pushBusy) { pushAgain = true; return; }
   pushBusy = true;
-  try {
-    state.rev = (state.rev || 0) + 1; state.origin = clientId;
-    await dbDoc.set(forDb(state));
-    setCloudStatus('☁️ gesynchroniseerd');
-  } catch (e) { console.warn('db set', e); setCloudStatus('⚠️ synchroniseren mislukt: ' + (e.message || e.code)); }
+  try { state.rev = (state.rev || 0) + 1; state.origin = clientId; await dbDoc.set(forDb(state)); setCloudStatus('Gesynchroniseerd tussen je apparaten'); }
+  catch (e) { console.warn('db set', e); setCloudStatus('Synchroniseren mislukt: ' + (e.message || e.code)); }
   pushBusy = false;
   if (pushAgain) { pushAgain = false; pushToDb(); }
 }
 function applyRemote(d) {
   const local = state;
-  state = JSON.parse(JSON.stringify(d));
-  // Lokale afbeeldingen bewaren als de cloud-versie er geen heeft
+  state = migrate(JSON.parse(JSON.stringify(d)));
   Object.values(state.gardens).forEach(g => { const lg = local && local.gardens[g.id]; if (!g.bg && lg && lg.bg && lg.bg.dataUrl) g.bg = lg.bg; });
   if (!state.gardens[state.activeGarden]) state.activeGarden = Object.keys(state.gardens)[0];
   save({ local: true });
-  if (selected && !(garden().velden.some(v => v.id === selected.id) || garden().planten.some(p => p.id === selected.id))) { selected = null; hideSheet(); }
-  renderGardenSelect(); renderPlantPick(); render(); renderSettings();
-  if (document.getElementById('page-planten').classList.contains('active')) renderPlanten();
-  if (document.getElementById('page-bloei').classList.contains('active')) renderKalender();
-  if (selected) showSheet();
+  if (selected && !(garden().velden.some(v => v.id === selected.id) || garden().planten.some(p => p.id === selected.id))) { selected = null; hidePanel(); }
+  renderAll();
 }
-function setCloudStatus(t) { const el = document.getElementById('cloud-status'); if (el) el.textContent = t; }
+function setCloudStatus(t) { document.getElementById('cloud-status').textContent = t; }
 async function initCloud() {
   if (!window.claude || typeof window.claude.use !== 'function') { setCloudStatus('Opslag: alleen in deze browser'); return; }
-  setCloudStatus('☁️ verbinden…');
+  setCloudStatus('Verbinden…');
   [db, assets, downloads] = await Promise.all([claude.use('db'), claude.use('assets'), claude.use('downloads')]);
   if (!db) { setCloudStatus('Opslag: alleen in deze browser'); return; }
   try {
@@ -397,141 +338,100 @@ async function initCloud() {
     const snap = await dbDoc.get();
     if (snap.exists) applyRemote(snap.data()); else await pushToDb();
     dbDoc.onSnapshot(sn => {
-      if (!sn.exists) return;
-      const d = sn.data();
+      if (!sn.exists) return; const d = sn.data();
       if (d.origin === clientId || drag) return;
       if (d.origin === state.origin && (d.rev || 0) <= (state.rev || 0)) return;
       applyRemote(d);
-    }, e => { console.warn('db snapshot', e); setCloudStatus('⚠️ live-verbinding weg, herlaad de pagina'); });
-    setCloudStatus('☁️ gesynchroniseerd tussen je apparaten');
-  } catch (e) { console.warn('db init', e); dbDoc = null; setCloudStatus('⚠️ cloud niet beschikbaar: ' + (e.message || e.code)); }
+    }, e => { console.warn('db snapshot', e); setCloudStatus('Live-verbinding weg, herlaad de pagina'); });
+    setCloudStatus('Gesynchroniseerd tussen je apparaten');
+  } catch (e) { console.warn('db init', e); dbDoc = null; setCloudStatus('Cloud niet beschikbaar: ' + (e.message || e.code)); }
 }
 function garden() { return state.gardens[state.activeGarden]; }
 function speciesById(id) { return state.species.find(s => s.id === id); }
 
 // ---------- Navigatie ----------
-function showTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
-  if (name === 'planten') renderPlanten();
-  if (name === 'bloei') renderKalender();
-  if (name === 'instellingen') renderSettings();
-  if (name === 'plan') { requestAnimationFrame(render); }
+function showView(name) {
+  document.getElementById('view-kaart').classList.toggle('on', name === 'kaart');
+  document.getElementById('view-planten').classList.toggle('on', name === 'planten');
+  document.getElementById('nav-kaart').setAttribute('aria-pressed', name === 'kaart');
+  document.getElementById('nav-planten').setAttribute('aria-pressed', name === 'planten');
+  toggleMenu(false);
+  if (name === 'planten') renderPlanten(); else requestAnimationFrame(render);
 }
-function switchGarden(id) {
-  state.activeGarden = id; selected = null; cancelDraw(); save();
-  renderGardenSelect(); render(); renderSettings(); renderPlantPick();
+function switchGarden(id) { state.activeGarden = id; selected = null; hidePanel(); cancelDraw(); save(); renderAll(); }
+function renderSeg() {
+  document.getElementById('tuin-seg').innerHTML = Object.values(state.gardens).map(g => `<button aria-pressed="${g.id === state.activeGarden}" onclick="switchGarden('${g.id}')">${esc(g.naam)}</button>`).join('');
 }
-function renderGardenSelect() {
-  const sel = document.getElementById('garden-select');
-  sel.innerHTML = Object.values(state.gardens).map(g => `<option value="${g.id}" ${g.id === state.activeGarden ? 'selected' : ''}>${esc(g.naam)}</option>`).join('');
+function renderAll() { renderSeg(); renderPlantPick(); render(); renderMenu(); if (document.getElementById('view-planten').classList.contains('on')) renderPlanten(); if (selected) showPanel(); }
+function toggleMenu(force) { const m = document.getElementById('menu'); m.classList.toggle('on', force === undefined ? !m.classList.contains('on') : force); if (m.classList.contains('on')) renderMenu(); }
+function renderMenu() {
+  const g = garden();
+  document.getElementById('bg-opacity').value = g.bgOpacity ?? 0.9;
+  document.getElementById('menu-bg-weg').style.display = g.bg ? '' : 'none';
 }
 
 /* =====================================================================
-   PLATTEGROND
-   Coördinaten: "wereld-eenheden" = pixels van de achtergrondtekening
-   (of willekeurige eenheden zonder tekening). metersPerUnit koppelt dat
-   aan echte meters na het instellen van de schaal.
+   KAART. Wereld-eenheden = pixels van de tekening. metersPerUnit
+   koppelt ze aan meters zodra de schaal is ingesteld.
    ===================================================================== */
 const svg = document.getElementById('plan');
-let view = { x: 0, y: 0, w: 1000, h: 700 };   // zichtbare uitsnede in wereld-eenheden
+let view = { x: 0, y: 0, w: 1000, h: 700 };
 let mode = 'select';
-let selected = null;                          // { kind:'veld'|'plant', id }
-let drawPts = [];                             // punten van vlak/schaal in aanmaak
+let selected = null;
+let drawPts = [];
 let pickSpeciesId = null;
 
 function svgSize() { const r = svg.getBoundingClientRect(); return { w: r.width || 1, h: r.height || 1 }; }
 function unitsPerPx() { return view.w / svgSize().w; }
-function clientToWorld(cx, cy) {
-  const r = svg.getBoundingClientRect();
-  return { x: view.x + (cx - r.left) * (view.w / r.width), y: view.y + (cy - r.top) * (view.h / r.height) };
-}
-function applyView() {
-  const s = svgSize();
-  view.h = view.w * s.h / s.w;               // hoogte volgt uit beeldverhouding
-  svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
-  garden().view = { x: view.x, y: view.y, w: view.w };
-  save();
-}
-function zoomAt(factor, wx, wy) {
-  const nw = Math.min(Math.max(view.w / factor, 20), 200000);
-  const f = nw / view.w;
-  view.x = wx - (wx - view.x) * f;
-  view.y = wy - (wy - view.y) * f;
-  view.w = nw;
-  applyView(); render();
-}
-function zoomBy(factor) { zoomAt(factor, view.x + view.w / 2, view.y + view.h / 2); }
+function clientToWorld(cx, cy) { const r = svg.getBoundingClientRect(); return { x: view.x + (cx - r.left) * (view.w / r.width), y: view.y + (cy - r.top) * (view.h / r.height) }; }
+function applyView() { const s = svgSize(); view.h = view.w * s.h / s.w; svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`); garden().view = { x: view.x, y: view.y, w: view.w }; save({ local: true }); }
+function zoomAt(f, wx, wy) { const nw = Math.min(Math.max(view.w / f, 20), 200000); const k = nw / view.w; view.x = wx - (wx - view.x) * k; view.y = wy - (wy - view.y) * k; view.w = nw; applyView(); render(); }
+function zoomBy(f) { zoomAt(f, view.x + view.w / 2, view.y + view.h / 2); }
 function fitView() {
-  const g = garden();
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const g = garden(); let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   const add = (x, y) => { minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y); };
   if (g.bg) { add(0, 0); add(g.bg.w, g.bg.h); }
-  g.velden.forEach(v => v.points.forEach(p => add(p[0], p[1])));
-  g.planten.forEach(p => add(p.x, p.y));
+  g.velden.forEach(v => v.points.forEach(p => add(p[0], p[1]))); g.planten.forEach(p => add(p.x, p.y));
   if (minX === Infinity) { minX = 0; minY = 0; maxX = 1000; maxY = 700; }
-  const s = svgSize();
-  const pad = 1.08;
-  const w = Math.max((maxX - minX) * pad, ((maxY - minY) * pad) * s.w / s.h, 50);
-  view.w = w;
-  view.h = w * s.h / s.w;
-  view.x = (minX + maxX) / 2 - view.w / 2;
-  view.y = (minY + maxY) / 2 - view.h / 2;
+  const s = svgSize(); const w = Math.max((maxX - minX) * 1.08, (maxY - minY) * 1.08 * s.w / s.h, 50);
+  view.w = w; view.h = w * s.h / s.w; view.x = (minX + maxX) / 2 - view.w / 2; view.y = (minY + maxY) / 2 - view.h / 2;
   applyView(); render();
 }
-
 function setMode(m) {
   if (mode === 'veld' || mode === 'schaal') drawPts = [];
   mode = m;
-  document.querySelectorAll('.tool[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
-  svg.classList.toggle('drawing', m !== 'select');
-  const hint = document.getElementById('hint');
-  const msgs = {
-    select: '',
-    veld: 'Tik de hoekpunten van het vlak aan. Minimaal 3 punten, dan ✅ Klaar.',
-    plant: 'Kies hierboven een plant en tik op de plattegrond waar hij staat of moet komen.',
-    schaal: 'Tik twee punten aan waarvan je de afstand in meters weet (bijv. een terrasrand of gevel).',
-  };
-  hint.textContent = msgs[m]; hint.classList.toggle('show', !!msgs[m]);
-  document.getElementById('tool-klaar').style.display = m === 'veld' ? '' : 'none';
-  document.getElementById('tool-annuleer').style.display = (m === 'veld' || m === 'schaal') ? '' : 'none';
-  if (m !== 'select') { selected = null; hideSheet(); }
+  document.querySelectorAll('.tools button[data-mode]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m));
+  svg.classList.toggle('crosshair', m !== 'select');
+  const msgs = { veld: 'Tik de hoekpunten van het vlak aan (minimaal 3).', schaal: 'Tik twee punten aan waarvan je de afstand in meters weet.', plant: 'Kies een plant en tik waar hij staat of moet komen. Slepen om te verschuiven.' };
+  document.getElementById('hint-text').textContent = msgs[m] || '';
+  document.getElementById('hint').classList.toggle('on', !!msgs[m]);
+  document.getElementById('hint-klaar').style.display = m === 'veld' ? '' : 'none';
+  document.getElementById('plantkeuze').classList.toggle('on', m === 'plant');
+  if (m !== 'select') { selected = null; hidePanel(); }
   render();
 }
 function cancelDraw() { drawPts = []; if (mode !== 'select') setMode('select'); }
 function finishDraw() {
   if (drawPts.length < 3) { toast('Minimaal 3 punten nodig'); return; }
   const v = { id: uid(), naam: '', type: 'border', points: drawPts.map(p => [p.x, p.y]), licht: 'zon', vocht: 'normaal', notitie: '' };
-  garden().velden.push(v); drawPts = []; save();
-  setMode('select'); selected = { kind: 'veld', id: v.id }; render(); showSheet();
+  garden().velden.push(v); drawPts = []; save(); setMode('select'); selected = { kind: 'veld', id: v.id }; render(); showPanel();
 }
 
-// ---------- Aanwijzer-afhandeling (muis, vinger, pen) ----------
-const pointers = new Map();
-let drag = null;          // { kind:'pan'|'plant'|'veld'|'handle', ... }
-let pinch = null;
-const TAP_PX = 6;
-
+// ---------- Aanwijzers: muis, vinger, pen ----------
+const pointers = new Map(); let drag = null; let pinch = null; const TAP_PX = 6;
 svg.addEventListener('pointerdown', e => {
-  svg.setPointerCapture(e.pointerId);
-  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (pointers.size === 2) {
-    const [a, b] = [...pointers.values()];
-    pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y), view: { ...view } };
-    drag = null; return;
-  }
+  toggleMenu(false);
+  svg.setPointerCapture(e.pointerId); pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) }; drag = null; return; }
   const w = clientToWorld(e.clientX, e.clientY);
   const target = e.target.closest('[data-kind]');
   drag = { startX: e.clientX, startY: e.clientY, moved: false, kind: 'pan', startView: { ...view }, world: w };
-  // In plant-modus mag je alleen bestaande planten pakken; vlakken tellen dan als 'lege' ondergrond.
+  // In plant-modus pak je alleen bestaande planten; vlakken zijn dan ondergrond.
   if (target && (mode === 'select' || (mode === 'plant' && target.dataset.kind === 'plant'))) {
     const kind = target.dataset.kind, id = target.dataset.id;
-    if (kind === 'handle') {
-      drag.kind = 'handle'; drag.id = id; drag.idx = +target.dataset.idx;
-    } else {
-      const wasSel = selected && selected.id === id;
-      selected = { kind, id };
-      drag.kind = kind; drag.id = id; drag.wasSel = wasSel;
+    if (kind === 'handle') { drag.kind = 'handle'; drag.id = id; drag.idx = +target.dataset.idx; }
+    else {
+      selected = { kind, id }; drag.kind = kind; drag.id = id;
       if (kind === 'veld') drag.orig = garden().velden.find(v => v.id === id).points.map(p => [...p]);
       if (kind === 'plant') { const p = garden().planten.find(p => p.id === id); drag.orig = { x: p.x, y: p.y }; }
       render();
@@ -542,40 +442,22 @@ svg.addEventListener('pointermove', e => {
   if (!pointers.has(e.pointerId)) return;
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (pinch && pointers.size === 2) {
-    const [a, b] = [...pointers.values()];
-    const d = Math.hypot(a.x - b.x, a.y - b.y);
-    const mid = clientToWorld((a.x + b.x) / 2, (a.y + b.y) / 2);
-    const factor = d / pinch.dist; pinch.dist = d;
-    zoomAt(factor, mid.x, mid.y);
-    return;
+    const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+    const mid = clientToWorld((a.x + b.x) / 2, (a.y + b.y) / 2); const f = d / pinch.dist; pinch.dist = d; zoomAt(f, mid.x, mid.y); return;
   }
   if (!drag) return;
   const dx = e.clientX - drag.startX, dy = e.clientY - drag.startY;
   if (!drag.moved && Math.hypot(dx, dy) < TAP_PX) return;
-  drag.moved = true;
-  const upp = unitsPerPx();
-  const g = garden();
-  if (drag.kind === 'pan') {
-    view.x = drag.startView.x - dx * upp; view.y = drag.startView.y - dy * upp; applyView();
-  } else if (drag.kind === 'plant') {
-    const p = g.planten.find(p => p.id === drag.id);
-    p.x = drag.orig.x + dx * upp; p.y = drag.orig.y + dy * upp; render();
-  } else if (drag.kind === 'veld') {
-    const v = g.velden.find(v => v.id === drag.id);
-    v.points = drag.orig.map(p => [p[0] + dx * upp, p[1] + dy * upp]); render();
-  } else if (drag.kind === 'handle') {
-    const v = g.velden.find(v => v.id === drag.id);
-    const w = clientToWorld(e.clientX, e.clientY);
-    v.points[drag.idx] = [w.x, w.y]; render();
-  }
+  drag.moved = true; const upp = unitsPerPx(); const g = garden();
+  if (drag.kind === 'pan') { view.x = drag.startView.x - dx * upp; view.y = drag.startView.y - dy * upp; applyView(); }
+  else if (drag.kind === 'plant') { const p = g.planten.find(p => p.id === drag.id); p.x = drag.orig.x + dx * upp; p.y = drag.orig.y + dy * upp; render(); }
+  else if (drag.kind === 'veld') { const v = g.velden.find(v => v.id === drag.id); v.points = drag.orig.map(p => [p[0] + dx * upp, p[1] + dy * upp]); render(); }
+  else if (drag.kind === 'handle') { const v = g.velden.find(v => v.id === drag.id); const w = clientToWorld(e.clientX, e.clientY); v.points[drag.idx] = [w.x, w.y]; render(); }
 });
 function endPointer(e) {
-  pointers.delete(e.pointerId);
-  if (pointers.size < 2) pinch = null;
-  if (!drag) return;
-  const d = drag; drag = null;
-  if (d.moved) { if (d.kind !== 'pan') { save(); if (selected) showSheet(); } return; }
-  // Het was een tik (geen sleep)
+  pointers.delete(e.pointerId); if (pointers.size < 2) pinch = null;
+  if (!drag) return; const d = drag; drag = null;
+  if (d.moved) { if (d.kind !== 'pan') { save(); if (selected) showPanel(); } return; }
   const w = d.world;
   if (mode === 'veld') { drawPts.push(w); render(); }
   else if (mode === 'schaal') {
@@ -588,360 +470,226 @@ function endPointer(e) {
     }
   }
   else if (mode === 'plant') {
-    if (d.kind === 'plant') { showSheet(); return; }  // tik op bestaande plant: alleen selecteren
-    if (!pickSpeciesId) { toast('Kies eerst een plant in de lijst hierboven'); return; }
+    if (d.kind === 'plant') { showPanel(); return; }
+    if (!pickSpeciesId) { toast('Kies eerst een plant'); return; }
     const sp = speciesById(pickSpeciesId);
     const p = { id: uid(), speciesId: sp.id, x: w.x, y: w.y, spread: sp.spread || 1, aantal: 1, notitie: '' };
-    garden().planten.push(p); save();
-    selected = { kind: 'plant', id: p.id }; render(); showSheet();
+    garden().planten.push(p); save(); selected = { kind: 'plant', id: p.id }; render(); showPanel();
   }
-  else if (mode === 'select') {
-    if (d.kind === 'pan') { selected = null; hideSheet(); render(); }
-    else if (d.kind !== 'handle') showSheet();
-  }
+  else if (mode === 'select') { if (d.kind === 'pan') { selected = null; hidePanel(); render(); } else if (d.kind !== 'handle') showPanel(); }
 }
-svg.addEventListener('pointerup', endPointer);
-svg.addEventListener('pointercancel', endPointer);
-svg.addEventListener('wheel', e => {
-  e.preventDefault();
-  const w = clientToWorld(e.clientX, e.clientY);
-  zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, w.x, w.y);
-}, { passive: false });
+svg.addEventListener('pointerup', endPointer); svg.addEventListener('pointercancel', endPointer);
+svg.addEventListener('wheel', e => { e.preventDefault(); const w = clientToWorld(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.15 : 1 / 1.15, w.x, w.y); }, { passive: false });
 window.addEventListener('resize', () => { applyView(); render(); });
 
 // ---------- Rekenwerk ----------
 function polyArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } return Math.abs(a) / 2; }
 function polyPerim(pts) { let l = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; l += Math.hypot(p[0] - q[0], p[1] - q[1]); } return l; }
 function centroid(pts) { let x = 0, y = 0; pts.forEach(p => { x += p[0]; y += p[1]; }); return [x / pts.length, y / pts.length]; }
-function inMeters(units) { const m = garden().metersPerUnit; return m ? units * m : null; }
-function areaText(v) { const m = garden().metersPerUnit; if (!m) return 'schaal nog niet ingesteld'; return `${fmt(polyArea(v.points) * m * m, 0)} m² · omtrek ${fmt(polyPerim(v.points) * m, 0)} m`; }
+function areaText(v) { const m = garden().metersPerUnit; if (!m) return 'schaal nog niet ingesteld'; return `${fmt(polyArea(v.points) * m * m)} m² · omtrek ${fmt(polyPerim(v.points) * m)} m`; }
 
-// ---------- Tekenen van de plattegrond ----------
+// ---------- Tekenen ----------
 function render() {
-  const g = garden();
-  const s = svgSize();
-  if (!g.view) { fitView(); return; }  // zet view, roept render opnieuw aan
+  const g = garden(); const s = svgSize();
+  if (!g.view) { fitView(); return; }
   view.x = g.view.x; view.y = g.view.y; view.w = g.view.w; view.h = view.w * s.h / s.w;
   svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
-  const upp = unitsPerPx();
-  const fs = 12 * upp;   // lettergrootte die op het scherm altijd 12px is
+  const upp = unitsPerPx(); const fs = 12 * upp;
   let out = '';
-  if (g.bg && (g.bg.url || g.bg.dataUrl)) out += `<image href="${g.bg.url || g.bg.dataUrl}" x="0" y="0" width="${g.bg.w}" height="${g.bg.h}" opacity="${g.bgOpacity ?? 0.85}" preserveAspectRatio="none" />`;
-  // Vlakken
-  for (const v of g.velden) {
-    const t = VELD_TYPES[v.type] || VELD_TYPES.overig;
-    const sel = selected && selected.kind === 'veld' && selected.id === v.id;
-    out += `<polygon class="veld ${sel ? 'sel' : ''}" data-kind="veld" data-id="${v.id}" points="${v.points.map(p => p.join(',')).join(' ')}" fill="${t.fill}" stroke="${t.stroke}" />`;
-    if (v.naam || g.metersPerUnit) {
-      const c = centroid(v.points);
-      const label = v.naam || t.naam;
-      const sub = g.metersPerUnit ? `${fmt(polyArea(v.points) * g.metersPerUnit ** 2, 0)} m²` : '';
-      out += `<text x="${c[0]}" y="${c[1]}" font-size="${fs}" text-anchor="middle" fill="#111" stroke="#fff" stroke-width="${upp * 3}" paint-order="stroke" font-weight="600">${esc(label)}</text>`;
-      if (sub) out += `<text x="${c[0]}" y="${c[1] + fs * 1.2}" font-size="${fs * 0.85}" text-anchor="middle" fill="#333" stroke="#fff" stroke-width="${upp * 3}" paint-order="stroke">${sub}</text>`;
+  if (g.bg && (g.bg.url || g.bg.dataUrl)) out += `<image href="${g.bg.url || g.bg.dataUrl}" x="0" y="0" width="${g.bg.w}" height="${g.bg.h}" opacity="${g.bgOpacity ?? 0.9}" preserveAspectRatio="none" />`;
+  // Meterraster zodra de schaal bekend is (1 m fijn, 5 m grof), alleen als het leesbaar is
+  if (g.metersPerUnit) {
+    const u1 = 1 / g.metersPerUnit, u5 = u1 * 5;
+    const step = u1 / upp >= 14 ? u1 : (u5 / upp >= 14 ? u5 : 0);
+    if (step) {
+      const x0 = Math.floor(view.x / step) * step, y0 = Math.floor(view.y / step) * step;
+      for (let x = x0; x <= view.x + view.w; x += step) out += `<line class="grid ${step === u1 && Math.round(x / u1) % 5 === 0 ? 'major' : ''}" x1="${x}" y1="${view.y}" x2="${x}" y2="${view.y + view.h}" />`;
+      for (let y = y0; y <= view.y + view.h; y += step) out += `<line class="grid ${step === u1 && Math.round(y / u1) % 5 === 0 ? 'major' : ''}" x1="${view.x}" y1="${y}" x2="${view.x + view.w}" y2="${y}" />`;
     }
+  }
+  for (const v of g.velden) {
+    const t = VELD_TYPES[v.type] || VELD_TYPES.overig; const sel = selected && selected.kind === 'veld' && selected.id === v.id;
+    out += `<polygon class="veld ${sel ? 'sel' : ''}" data-kind="veld" data-id="${v.id}" points="${v.points.map(p => p.join(',')).join(' ')}" fill="${t.fill}" stroke="${t.stroke}" />`;
+    const c = centroid(v.points);
+    const label = v.naam || t.naam; const sub = g.metersPerUnit ? `${fmt(polyArea(v.points) * g.metersPerUnit ** 2)} m²` : '';
+    out += `<text x="${c[0]}" y="${c[1]}" font-size="${fs}" text-anchor="middle" fill="#1B2A21" stroke="#F2F4EE" stroke-width="${upp * 3}" paint-order="stroke" font-weight="600">${esc(label)}</text>`;
+    if (sub) out += `<text x="${c[0]}" y="${c[1] + fs * 1.2}" font-size="${fs * 0.85}" text-anchor="middle" fill="#5A6A60" stroke="#F2F4EE" stroke-width="${upp * 3}" paint-order="stroke">${sub}</text>`;
     if (sel) v.points.forEach((p, i) => { out += `<circle class="handle" data-kind="handle" data-id="${v.id}" data-idx="${i}" cx="${p[0]}" cy="${p[1]}" r="${7 * upp}" />`; });
   }
-  // Planten
   for (const p of g.planten) {
-    const sp = speciesById(p.speciesId);
-    const sel = selected && selected.kind === 'plant' && selected.id === p.id;
+    const sp = speciesById(p.speciesId); const sel = selected && selected.kind === 'plant' && selected.id === p.id;
     const r = g.metersPerUnit ? Math.max((p.spread || 1) / 2 / g.metersPerUnit, 6 * upp) : Math.max(12 * upp, 10);
-    const kleur = sp && sp.bloei.length ? sp.kleur : '#5c9c4a';
-    const naam = sp ? sp.naam : '?';
+    const st = sp ? sp.status : 'aanwezig'; const rand = STATUS_KLEUR[st] || STATUS_KLEUR.aanwezig;
+    const vul = sp && sp.bloei.length ? sp.kleur : '#7FB27A';
     out += `<g class="plant ${sel ? 'sel' : ''}" data-kind="plant" data-id="${p.id}">
-      <circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${kleur}" fill-opacity="0.55" stroke="${sp && sp.status === 'gewenst' ? '#d18a00' : sp && sp.status === 'verplanten' ? '#26418f' : '#1d5c2c'}" ${sp && sp.status !== 'aanwezig' ? 'stroke-dasharray="4 3"' : ''} />
-      <circle cx="${p.x}" cy="${p.y}" r="${Math.max(r * 0.15, 2 * upp)}" fill="#1d5c2c" />
-      <text x="${p.x}" y="${p.y + r + fs * 1.05}" font-size="${fs * 0.9}" text-anchor="middle" fill="#111" stroke="#fff" stroke-width="${upp * 3}" paint-order="stroke">${esc(naam)}${p.aantal > 1 ? ' ×' + p.aantal : ''}</text>
-    </g>`;
+      <circle class="kroon" cx="${p.x}" cy="${p.y}" r="${r}" fill="${vul}" fill-opacity="0.5" stroke="${rand}" ${st !== 'aanwezig' ? 'stroke-dasharray="5 3"' : ''} />
+      <circle cx="${p.x}" cy="${p.y}" r="${Math.max(r * 0.12, 2 * upp)}" fill="${rand}" />
+      <text x="${p.x}" y="${p.y + r + fs * 1.05}" font-size="${fs * 0.9}" text-anchor="middle" fill="#1B2A21" stroke="#F2F4EE" stroke-width="${upp * 3}" paint-order="stroke">${esc(sp ? sp.naam : '?')}${p.aantal > 1 ? ' ×' + p.aantal : ''}</text></g>`;
   }
-  // Vlak of schaallijn in aanmaak
   if (drawPts.length) {
     if (mode === 'veld' && drawPts.length >= 2) out += `<polygon class="preview" points="${drawPts.map(p => p.x + ',' + p.y).join(' ')}" />`;
     if (mode === 'schaal' && drawPts.length === 2) out += `<line class="preview" x1="${drawPts[0].x}" y1="${drawPts[0].y}" x2="${drawPts[1].x}" y2="${drawPts[1].y}" />`;
     drawPts.forEach(p => { out += `<circle class="handle" cx="${p.x}" cy="${p.y}" r="${6 * upp}" />`; });
   }
   svg.innerHTML = out;
-  document.getElementById('empty-plan').style.display = (g.bg || g.velden.length || g.planten.length) ? 'none' : '';
-  const info = document.getElementById('overlay-info');
-  info.textContent = g.metersPerUnit ? `${g.velden.length} vlakken · ${g.planten.length} planten · schaal ingesteld` : `${g.velden.length} vlakken · ${g.planten.length} planten · 📏 schaal nog niet ingesteld`;
+  document.getElementById('empty').style.display = (g.bg || g.velden.length || g.planten.length) ? 'none' : '';
+  document.getElementById('status').textContent = `${g.velden.length} vlakken · ${g.planten.length} planten · ${g.metersPerUnit ? 'schaal ingesteld' : 'schaal nog niet ingesteld (menu ☰)'}`;
 }
 
-// ---------- Achtergrondtekening ----------
+// ---------- Tekening ----------
 function loadBackground(file) {
-  if (!file) return;
+  if (!file) return; toggleMenu(false);
   const img = new Image();
   img.onload = () => {
-    // Verklein tot max 2400 px zodat het in localStorage past
     const max = 2400, sc = Math.min(1, max / Math.max(img.width, img.height));
-    const c = document.createElement('canvas');
-    c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
     c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
     const g = garden();
-    const done = () => { g.view = null; save(); fitView(); renderSettings(); toast('Tekening geladen. Stel nu de schaal in met 📏'); };
+    const done = () => { g.view = null; save(); fitView(); renderMenu(); toast('Tekening geladen. Stel nu de schaal in via het menu.'); };
     if (assets) {
       toast('Tekening uploaden…');
-      c.toBlob(async blob => {
-        try { const r = await assets.upload(blob); g.bg = { assetId: r.id, url: r.url, w: c.width, h: c.height }; done(); }
-        catch (e) { console.warn('upload', e); toast('Uploaden mislukt: ' + (e.message || e.code)); }
-      }, 'image/jpeg', 0.85);
-    } else {
-      g.bg = { dataUrl: c.toDataURL('image/jpeg', 0.82), w: c.width, h: c.height };
-      done();
-    }
+      c.toBlob(async blob => { try { const r = await assets.upload(blob); g.bg = { assetId: r.id, url: r.url, w: c.width, h: c.height }; done(); } catch (e) { toast('Uploaden mislukt: ' + (e.message || e.code)); } }, 'image/jpeg', 0.85);
+    } else { g.bg = { dataUrl: c.toDataURL('image/jpeg', 0.82), w: c.width, h: c.height }; done(); }
     URL.revokeObjectURL(img.src);
   };
-  img.src = URL.createObjectURL(file);
-  document.getElementById('bg-file').value = '';
+  img.src = URL.createObjectURL(file); document.getElementById('bg-file').value = '';
 }
-function removeBackground() { if (!garden().bg || !confirm('Tekening verwijderen? Vlakken en planten blijven staan.')) return; garden().bg = null; save(); render(); renderSettings(); }
-function setBgOpacity(v) { garden().bgOpacity = +v; document.getElementById('g-opacity-val').textContent = Math.round(v * 100) + '%'; save(); render(); }
+function removeBackground() { if (!garden().bg || !confirm('Tekening verwijderen? Vlakken en planten blijven staan.')) return; garden().bg = null; save(); render(); renderMenu(); toggleMenu(false); }
+function setBgOpacity(v) { garden().bgOpacity = +v; save(); render(); }
 
-// ---------- Eigenschappen-paneel ----------
-function hideSheet() { document.getElementById('sheet').classList.remove('show'); }
-function showSheet() {
-  const sh = document.getElementById('sheet');
-  if (!selected) { hideSheet(); return; }
+// ---------- Eigenschappen ----------
+function hidePanel() { document.getElementById('panel').classList.remove('on'); }
+function showPanel() {
+  const el = document.getElementById('panel'); if (!selected) { hidePanel(); return; }
   const g = garden();
   const opt = (arr, cur, labels) => arr.map(x => `<option value="${x}" ${x === cur ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
   if (selected.kind === 'veld') {
-    const v = g.velden.find(v => v.id === selected.id); if (!v) { selected = null; hideSheet(); return; }
-    sh.innerHTML = `<h3>✏️ Vlak <button class="close" onclick="selected=null;hideSheet();render()">✕</button></h3>
-      <div class="frow"><label>Naam</label><input value="${esc(v.naam)}" oninput="selVeld().naam=this.value;save();render()" placeholder="bijv. Border tegen het huis" /></div>
-      <div class="frow"><label>Soort</label><select onchange="selVeld().type=this.value;save();render()">${opt(Object.keys(VELD_TYPES), v.type, Object.fromEntries(Object.entries(VELD_TYPES).map(([k, t]) => [k, t.naam])))}</select></div>
-      <div class="frow"><label>Licht</label><select onchange="selVeld().licht=this.value;save()">${opt(LICHT, v.licht)}</select></div>
-      <div class="frow"><label>Vocht</label><select onchange="selVeld().vocht=this.value;save()">${opt(VOCHT, v.vocht)}</select></div>
-      <div class="frow"><label>Grootte</label><span class="val">${areaText(v)}</span></div>
-      <div class="frow"><label>Notitie</label><textarea oninput="selVeld().notitie=this.value;save()">${esc(v.notitie)}</textarea></div>
-      <p style="font-size:12px;color:var(--txt2)">Sleep de oranje hoekpunten om de vorm aan te passen. Sleep het vlak zelf om het te verplaatsen.</p>
-      <div class="btns"><button class="btn danger" onclick="deleteSelected()">Verwijderen</button></div>`;
+    const v = g.velden.find(v => v.id === selected.id); if (!v) { selected = null; hidePanel(); return; }
+    el.innerHTML = `<h2>Vlak <button class="x" onclick="selected=null;hidePanel();render()">✕</button></h2>
+      <div class="row"><label for="v-naam">Naam</label><input id="v-naam" value="${esc(v.naam)}" placeholder="bijv. Border tegen het huis" oninput="selVeld().naam=this.value;save();render()" /></div>
+      <div class="row"><label for="v-type">Soort</label><select id="v-type" onchange="selVeld().type=this.value;save();render()">${opt(Object.keys(VELD_TYPES), v.type, Object.fromEntries(Object.entries(VELD_TYPES).map(([k, t]) => [k, t.naam])))}</select></div>
+      <div class="row"><label for="v-licht">Licht</label><select id="v-licht" onchange="selVeld().licht=this.value;save()">${opt(LICHT, v.licht)}</select></div>
+      <div class="row"><label for="v-vocht">Vocht</label><select id="v-vocht" onchange="selVeld().vocht=this.value;save()">${opt(VOCHT, v.vocht)}</select></div>
+      <div class="row"><span class="lab">Grootte</span><span class="val">${areaText(v)}</span></div>
+      <div class="row"><label for="v-notitie">Notitie</label><textarea id="v-notitie" oninput="selVeld().notitie=this.value;save()">${esc(v.notitie)}</textarea></div>
+      <p class="note">Sleep de gele hoekpunten om de vorm aan te passen, of het vlak zelf om het te verplaatsen.</p>
+      <div class="actions"><button class="btn danger" onclick="deleteSelected()">Vlak verwijderen</button></div>`;
   } else {
-    const p = g.planten.find(p => p.id === selected.id); if (!p) { selected = null; hideSheet(); return; }
+    const p = g.planten.find(p => p.id === selected.id); if (!p) { selected = null; hidePanel(); return; }
     const sp = speciesById(p.speciesId);
-    sh.innerHTML = `<h3>🌱 ${esc(sp ? sp.naam : 'Plant')} <button class="close" onclick="selected=null;hideSheet();render()">✕</button></h3>
-      <div class="frow"><label>Soort</label><select onchange="selPlant().speciesId=this.value;save();render();showSheet()">${state.species.map(s => `<option value="${s.id}" ${s.id === p.speciesId ? 'selected' : ''}>${esc(s.naam)}</option>`).join('')}</select></div>
-      <div class="frow"><label>Aantal</label><input type="number" min="1" value="${p.aantal || 1}" onchange="selPlant().aantal=Math.max(1,+this.value||1);save();render()" /></div>
-      <div class="frow"><label>Breedte (m)</label><input type="number" min="0.1" step="0.1" value="${p.spread}" onchange="selPlant().spread=Math.max(0.1,+this.value||1);save();render()" /></div>
-      <div class="frow"><label>Status</label><span class="val"><span class="pill ${sp ? sp.status : ''}">${sp ? sp.status : '-'}</span> ${sp && sp.bloei.length ? '· bloei ' + sp.bloei.map(m => MAANDEN[m - 1]).join(', ') : ''}</span></div>
-      <div class="frow"><label>Notitie</label><textarea oninput="selPlant().notitie=this.value;save()" placeholder="bijv. staat te droog, verplaatsen naar…">${esc(p.notitie)}</textarea></div>
-      <p style="font-size:12px;color:var(--txt2)">Sleep de plant om hem te verplaatsen. Gestippelde rand = gewenst of te verplanten.</p>
-      <div class="btns"><button class="btn" onclick="editSpecies('${p.speciesId}')">Soort bewerken</button><button class="btn danger" onclick="deleteSelected()">Van plattegrond halen</button></div>`;
+    el.innerHTML = `<h2>${esc(sp ? sp.naam : 'Plant')} <button class="x" onclick="selected=null;hidePanel();render()">✕</button></h2>
+      <div class="row"><label for="p-soort">Soort</label><select id="p-soort" onchange="selPlant().speciesId=this.value;save();render();showPanel()">${[...state.species].sort((a, b) => a.naam.localeCompare(b.naam, 'nl')).map(s => `<option value="${s.id}" ${s.id === p.speciesId ? 'selected' : ''}>${esc(s.naam)}</option>`).join('')}</select></div>
+      <div class="row"><label for="p-aantal">Aantal</label><input id="p-aantal" type="number" min="1" value="${p.aantal || 1}" onchange="selPlant().aantal=Math.max(1,+this.value||1);save();render()" /></div>
+      <div class="row"><label for="p-spread">Breedte (m)</label><input id="p-spread" type="number" min="0.1" step="0.1" value="${p.spread}" onchange="selPlant().spread=Math.max(0.1,+this.value||1);save();render()" /></div>
+      <div class="row"><span class="lab">Status</span><span class="val">${sp ? sp.status : '–'}</span></div>
+      <div class="row"><label for="p-notitie">Notitie</label><textarea id="p-notitie" oninput="selPlant().notitie=this.value;save()">${esc(p.notitie)}</textarea></div>
+      <p class="note">Sleep de plant om hem te verschuiven. Gestippelde rand: gewenst of te verplanten.</p>
+      <div class="actions"><button class="btn" onclick="editSpecies('${p.speciesId}')">Soort bewerken</button><button class="btn danger" onclick="deleteSelected()">Van kaart halen</button></div>`;
   }
-  sh.classList.add('show');
+  el.classList.add('on');
 }
 function selVeld() { return garden().velden.find(v => v.id === selected.id); }
 function selPlant() { return garden().planten.find(p => p.id === selected.id); }
 function deleteSelected() {
-  if (!selected) return;
-  const g = garden();
-  if (selected.kind === 'veld') g.velden = g.velden.filter(v => v.id !== selected.id);
-  else g.planten = g.planten.filter(p => p.id !== selected.id);
-  selected = null; save(); hideSheet(); render();
+  if (!selected) return; const g = garden();
+  if (selected.kind === 'veld') g.velden = g.velden.filter(v => v.id !== selected.id); else g.planten = g.planten.filter(p => p.id !== selected.id);
+  selected = null; save(); hidePanel(); render();
 }
-
-// ---------- Keuzelijst "plant plaatsen" ----------
 function renderPlantPick() {
   const sel = document.getElementById('plant-pick');
-  const list = [...state.species].sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
-  sel.innerHTML = `<option value="">– kies plant –</option>` + list.map(s => `<option value="${s.id}" ${s.id === pickSpeciesId ? 'selected' : ''}>${esc(s.naam)}</option>`).join('') + `<option value="__nieuw">+ nieuwe soort…</option>`;
+  const list = state.species.filter(s => !s.tuin || s.tuin === 'beide' || s.tuin === state.activeGarden).sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
+  if (pickSpeciesId && !list.some(s => s.id === pickSpeciesId)) pickSpeciesId = null;
+  sel.innerHTML = `<option value="">Kies een plant…</option>` + list.map(s => `<option value="${s.id}" ${s.id === pickSpeciesId ? 'selected' : ''}>${esc(s.naam)}</option>`).join('') + `<option value="__nieuw">+ Nieuwe plant…</option>`;
 }
-function onPlantPick(v) {
-  if (v === '__nieuw') { editSpecies(null); renderPlantPick(); return; }
-  pickSpeciesId = v || null;
-  if (pickSpeciesId && mode !== 'plant') setMode('plant');
-}
+function onPlantPick(v) { if (v === '__nieuw') { editSpecies(null); renderPlantPick(); return; } pickSpeciesId = v || null; }
 
 /* =====================================================================
    PLANTENLIJST
    ===================================================================== */
-function renderPlanten() {
-  const q = document.getElementById('pl-zoek').value.trim().toLowerCase();
-  const st = document.getElementById('pl-status').value;
-  const ty = document.getElementById('pl-type').value;
-  const li = document.getElementById('pl-licht').value;
-  const ex = document.getElementById('pl-extra').value;
-  const tsel = document.getElementById('pl-type');
-  if (tsel.options.length === 1) PLANT_TYPES.forEach(t => tsel.add(new Option(t, t)));
-  let list = state.species.filter(s =>
-    (!q || (s.naam + ' ' + s.latijn + ' ' + s.notitie).toLowerCase().includes(q)) &&
-    (!st || s.status === st) && (!ty || s.type === ty) && (!li || s.licht === li) &&
-    (ex !== 'inheems' || s.inheems) && (ex !== 'bessen' || s.bessen)
-  ).sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
-  const gid = state.activeGarden;
-  const placed = {};
-  Object.values(state.gardens).forEach(g => g.planten.forEach(p => { placed[p.speciesId] = (placed[p.speciesId] || 0) + (p.aantal || 1); }));
-  const el = document.getElementById('pl-list');
-  if (!list.length) { el.innerHTML = '<p class="count">Geen planten gevonden.</p>'; return; }
-  el.innerHTML = `<p class="count">${list.length} soorten</p>` + list.map(s => `
-    <div class="card" onclick="editSpecies('${s.id}')">
-      <div class="swatch" style="background:${s.bloei.length ? s.kleur : 'var(--bg3)'}">${s.bloei.length ? '' : '🌿'}</div>
-      <div style="flex:1;min-width:0">
-        <div class="cn">${esc(s.naam)}</div>
-        <div class="cl">${esc(s.latijn)}</div>
-        <div class="cm">
-          <span class="pill ${s.status}">${s.status}</span>
-          <span class="pill">${s.type}</span>
-          <span class="pill">${s.licht}</span>
-          ${s.bloei.length ? `<span class="pill">🌸 ${bloeiText(s.bloei)}</span>` : ''}
-          ${s.inheems ? '<span class="pill inheems">inheems</span>' : ''}
-          ${s.bessen ? '<span class="pill">🍒 bessen</span>' : ''}
-          ${placed[s.id] ? `<span class="pill">📍 ${placed[s.id]}× op kaart</span>` : ''}
-          ${s.tuin && s.tuin !== 'beide' ? `<span class="pill">${esc(state.gardens[s.tuin] ? state.gardens[s.tuin].naam : s.tuin)}</span>` : ''}
-        </div>
-        ${s.notitie ? `<div class="cm" style="display:block">${esc(s.notitie)}</div>` : ''}
-      </div>
-    </div>`).join('');
-}
+let statusFilter = '';
+function setStatusFilter(st) { statusFilter = st; document.querySelectorAll('#status-chips .chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.st === st)); renderPlanten(); }
 function bloeiText(months) {
-  if (!months.length) return '';
-  const m = [...months].sort((a, b) => a - b);
-  // Aaneengesloten reeksen samenvatten: 5,6,7 -> mei-jul
-  const parts = []; let start = m[0], prev = m[0];
-  for (let i = 1; i <= m.length; i++) {
-    if (m[i] === prev + 1) { prev = m[i]; continue; }
-    parts.push(start === prev ? MAANDEN[start - 1] : `${MAANDEN[start - 1]}–${MAANDEN[prev - 1]}`);
-    start = m[i]; prev = m[i];
-  }
+  if (!months.length) return ''; const m = [...months].sort((a, b) => a - b); const parts = []; let start = m[0], prev = m[0];
+  for (let i = 1; i <= m.length; i++) { if (m[i] === prev + 1) { prev = m[i]; continue; } parts.push(start === prev ? MAANDEN[start - 1] : `${MAANDEN[start - 1]}–${MAANDEN[prev - 1]}`); start = m[i]; prev = m[i]; }
   return parts.join(', ');
 }
-
+function renderPlanten() {
+  const q = document.getElementById('zoek').value.trim().toLowerCase();
+  const placed = {}; garden().planten.forEach(p => { placed[p.speciesId] = (placed[p.speciesId] || 0) + (p.aantal || 1); });
+  const list = state.species.filter(s => (!s.tuin || s.tuin === 'beide' || s.tuin === state.activeGarden) && (!q || (s.naam + ' ' + s.latijn).toLowerCase().includes(q)) && (!statusFilter || s.status === statusFilter))
+    .sort((a, b) => a.naam.localeCompare(b.naam, 'nl'));
+  const el = document.getElementById('lijst');
+  if (!list.length) { el.innerHTML = '<p class="kop">Geen planten gevonden</p>'; return; }
+  const groups = {}; list.forEach(s => { (groups[s.type] = groups[s.type] || []).push(s); });
+  el.innerHTML = PLANT_TYPES.filter(t => groups[t]).map(t => `<div class="kop">${t}</div>` + groups[t].map(s => `
+    <div class="item" onclick="editSpecies('${s.id}')">
+      <div class="dot ${s.status}" style="background:${s.bloei.length ? s.kleur : 'transparent'}"></div>
+      <div><div class="naam">${esc(s.naam)}</div>${s.latijn ? `<div class="latijn">${esc(s.latijn)}</div>` : ''}
+        <div class="meta">${[s.status, s.licht, s.bloei.length ? 'bloei ' + bloeiText(s.bloei) : '', s.inheems ? 'inheems' : '', s.bessen ? 'bessen' : ''].filter(Boolean).join(' · ')}</div>
+        ${s.notitie ? `<div class="meta">${esc(s.notitie)}</div>` : ''}</div>
+      <div class="kaart">${placed[s.id] ? placed[s.id] + '× op kaart' : ''}</div>
+    </div>`).join('')).join('');
+}
 function editSpecies(id) {
-  const s = id ? speciesById(id) : { id: null, naam: '', latijn: '', type: 'vaste plant', bloei: [], kleur: '#e04b8a', hoogte: '', licht: 'zon', vocht: 'normaal', inheems: false, bessen: false, status: 'gewenst', spread: 0.5, tuin: 'beide', notitie: '' };
+  const s = id ? speciesById(id) : { id: null, naam: '', latijn: '', type: 'vaste plant', bloei: [], kleur: '#D9A0C0', hoogte: '', licht: 'zon', vocht: 'normaal', inheems: false, bessen: false, status: 'gewenst', spread: 0.5, tuin: state.activeGarden, notitie: '' };
   const opt = (arr, cur) => arr.map(x => `<option value="${x}" ${x === cur ? 'selected' : ''}>${x}</option>`).join('');
   const tuinen = [['beide', 'Beide tuinen'], ...Object.values(state.gardens).map(g => [g.id, g.naam])];
-  document.getElementById('modal').innerHTML = `
-    <h3>${id ? '🌿 Plant bewerken' : '🌿 Nieuwe plant'}</h3>
-    <div class="frow"><label>Naam</label><input id="sp-naam" value="${esc(s.naam)}" placeholder="Nederlandse naam" /></div>
-    <div class="frow"><label>Latijnse naam</label><input id="sp-latijn" value="${esc(s.latijn)}" /></div>
-    <div class="frow"><label>Type</label><select id="sp-type">${opt(PLANT_TYPES, s.type)}</select></div>
-    <div class="frow"><label>Status</label><select id="sp-status">${opt(STATUS, s.status)}</select></div>
-    <div class="frow"><label>Tuin</label><select id="sp-tuin">${tuinen.map(([v, n]) => `<option value="${v}" ${v === s.tuin ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
-    <div class="frow"><label>Bloeitijd</label><div class="months">${MAANDEN.map((m, i) => `<label><input type="checkbox" class="sp-maand" value="${i + 1}" ${s.bloei.includes(i + 1) ? 'checked' : ''}><span>${m}</span></label>`).join('')}</div></div>
-    <div class="frow"><label>Bloemkleur</label><input type="color" id="sp-kleur" value="${s.kleur}" style="flex:0 0 60px;padding:2px;height:34px" /><span class="val" style="color:var(--txt2);font-size:12px">kleur op de kaart en in de kalender</span></div>
-    <div class="frow"><label>Hoogte</label><input id="sp-hoogte" value="${esc(s.hoogte)}" placeholder="bijv. 60-80 cm" /></div>
-    <div class="frow"><label>Breedte (m)</label><input id="sp-spread" type="number" min="0.1" step="0.1" value="${s.spread}" /></div>
-    <div class="frow"><label>Standplaats</label><select id="sp-licht">${opt(LICHT, s.licht)}</select></div>
-    <div class="frow"><label>Vocht</label><select id="sp-vocht">${opt(VOCHT, s.vocht)}</select></div>
-    <div class="frow"><label></label><div class="checks"><label><input type="checkbox" id="sp-inheems" ${s.inheems ? 'checked' : ''}> inheems</label><label><input type="checkbox" id="sp-bessen" ${s.bessen ? 'checked' : ''}> bessen/vruchten</label></div></div>
-    <div class="frow"><label>Notitie</label><textarea id="sp-notitie">${esc(s.notitie)}</textarea></div>
-    <div class="btns">
-      <button class="btn primary" onclick="saveSpecies('${id || ''}')">Opslaan</button>
-      <button class="btn" onclick="closeModal()">Annuleren</button>
-      ${id ? `<button class="btn danger" style="margin-left:auto" onclick="deleteSpecies('${id}')">Verwijderen</button>` : ''}
-    </div>`;
-  document.getElementById('modal-bg').classList.add('show');
+  document.getElementById('form').innerHTML = `
+    <h2>${id ? 'Plant bewerken' : 'Nieuwe plant'}</h2>
+    <div class="row"><label for="sp-naam">Naam</label><input id="sp-naam" value="${esc(s.naam)}" /></div>
+    <div class="row"><label for="sp-latijn">Latijn</label><input id="sp-latijn" value="${esc(s.latijn)}" /></div>
+    <div class="row"><label for="sp-type">Type</label><select id="sp-type">${opt(PLANT_TYPES, s.type)}</select></div>
+    <div class="row"><label for="sp-status">Status</label><select id="sp-status">${opt(STATUS, s.status)}</select></div>
+    <div class="row"><label for="sp-tuin">Tuin</label><select id="sp-tuin">${tuinen.map(([v, n]) => `<option value="${v}" ${v === s.tuin ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+    <div class="row"><span class="lab">Bloeitijd</span><div class="maanden">${MAANDEN.map((m, i) => `<label><input type="checkbox" class="sp-maand" value="${i + 1}" ${s.bloei.includes(i + 1) ? 'checked' : ''}><span>${m}</span></label>`).join('')}</div></div>
+    <div class="row"><label for="sp-kleur">Bloemkleur</label><input type="color" id="sp-kleur" value="${s.kleur}" style="width:64px;height:36px;padding:2px" /></div>
+    <div class="row"><label for="sp-hoogte">Hoogte</label><input id="sp-hoogte" value="${esc(s.hoogte)}" placeholder="bijv. 60–80 cm" /></div>
+    <div class="row"><label for="sp-spread">Breedte (m)</label><input id="sp-spread" type="number" min="0.1" step="0.1" value="${s.spread}" /></div>
+    <div class="row"><label for="sp-licht">Standplaats</label><select id="sp-licht">${opt(LICHT, s.licht)}</select></div>
+    <div class="row"><label for="sp-vocht">Vocht</label><select id="sp-vocht">${opt(VOCHT, s.vocht)}</select></div>
+    <div class="row"><span class="lab"></span><div class="checks"><label><input type="checkbox" id="sp-inheems" ${s.inheems ? 'checked' : ''}> inheems</label><label><input type="checkbox" id="sp-bessen" ${s.bessen ? 'checked' : ''}> bessen / vruchten</label></div></div>
+    <div class="row"><label for="sp-notitie">Notitie</label><textarea id="sp-notitie">${esc(s.notitie)}</textarea></div>
+    <div class="actions"><button class="btn primary" onclick="saveSpecies('${id || ''}')">Opslaan</button><button class="btn" onclick="closeForm()">Annuleren</button>${id ? `<button class="btn danger" style="margin-left:auto" onclick="deleteSpecies('${id}')">Verwijderen</button>` : ''}</div>`;
+  document.getElementById('dim').classList.add('on');
   setTimeout(() => document.getElementById('sp-naam').focus(), 50);
 }
-function closeModal() { document.getElementById('modal-bg').classList.remove('show'); }
+function closeForm() { document.getElementById('dim').classList.remove('on'); }
 function saveSpecies(id) {
-  const v = x => document.getElementById(x).value;
-  const naam = v('sp-naam').trim();
+  const v = x => document.getElementById(x).value; const naam = v('sp-naam').trim();
   if (!naam) { toast('Naam is verplicht'); return; }
-  const data = {
-    naam, latijn: v('sp-latijn').trim(), type: v('sp-type'), status: v('sp-status'), tuin: v('sp-tuin'),
-    bloei: [...document.querySelectorAll('.sp-maand:checked')].map(c => +c.value),
-    kleur: v('sp-kleur'), hoogte: v('sp-hoogte').trim(), spread: Math.max(0.1, parseFloat(v('sp-spread')) || 0.5),
-    licht: v('sp-licht'), vocht: v('sp-vocht'),
-    inheems: document.getElementById('sp-inheems').checked, bessen: document.getElementById('sp-bessen').checked,
-    notitie: v('sp-notitie').trim(),
-  };
-  if (id) Object.assign(speciesById(id), data);
-  else { const s = Object.assign({ id: uid() }, data); state.species.push(s); pickSpeciesId = s.id; }
-  save(); closeModal(); renderPlanten(); renderPlantPick(); render(); if (selected) showSheet();
-  toast('Opgeslagen');
+  const data = { naam, latijn: v('sp-latijn').trim(), type: v('sp-type'), status: v('sp-status'), tuin: v('sp-tuin'),
+    bloei: [...document.querySelectorAll('.sp-maand:checked')].map(c => +c.value), kleur: v('sp-kleur'), hoogte: v('sp-hoogte').trim(),
+    spread: Math.max(0.1, parseFloat(v('sp-spread')) || 0.5), licht: v('sp-licht'), vocht: v('sp-vocht'),
+    inheems: document.getElementById('sp-inheems').checked, bessen: document.getElementById('sp-bessen').checked, notitie: v('sp-notitie').trim() };
+  if (id) Object.assign(speciesById(id), data); else { const s = Object.assign({ id: uid() }, data); state.species.push(s); pickSpeciesId = s.id; }
+  save(); closeForm(); renderAll(); toast('Opgeslagen');
 }
 function deleteSpecies(id) {
   const n = Object.values(state.gardens).reduce((a, g) => a + g.planten.filter(p => p.speciesId === id).length, 0);
-  if (!confirm(`Deze soort verwijderen?${n ? ` Ook ${n} plek(ken) op de plattegrond verdwijnen.` : ''}`)) return;
+  if (!confirm(`Deze plant uit de lijst verwijderen?${n ? ` Ook ${n} plek(ken) op de kaart verdwijnen.` : ''}`)) return;
   state.species = state.species.filter(s => s.id !== id);
   Object.values(state.gardens).forEach(g => { g.planten = g.planten.filter(p => p.speciesId !== id); });
-  if (pickSpeciesId === id) pickSpeciesId = null;
-  save(); closeModal(); renderPlanten(); renderPlantPick(); render();
+  if (pickSpeciesId === id) pickSpeciesId = null; if (selected && selected.kind === 'plant') { selected = null; hidePanel(); }
+  save(); closeForm(); renderAll();
 }
 
-/* =====================================================================
-   BLOEIKALENDER — waar zitten de gaten in het jaar?
-   ===================================================================== */
-function renderKalender() {
-  const f = document.getElementById('kal-status').value;
-  const list = state.species.filter(s => s.bloei.length && (f === '' || (f === 'aanwezig' ? s.status === 'aanwezig' : s.status !== 'weg')))
-    .sort((a, b) => Math.min(...a.bloei) - Math.min(...b.bloei) || a.naam.localeCompare(b.naam, 'nl'));
-  const tot = Array(12).fill(0);
-  list.forEach(s => s.bloei.forEach(m => tot[m - 1]++));
-  const gaten = MAANDEN.filter((_, i) => tot[i] === 0);
-  document.getElementById('kal-info').textContent = list.length ? (gaten.length ? `Geen bloei in: ${gaten.join(', ')}` : 'Het hele jaar rond bloei 🎉') : 'Nog geen bloeiende planten in de lijst';
-  let h = `<table class="kal"><tr><th class="n">Plant</th>${MAANDEN.map(m => `<th>${m}</th>`).join('')}</tr>`;
-  list.forEach(s => {
-    h += `<tr><td class="n" onclick="editSpecies('${s.id}')" style="cursor:pointer">${esc(s.naam)} <span class="pill ${s.status}" style="font-size:10px">${s.status[0]}</span></td>`;
-    for (let m = 1; m <= 12; m++) h += `<td class="b">${s.bloei.includes(m) ? `<span style="background:${s.kleur};border:0.5px solid rgba(0,0,0,0.2)"></span>` : ''}</td>`;
-    h += '</tr>';
-  });
-  h += `<tr class="tot"><td class="n">Aantal bloeiend</td>${tot.map(t => `<td class="${t === 0 ? 'gap' : ''}">${t}</td>`).join('')}</tr></table>`;
-  h += '<p class="count" style="margin-top:8px">a = aanwezig, g = gewenst, v = verplanten. Rood = maand zonder bloei.</p>';
-  document.getElementById('kal-wrap').innerHTML = h;
-}
-
-/* =====================================================================
-   INSTELLINGEN, EXPORT, IMPORT
-   ===================================================================== */
-function renderSettings() {
-  const g = garden();
-  document.getElementById('g-naam').value = g.naam;
-  document.getElementById('g-adres').value = g.adres || '';
-  document.getElementById('g-notitie').value = g.notitie || '';
-  document.getElementById('g-opacity').value = g.bgOpacity ?? 0.85;
-  document.getElementById('g-opacity-val').textContent = Math.round((g.bgOpacity ?? 0.85) * 100) + '%';
-  document.getElementById('g-schaal').textContent = g.metersPerUnit ? `1 m = ${fmt(1 / g.metersPerUnit, 1)} eenheden (via 📏 opnieuw in te stellen)` : 'nog niet ingesteld — gebruik 📏 op de plattegrond';
-}
-function saveGardenMeta() {
-  const g = garden();
-  g.naam = document.getElementById('g-naam').value.trim() || g.naam;
-  g.adres = document.getElementById('g-adres').value.trim();
-  g.notitie = document.getElementById('g-notitie').value;
-  save(); renderGardenSelect();
-}
+// ---------- Reservekopie ----------
 function exportData() {
-  const json = JSON.stringify(state, null, 1);
-  const filename = `tuin-gjalt-${new Date().toISOString().slice(0, 10)}.json`;
-  if (downloads) {
-    downloads.save({ filename, data: json }).then(() => toast('Reservekopie opgeslagen'))
-      .catch(e => { if (e.code !== 'declined') toast('Exporteren lukt hier niet: ' + (e.message || e.code)); });
-    return;
-  }
-  const blob = new Blob([json], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  const json = JSON.stringify(state, null, 1); const filename = `tuin-${new Date().toISOString().slice(0, 10)}.json`;
+  if (downloads) { downloads.save({ filename, data: json }).then(() => toast('Reservekopie opgeslagen')).catch(e => { if (e.code !== 'declined') toast('Opslaan lukt hier niet: ' + (e.message || e.code)); }); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = filename; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 function importData(file) {
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = () => {
-    try {
-      const d = JSON.parse(r.result);
-      if (!d.gardens || !d.species) throw new Error('geen Tuin Gjalt-bestand');
-      if (!confirm('Alles op dit apparaat vervangen door de inhoud van dit bestand?')) return;
-      state = d; if (!state.gardens[state.activeGarden]) state.activeGarden = Object.keys(state.gardens)[0];
-      save(); selected = null; renderGardenSelect(); renderPlantPick(); render(); renderSettings(); toast('Geïmporteerd');
-    } catch (e) { toast('Importeren mislukt: ' + e.message); }
-  };
-  r.readAsText(file);
-  document.getElementById('import-file').value = '';
-}
-function resetAll() {
-  if (!confirm('Echt alles wissen? Maak eerst een export als je twijfelt.')) return;
-  state = defaultState(); selected = null; save();
-  renderGardenSelect(); renderPlantPick(); render(); renderSettings(); toast('Alles gewist');
+  if (!file) return; const r = new FileReader();
+  r.onload = () => { try { const d = JSON.parse(r.result); if (!d.gardens || !d.species) throw new Error('geen Tuin-bestand');
+    if (!confirm('Alles vervangen door de inhoud van dit bestand?')) return;
+    state = migrate(d); if (!state.gardens[state.activeGarden]) state.activeGarden = Object.keys(state.gardens)[0];
+    selected = null; hidePanel(); save(); renderAll(); toast('Teruggezet'); } catch (e) { toast('Terugzetten mislukt: ' + e.message); } };
+  r.readAsText(file); document.getElementById('import-file').value = ''; toggleMenu(false);
 }
 
 // ---------- Start ----------
-load();
-renderGardenSelect();
-renderPlantPick();
-render();
-renderSettings();
-setMode('select');
-initCloud();
+load(); renderAll(); setMode('select'); initCloud();
 </script>
 </body>
 </html>
