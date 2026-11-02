@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Willem Bakker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: vaste linkerrail (desktop) of horizontale tabbalk (telefoon); één inhoudskolom van max 1120px; samenvatting (tegels) vóór detail (tabellen). */
+:root{
+  --bg:#f2f4f7; --surface:#ffffff; --surface2:#e8ecf2; --line:#d3dae3; --line2:#e4e8ee;
+  --fg:#16202a; --fg2:#58667a; --fg3:#8a96a5;
+  --accent:#b07d0a; --accent-ink:#5a4004; --accent-soft:#f7edcf;
+  --red:#b5322a; --red-soft:#f8e2df; --blue:#1d5a9f; --blue-soft:#dde8f5; --ok:#22703f; --ok-soft:#dbeee2;
+  --display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --body:'Barlow','Segoe UI',Helvetica,Arial,sans-serif;
+  --radius:6px; --shadow:0 1px 2px rgba(22,32,42,.06);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1419; --surface:#161e26; --surface2:#1e2933; --line:#2c3947; --line2:#232f3a;
+    --fg:#e6ebf0; --fg2:#a0adba; --fg3:#6c7a88;
+    --accent:#e8bb3a; --accent-ink:#f5d879; --accent-soft:#3a2d0e;
+    --red:#e4695e; --red-soft:#3a1c19; --blue:#74a7e6; --blue-soft:#1a2c42; --ok:#5cc286; --ok-soft:#163124;
+    --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1419; --surface:#161e26; --surface2:#1e2933; --line:#2c3947; --line2:#232f3a;
+  --fg:#e6ebf0; --fg2:#a0adba; --fg3:#6c7a88;
+  --accent:#e8bb3a; --accent-ink:#f5d879; --accent-soft:#3a2d0e;
+  --red:#e4695e; --red-soft:#3a1c19; --blue:#74a7e6; --blue-soft:#1a2c42; --ok:#5cc286; --ok-soft:#163124;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:30px}h2{font-size:24px}h3{font-size:19px}h4{font-size:16px}
+p{margin:0}
+a{color:var(--blue)}
+button{font:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:208px minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"top top" "nav main"}
+.top{grid-area:top;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{width:38px;height:38px;flex:none}
+.brand-name{font-family:var(--display);font-size:24px;font-weight:700;line-height:1;letter-spacing:.01em}
+.brand-sub{font-size:12px;color:var(--fg2);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.nav{grid-area:nav;display:flex;flex-direction:column;gap:2px;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:10px;border-right:1px solid var(--line);background:var(--surface);position:sticky;top:env(safe-area-inset-top,0px);align-self:start;max-height:calc(100vh - env(safe-area-inset-top,0px));overflow:auto}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:var(--radius);color:var(--fg2);text-decoration:none;font-weight:500;font-size:14px}
+.nav a:hover{background:var(--surface2);color:var(--fg)}
+.nav a.active{background:var(--accent-soft);color:var(--accent-ink)}
+.nav a .cnt{font-family:var(--display);font-size:13px;background:var(--surface2);color:var(--fg2);border-radius:10px;padding:0 7px;min-width:20px;text-align:center}
+.nav a.active .cnt{background:var(--accent);color:#fff}
+.main{grid-area:main;min-width:0;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1120px;display:flex;flex-direction:column;gap:20px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.page-head p{color:var(--fg2);max-width:62ch}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface2);color:var(--fg2);white-space:nowrap;letter-spacing:.02em}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--accent-soft);color:var(--accent-ink)}
+.pill.bad{background:var(--red-soft);color:var(--red)}
+.pill.info{background:var(--blue-soft);color:var(--blue)}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--fg);font-weight:500;font-size:14px;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(.95)}
+.btn.small{padding:4px 9px;font-size:13px}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.danger.armed{background:var(--red);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--fg2)}
+.btn.ghost:hover{background:var(--surface2);color:var(--fg)}
+.btn:focus-visible,.nav a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow);min-width:0}
+.tile .lbl{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg2);font-weight:600}
+.tile .val{font-family:var(--display);font-size:32px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.tile .sub{font-size:13px;color:var(--fg2)}
+.tile.accent{border-left:4px solid var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);min-width:0}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line2)}
+.card-head h3{display:flex;align-items:center;gap:10px}
+.card-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+.scroll{overflow-x:auto;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;white-space:nowrap}
+td.acts{white-space:nowrap;text-align:right}
+td.dt{white-space:nowrap}
+td.empty{color:var(--fg2);text-align:center;padding:22px}
+tfoot td,tr.total td{font-weight:600;border-top:2px solid var(--line);background:var(--surface2)}
+.muted{color:var(--fg2)}.small{font-size:13px}.strong{font-weight:600}
+.neg{color:var(--red)}.pos{color:var(--ok)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{padding:9px 12px;border:none;border-bottom:2px solid transparent;background:none;color:var(--fg2);font-weight:500;cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+.tab.active{color:var(--accent-ink);border-bottom-color:var(--accent)}
+.tab .cnt{font-size:12px;color:var(--fg3);margin-left:4px}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end;height:140px;padding-top:6px}
+.bar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;min-width:0}
+.bar .b{width:100%;max-width:64px;background:var(--blue);border-radius:3px 3px 0 0;min-height:2px}
+.bar .b.neg{background:var(--red)}
+.bar .b.acc{background:var(--accent)}
+.bar .v{font-family:var(--display);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.bar .l{font-size:12px;color:var(--fg2)}
+.meter{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.meter i.over{background:var(--ok)}
+.list{display:flex;flex-direction:column;gap:10px}
+.fact{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.fact:last-child{border-bottom:none}
+.fact .d{font-family:var(--display);font-size:16px;font-weight:600;color:var(--fg2)}
+.fact .t{font-weight:600}
+.fact .s{font-size:13px;color:var(--fg2)}
+.fact .s a{color:var(--fg3)}
+.ev-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow);text-align:left;color:inherit;min-width:0}
+.ev:hover{border-color:var(--accent)}
+.ev .when{font-family:var(--display);font-size:22px;font-weight:700}
+.ev .cnt-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.team{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.member{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;box-shadow:var(--shadow);min-width:0}
+.avatar{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:18px;color:#fff;background:var(--blue)}
+.member .info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.member .nm{font-weight:600}
+.member .rl{color:var(--fg2);font-size:13px}
+.member .tk{font-size:13px}
+.member .acts{display:flex;gap:4px;margin-top:6px}
+.notice{padding:10px 14px;border-radius:var(--radius);background:var(--blue-soft);color:var(--blue);font-size:14px;display:flex;gap:10px;align-items:flex-start}
+.notice.warn{background:var(--accent-soft);color:var(--accent-ink)}
+.notice.bad{background:var(--red-soft);color:var(--red)}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:8px}
+.prose ul{margin:0;padding-left:18px}
+.kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:6px 12px;font-size:14px}
+.kv dt{color:var(--fg2)}.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.pre{white-space:pre-wrap;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+dialog{border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);padding:0;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(10,15,20,.5)}
+dialog form{display:flex;flex-direction:column;gap:12px;padding:18px 20px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg2);font-weight:600}
+.field input,.field select,.field textarea,.inline-input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);color:var(--fg);width:100%;min-width:0}
+.field textarea{min-height:110px;resize:vertical}
+.field .hint{font-size:12px;color:var(--fg3)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:6px}
+.err{color:var(--red);font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+.inline-input{width:auto}
+select.inline-input{padding:5px 8px;font-size:14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+.ring-row{display:flex;gap:8px;flex-wrap:wrap}
+.hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:stretch}
+.hero .card-body{gap:10px}
+.palmares-top{display:flex;gap:10px;flex-wrap:wrap}
+.medal{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);min-width:0}
+.medal i{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.medal b{font-family:var(--display);font-size:16px;font-weight:600}
+.medal span{font-size:13px;color:var(--fg2)}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "nav" "main"}
+  .nav{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line);padding-block:8px;padding-right:max(16px,env(safe-area-inset-right,0px));max-height:none;gap:4px}
+  .nav a{white-space:nowrap;padding:7px 10px}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .frow{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+  .tile .val{font-size:28px}
+}
+@media (prefers-reduced-motion:no-preference){.btn,.nav a,.ev{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="19" fill="#f4f4f2" stroke="#8a96a5" stroke-width="1"/>
+        <circle cx="20" cy="20" r="15.2" fill="#1b1b1b"/>
+        <circle cx="20" cy="20" r="11.4" fill="#1f63b4"/>
+        <circle cx="20" cy="20" r="7.6" fill="#d8352a"/>
+        <circle cx="20" cy="20" r="3.8" fill="#f2c12e"/>
+      </svg>
+      <div>
+        <div class="brand-name">Willem Bakker</div>
+        <div class="brand-sub">Teamportaal · recurve · Waalre</div>
+      </div>
+    </div>
+    <div class="top-right"><span id="modeBadge" class="pill"><span class="dot"></span>Laden…</span></div>
+  </header>
+  <nav class="nav" id="nav" aria-label="Onderdelen">
+    <a href="#overzicht" data-view="overzicht">Overzicht</a>
+    <a href="#sponsoren" data-view="sponsoren">Sponsoren <span class="cnt" data-cnt="sponsors"></span></a>
+    <a href="#bv" data-view="bv">BV: balans &amp; W&amp;V</a>
+    <a href="#prive" data-view="prive">Privé-inkomen</a>
+    <a href="#events" data-view="events">Events <span class="cnt" data-cnt="events"></span></a>
+    <a href="#team" data-view="team">Team <span class="cnt" data-cnt="team"></span></a>
+    <a href="#data" data-view="data">Gegevens</a>
+  </nav>
+  <main class="main" id="main"><div class="wrap"><p class="muted">Laden…</p></div></main>
+</div>
+<dialog id="dlg"><form id="dlgForm" novalidate></form></dialog>
+<div id="toast" class="toast" hidden></div>
+<script>
+(function(){
+'use strict';
+/* ---------- helpers ---------- */
+const $ = (s, el) => (el || document).querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eurFmt = new Intl.NumberFormat('nl-NL', {style:'currency', currency:'EUR', maximumFractionDigits:0});
+const eur = n => eurFmt.format(Number(n) || 0);
+const num = v => { if (typeof v === 'number') return isFinite(v) ? v : 0; const n = parseFloat(String(v == null ? '' : v).replace(/\./g, '').replace(',', '.')); return isNaN(n) ? 0 : n; };
+const numLoose = v => { if (typeof v === 'number') return isFinite(v) ? v : 0; let s = String(v == null ? '' : v).trim().replace(/[€\s]/g, ''); if (!s) return 0; if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.'); else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ''); const n = parseFloat(s); return isNaN(n) ? 0 : n; };
+const pad = n => String(n).padStart(2, '0');
+const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const parseIso = iso => { if (!iso) return null; const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? null : d; };
+const fmtDate = iso => { const d = parseIso(iso); return d ? d.toLocaleDateString('nl-NL', {day:'numeric', month:'short', year:'numeric'}) : '—'; };
+const fmtDateLong = iso => { const d = parseIso(iso); return d ? d.toLocaleDateString('nl-NL', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : '—'; };
+const daysUntil = iso => { const d = parseIso(iso); if (!d) return null; return Math.round((d - parseIso(todayIso())) / 86400000); };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const by = (key, dir) => (a, b) => { const x = a[key] == null ? '' : a[key], y = b[key] == null ? '' : b[key]; return (x < y ? -1 : x > y ? 1 : 0) * (dir === 'desc' ? -1 : 1); };
+const sum = (arr, fn) => arr.reduce((t, x) => t + num(fn(x)), 0);
+const thisYear = () => new Date().getFullYear();
+let toastTimer = null;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600); }
+
+/* ---------- vaste gegevens ---------- */
+const COLS = ['team', 'sponsors', 'bv', 'prive', 'events', 'mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties', 'settings'];
+const LS_KEY = 'willembakker.portaal.v1';
+const LS_UI = 'willembakker.portaal.ui';
+const PAKKETTEN = ['Platina', 'Goud', 'Zilver', 'Brons', 'Materiaalsponsor', 'Vriend van Willem', 'Pijl-adoptie', 'Anders'];
+const SPONSOR_STATUS = ['In gesprek', 'Toegezegd', 'Getekend', 'Gestopt'];
+const BETALING = ['Jaarlijks', 'Per kwartaal', 'Eenmalig'];
+const PRIVE_TYPES = ['A-status (NOC*NSF stipendium)', 'Prijzengeld', 'Overig inkomen'];
+const EVENT_STATUS = ['In voorbereiding', 'Definitief', 'Afgerond', 'Geannuleerd'];
+const TAAK_STATUS = ['Open', 'Bezig', 'Klaar'];
+const BUDGET_TYPE = ['Kosten', 'Opbrengsten'];
+const PRES_TYPES = ['Presentatie', 'Financieel overzicht', 'Video', 'Document', 'Anders'];
+const LA2028 = '2028-07-14';
+
+const FEITEN = [
+  {d:'24 mei 2026', t:'Europees kampioen recurve heren, EK outdoor Antalya', s:'Finale 6-2 tegen Mauro Nespoli (ITA); halve finale tegen Baptiste Addis (FRA); kwalificatie 5e met 676 punten.', u:'https://www.worldarchery.sport/news/202455/bakker-claims-first-target-major-title-european-outdoor-championships', b:'World Archery'},
+  {d:'jun 2026', t:'World Cup Antalya (stage 3)', s:'Kwalificatie 666 (35e), won 6-2 van Florian Faber (SUI), verloor in de 1/24-ronde van Reza Shabani (IRI).', u:'https://www.worldarchery.sport/news/202452/host-nation-fighting-compound-gold-individual-finals-set-antalya-2026', b:'World Archery'},
+  {d:'13 aug 2025', t:'Brons World Games Chengdu, recurve heren', s:'Bronzen finale 60-59 tegen Florian Unruh (GER); halve finale verloren van Matteo Borsani (ITA).', u:'https://eindhovennews.com/news/2025/08/waalre-archer-willem-bakker-takes-third-place-at-the-world-games', b:'Eindhoven News'},
+  {d:'sep 2025', t:'WK outdoor Gwangju: 57e', s:'Eerste volledige seizoen in de World Cup-ploeg van TeamNL.', u:'https://www.handboogsport.nl/nieuws/willem-bakker-europees-kampioen-nederland-sluit-ek-af-met-derde-goud/', b:'KHSN'},
+  {d:'2024', t:'WK veldschieten Yankton (USA): 14e', s:'Laatste 16 bij recurve heren.', u:'https://www.financieel-zeker.nl/willem-bakker-14e-wk-veldschieten-in-yankton/', b:'Financieel Zeker'},
+  {d:'30 jun 2023', t:'Nederlands kampioen outdoor, recurve heren', s:'Finale 6-2 tegen Senna Roos; kwalificatie 1e met 673 punten. Toen 24 jaar.', u:'https://hsvdevriendschapwaalre.nl/archery-hall-of-fame/', b:'HSV De Vriendschap'},
+  {d:'8 mei 2022', t:'Goud European Grand Prix Plovdiv', s:'Als 17e geplaatst; versloeg olympisch kampioen Mete Gazoz met 6-2 en won de finale in een shoot-off (10-9) van Jeff Henckels.', u:'https://www.worldarchery.sport/fr/node/200729', b:'World Archery'},
+  {d:'2018 / 2019', t:'Zilver WK U21 Cortina en zilver EK U21 Mokrice', s:'Jeugdmedailles in de categorie onder 21.', u:'https://www.worldarchery.sport/news/202492/how-willem-bakkers-father-convinced-him-chase-archery-full-time', b:'World Archery'}
+];
+
+const SEED = {
+  settings: [{id:'main', jaar: 2026, doelen: {'2026': 40000, '2027': 50000, '2028': 60000}, doelToelichting: 'Voorbeelddoelen per jaar: aanpassen in Sponsoren › Doel bewerken.'}],
+  team: [
+    {id:'t-gjalt', naam:'Gjalt van Hes', rol:'Financiën & planning', email:'gjaltvanhes@me.com', taken:'Sponsorplanning, BV-cijfers (Snelstart), portaal'},
+    {id:'t-2', naam:'Teamlid 2', rol:'Rol invullen', email:'', taken:''},
+    {id:'t-3', naam:'Teamlid 3', rol:'Rol invullen', email:'', taken:''},
+    {id:'t-4', naam:'Teamlid 4', rol:'Rol invullen', email:'', taken:''},
+    {id:'t-5', naam:'Teamlid 5', rol:'Rol invullen', email:'', taken:''},
+    {id:'t-6', naam:'Teamlid 6', rol:'Rol invullen', email:'', taken:''}
+  ],
+  sponsors: [
+    {id:'s-saluqi', naam:'Saluqi Motors', pakket:'Goud', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen.'},
+    {id:'s-org', naam:'ORGwaalre', pakket:'Goud', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen.'},
+    {id:'s-fototb', naam:'FotoTB.nl', pakket:'Goud', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen.'},
+    {id:'s-fz', naam:'Financieel Zeker', pakket:'Anders', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Noemt zichzelf sponsor en publiceert nieuwsberichten over Willem. Pakket en bedrag nog invullen.'}
+  ],
+  bv: [],
+  prive: [],
+  events: [{id:'ev-2dec', naam:'Event 2 december', datum:'2026-12-02', tijd:'19:00', locatie:'Nog vast te leggen', doel:'Doel en opzet overnemen uit de Granola-notulen.', status:'In voorbereiding', samenvatting:'', notulen:'', notulenLink:'https://notes.granola.ai/t/1aea931f-850d-4ae3-a3ef-3fff8043aa32'}],
+  mijlpalen: [
+    {id:'m-1', eventId:'ev-2dec', datum:'2026-11-11', mijlpaal:'Gastenlijst en uitnodigingen verstuurd', wie:'', status:'Open'},
+    {id:'m-2', eventId:'ev-2dec', datum:'2026-11-18', mijlpaal:'Programma van de avond definitief', wie:'', status:'Open'},
+    {id:'m-3', eventId:'ev-2dec', datum:'2026-11-25', mijlpaal:'Presentatie en financieel plaatje klaar', wie:'', status:'Open'},
+    {id:'m-4', eventId:'ev-2dec', datum:'2026-12-01', mijlpaal:'Doorloop op locatie (techniek, catering, opstelling)', wie:'', status:'Open'},
+    {id:'m-5', eventId:'ev-2dec', datum:'2026-12-02', mijlpaal:'Event', wie:'', status:'Open'}
+  ],
+  acties: [
+    {id:'a-1', eventId:'ev-2dec', wat:'Locatie vastleggen (voorbeeld)', wie:'', deadline:'2026-11-06', status:'Open', notitie:''},
+    {id:'a-2', eventId:'ev-2dec', wat:'Gastenlijst opstellen: sponsoren, kandidaat-sponsoren, pers (voorbeeld)', wie:'', deadline:'2026-11-09', status:'Open', notitie:''},
+    {id:'a-3', eventId:'ev-2dec', wat:'Uitnodiging ontwerpen en versturen (voorbeeld)', wie:'', deadline:'2026-11-11', status:'Open', notitie:''},
+    {id:'a-4', eventId:'ev-2dec', wat:'Presentatie Willem: seizoen 2026 en route naar LA 2028 (voorbeeld)', wie:'', deadline:'2026-11-25', status:'Open', notitie:''},
+    {id:'a-5', eventId:'ev-2dec', wat:'Financieel plaatje en sponsorpakketten uitwerken (voorbeeld)', wie:'', deadline:'2026-11-25', status:'Open', notitie:''},
+    {id:'a-6', eventId:'ev-2dec', wat:'Catering en drank regelen (voorbeeld)', wie:'', deadline:'2026-11-27', status:'Open', notitie:''},
+    {id:'a-7', eventId:'ev-2dec', wat:'Beamer, geluid en opname checken (voorbeeld)', wie:'', deadline:'2026-12-01', status:'Open', notitie:''}
+  ],
+  programma: [
+    {id:'p-1', eventId:'ev-2dec', tijd:'19:00', onderdeel:'Inloop en ontvangst (voorbeeld)', wie:'', duur:30, notitie:''},
+    {id:'p-2', eventId:'ev-2dec', tijd:'19:30', onderdeel:'Welkom en opening (voorbeeld)', wie:'', duur:10, notitie:''},
+    {id:'p-3', eventId:'ev-2dec', tijd:'19:40', onderdeel:'Willem aan het woord: EK-goud 2026 en de weg naar LA 2028 (voorbeeld)', wie:'Willem Bakker', duur:30, notitie:''},
+    {id:'p-4', eventId:'ev-2dec', tijd:'20:10', onderdeel:'Financieel plaatje en sponsormogelijkheden (voorbeeld)', wie:'', duur:20, notitie:''},
+    {id:'p-5', eventId:'ev-2dec', tijd:'20:30', onderdeel:'Vragen, netwerken en borrel (voorbeeld)', wie:'', duur:60, notitie:''},
+    {id:'p-6', eventId:'ev-2dec', tijd:'21:30', onderdeel:'Afsluiting (voorbeeld)', wie:'', duur:10, notitie:''}
+  ],
+  eventbudget: [
+    {id:'b-1', eventId:'ev-2dec', type:'Kosten', post:'Zaalhuur (voorbeeld)', begroot:500, werkelijk:0, notitie:''},
+    {id:'b-2', eventId:'ev-2dec', type:'Kosten', post:'Catering en drank (voorbeeld)', begroot:1200, werkelijk:0, notitie:''},
+    {id:'b-3', eventId:'ev-2dec', type:'Kosten', post:'Drukwerk en uitnodigingen (voorbeeld)', begroot:150, werkelijk:0, notitie:''},
+    {id:'b-4', eventId:'ev-2dec', type:'Kosten', post:'Techniek: beamer, geluid, opname (voorbeeld)', begroot:300, werkelijk:0, notitie:''},
+    {id:'b-5', eventId:'ev-2dec', type:'Opbrengsten', post:'Sponsortoezeggingen tijdens de avond (voorbeeld)', begroot:10000, werkelijk:0, notitie:''}
+  ],
+  presentaties: []
+};
+
+/* ---------- opslag: gedeeld (Claude-artifact db) of lokaal (browser) ---------- */
+const Store = {
+  mode: 'local', backend: null, cache: {}, listeners: [], error: null,
+  all(col) { return this.cache[col] || []; },
+  get(col, id) { return this.all(col).find(d => d.id === id) || null; },
+  async put(col, doc) {
+    if (!doc.id) doc.id = uid();
+    const clean = {}; Object.keys(doc).forEach(k => { if (doc[k] !== undefined) clean[k] = doc[k]; });
+    try { await this.backend.put(col, clean); } catch (e) { toast('Opslaan mislukt: ' + (e && e.code ? e.code : 'onbekende fout')); throw e; }
+    return clean;
+  },
+  async del(col, id) {
+    try { await this.backend.del(col, id); } catch (e) { toast('Verwijderen mislukt: ' + (e && e.code ? e.code : 'onbekende fout')); throw e; }
+  },
+  settings() { return this.get('settings', 'main') || SEED.settings[0]; },
+  onChange(fn) { this.listeners.push(fn); },
+  emit() { this.listeners.forEach(fn => fn()); },
+  async init() {
+    COLS.forEach(c => { this.cache[c] = []; });
+    let db = null;
+    try { if (window.claude && typeof window.claude.use === 'function') db = await window.claude.use('db'); } catch (e) { db = null; }
+    if (db) { this.mode = 'shared'; this.backend = DbBackend; await DbBackend.init(db); }
+    else { this.mode = 'local'; this.backend = LocalBackend; LocalBackend.init(); }
+  },
+  exportJson() { const out = {}; COLS.forEach(c => { out[c] = this.all(c); }); out._export = {app:'willembakker-portaal', versie:1, datum:new Date().toISOString(), modus:this.mode}; return JSON.stringify(out, null, 2); },
+  async importJson(text, replace) {
+    const obj = JSON.parse(text);
+    if (replace) await this.clearAll();
+    for (const c of COLS) { const arr = Array.isArray(obj[c]) ? obj[c] : []; for (const d of arr) { if (d && typeof d === 'object' && d.id) await this.put(c, d); } }
+  },
+  async clearAll() { for (const c of COLS) { for (const d of this.all(c).slice()) await this.del(c, d.id); } }
+};
+
+const LocalBackend = {
+  init() {
+    let loaded = false;
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { const obj = JSON.parse(raw); COLS.forEach(c => { Store.cache[c] = Array.isArray(obj[c]) ? obj[c] : []; }); loaded = true; } } catch (e) { loaded = false; }
+    if (!loaded) { COLS.forEach(c => { Store.cache[c] = (SEED[c] || []).map(d => Object.assign({}, d)); }); this.save(); }
+  },
+  save() { try { localStorage.setItem(LS_KEY, JSON.stringify(Store.cache)); } catch (e) { /* opslag niet beschikbaar: alleen in geheugen */ } },
+  async put(col, doc) { const arr = Store.cache[col]; const i = arr.findIndex(d => d.id === doc.id); if (i >= 0) arr[i] = doc; else arr.push(doc); this.save(); Store.emit(); },
+  async del(col, id) { Store.cache[col] = Store.cache[col].filter(d => d.id !== id); this.save(); Store.emit(); }
+};
+
+const DbBackend = {
+  db: null, ready: {}, unsubs: [],
+  init(db) {
+    this.db = db;
+    return new Promise(resolve => {
+      let pending = COLS.length, done = false;
+      const finish = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+      const timer = setTimeout(() => { Store.error = Store.error || {code:'timeout', message:'De gedeelde gegevens zijn nog niet bereikbaar.'}; finish(); }, 10000);
+      COLS.forEach(col => {
+        const unsub = db.collection(col).onSnapshot(snap => {
+          Store.cache[col] = snap.docs.map(d => Object.assign({id:d.id}, d.data()));
+          Store.emit();
+          if (!snap.metadata.fromCache && !this.ready[col]) { this.ready[col] = true; pending--; if (pending === 0) { Store.error = null; finish(); } }
+        }, err => { Store.error = err; Store.emit(); finish(); });
+        this.unsubs.push(unsub);
+      });
+    });
+  },
+  put(col, doc) { const data = Object.assign({}, doc); const id = data.id; delete data.id; return this.db.collection(col).doc(id).set(data); },
+  del(col, id) { return this.db.collection(col).doc(id).delete(); }
+};
+
+/* ---------- formulier-dialoog ---------- */
+function fieldHtml(f, v) {
+  const id = 'f_' + f.key; const val = v == null ? (f.default == null ? '' : f.default) : v;
+  let input;
+  if (f.type === 'select') {
+    const opts = (f.options || []).map(o => { const ov = typeof o === 'object' ? o.v : o, ol = typeof o === 'object' ? o.l : o; return `<option value="${esc(ov)}"${String(ov) === String(val) ? ' selected' : ''}>${esc(ol)}</option>`; }).join('');
+    input = `<select id="${id}" name="${esc(f.key)}">${f.allowEmpty ? '<option value="">—</option>' : ''}${opts}</select>`;
+  } else if (f.type === 'textarea') {
+    input = `<textarea id="${id}" name="${esc(f.key)}" placeholder="${esc(f.placeholder || '')}">${esc(val)}</textarea>`;
+  } else {
+    const t = f.type === 'number' ? 'text' : (f.type || 'text');
+    input = `<input id="${id}" name="${esc(f.key)}" type="${t}" value="${esc(val)}" placeholder="${esc(f.placeholder || '')}"${f.type === 'number' ? ' inputmode="decimal"' : ''}${f.required ? ' required' : ''}>`;
+  }
+  return `<div class="field${f.half ? ' half' : ''}"><label for="${id}">${esc(f.label)}${f.required ? ' *' : ''}</label>${input}${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}</div>`;
+}
+function openForm(opts) {
+  const dlg = $('#dlg'), form = $('#dlgForm'); const values = opts.values || {};
+  let html = `<h3>${esc(opts.title)}</h3>`;
+  const fields = opts.fields; let i = 0;
+  while (i < fields.length) {
+    if (fields[i].half && fields[i + 1] && fields[i + 1].half) { html += `<div class="frow">${fieldHtml(fields[i], values[fields[i].key])}${fieldHtml(fields[i + 1], values[fields[i + 1].key])}</div>`; i += 2; }
+    else { html += fieldHtml(fields[i], values[fields[i].key]); i++; }
+  }
+  html += `<div class="err" id="formErr" hidden></div><div class="dlg-actions">${opts.onDelete ? '<button type="button" class="btn danger" id="formDel">Verwijderen</button><span class="grow"></span>' : ''}<button type="button" class="btn" id="formCancel">Annuleren</button><button type="submit" class="btn primary">${esc(opts.submitLabel || 'Opslaan')}</button></div>`;
+  form.innerHTML = html;
+  $('#formCancel', form).onclick = () => dlg.close();
+  if (opts.onDelete) { const b = $('#formDel', form); b.onclick = () => { if (!b.classList.contains('armed')) { b.classList.add('armed'); b.textContent = 'Zeker? Klik nogmaals'; setTimeout(() => { b.classList.remove('armed'); b.textContent = 'Verwijderen'; }, 4000); return; } dlg.close(); opts.onDelete(); }; }
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const data = {}; const missing = [];
+    fields.forEach(f => { const el = form.elements[f.key]; let v = el ? el.value : ''; if (f.type === 'number') v = numLoose(v); else if (typeof v === 'string') v = v.trim(); if (f.required && (v === '' || v == null)) missing.push(f.label); data[f.key] = v; });
+    const err = $('#formErr', form);
+    if (missing.length) { err.textContent = 'Vul in: ' + missing.join(', '); err.hidden = false; return; }
+    try { await opts.onSave(data); dlg.close(); } catch (ex) { err.textContent = 'Opslaan is niet gelukt. Probeer het nog eens.'; err.hidden = false; }
+  };
+  if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  const first = form.querySelector('input,select,textarea'); if (first) first.focus();
+}
+
+/* ---------- UI-status (alleen gemak per browser) ---------- */
+const UI = {view:'overzicht', eventId:null, eventTab:'planning', sponsorJaar:null, bvJaar:null, priveJaar:null, actieFilter:'open', readOnly:false, exportText:''};
+try { const u = JSON.parse(localStorage.getItem(LS_UI) || '{}'); ['eventId', 'eventTab', 'sponsorJaar', 'bvJaar', 'priveJaar', 'actieFilter'].forEach(k => { if (u[k] != null) UI[k] = u[k]; }); } catch (e) { /* geen voorkeuren */ }
+function saveUi() { try { localStorage.setItem(LS_UI, JSON.stringify({eventId:UI.eventId, eventTab:UI.eventTab, sponsorJaar:UI.sponsorJaar, bvJaar:UI.bvJaar, priveJaar:UI.priveJaar, actieFilter:UI.actieFilter})); } catch (e) { /* niets */ } }
+
+const jaar = () => num(Store.settings().jaar) || thisYear();
+const STATUS_CLS = {'Open':'warn', 'Bezig':'info', 'Klaar':'ok', 'In gesprek':'info', 'Toegezegd':'warn', 'Getekend':'ok', 'Gestopt':'bad', 'In voorbereiding':'info', 'Definitief':'ok', 'Afgerond':'', 'Geannuleerd':'bad'};
+const pill = s => `<span class="pill ${STATUS_CLS[s] || ''}">${esc(s || '—')}</span>`;
+const editBtn = (col, id) => UI.readOnly ? '' : `<button class="btn small ghost" data-act="edit" data-col="${esc(col)}" data-id="${esc(id)}">Bewerk</button>`;
+const addBtn = (col, label) => UI.readOnly ? '' : `<button class="btn primary small" data-act="add" data-col="${esc(col)}">${esc(label)}</button>`;
+const tile = (lbl, val, sub, cls) => `<div class="tile ${cls || ''}"><div class="lbl">${esc(lbl)}</div><div class="val">${val}</div><div class="sub">${sub || ''}</div></div>`;
+const tbl = (head, body, foot) => `<div class="scroll"><table><thead><tr>${head.map(h => typeof h === 'string' ? `<th>${h}</th>` : `<th class="${h.c || ''}">${h.l}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td class="empty" colspan="${head.length}">Nog niets ingevuld.</td></tr>`}</tbody>${foot ? `<tfoot>${foot}</tfoot>` : ''}</table></div>`;
+const signed = n => `<span class="${n < 0 ? 'neg' : ''}">${eur(n)}</span>`;
+const modeText = () => Store.mode === 'shared' ? 'gedeeld met iedereen die dit portaal mag openen' : 'alleen opgeslagen in deze browser (zie Gegevens om te delen)';
+const teamNames = () => Store.all('team').map(t => t.naam).filter(Boolean);
+const wieOptions = () => ['Willem Bakker'].concat(teamNames().filter(n => n !== 'Willem Bakker'));
+const yearsFrom = (vals, extra) => { const set = new Set(extra || []); vals.forEach(v => { const y = parseInt(v, 10); if (y) set.add(y); }); return Array.from(set).sort(); };
+const yearSelect = (scope, years, current) => `<select class="inline-input" data-change="year" data-scope="${scope}" aria-label="Jaar">${years.map(y => `<option value="${y}"${y === current ? ' selected' : ''}>${y}</option>`).join('')}</select>`;
+const linkOut = (url, label) => url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(label || url)}</a>` : '<span class="muted">—</span>';
+const eventSorted = () => Store.all('events').slice().sort(by('datum'));
+const nextEvent = () => { const t = todayIso(); return eventSorted().find(e => e.datum >= t && e.status !== 'Geannuleerd' && e.status !== 'Afgerond') || eventSorted()[0] || null; };
+const dagenTekst = iso => { const d = daysUntil(iso); if (d == null) return '—'; if (d === 0) return 'vandaag'; if (d === 1) return 'morgen'; if (d < 0) return Math.abs(d) + ' dagen geleden'; return 'over ' + d + ' dagen'; };
+
+/* ---------- berekeningen ---------- */
+const VAST = ['Toegezegd', 'Getekend'];
+const sponsorActive = (s, jr) => { const st = num(s.start) || jr, en = num(s.eind) || st; return jr >= st && jr <= en; };
+const sponsorSum = (jr, statuses) => sum(Store.all('sponsors').filter(s => statuses.includes(s.status) && sponsorActive(s, jr)), s => s.bedrag);
+function sponsorKwartalen(jr) {
+  const q = [0, 0, 0, 0];
+  Store.all('sponsors').filter(s => VAST.includes(s.status) && sponsorActive(s, jr)).forEach(s => {
+    const b = num(s.bedrag), k = Math.min(4, Math.max(1, num(s.kwartaal) || 1)) - 1;
+    if (s.betaling === 'Per kwartaal') { for (let i = 0; i < 4; i++) q[i] += b / 4; }
+    else if (s.betaling === 'Eenmalig') { if ((num(s.start) || jr) === jr) q[k] += b; }
+    else q[k] += b;
+  });
+  return q;
+}
+const resultaat = r => num(r.omzet) - num(r.kosten) - num(r.afschrijvingen) - num(r.belasting);
+const activa = r => num(r.vasteActiva) + num(r.vlottendeActiva) + num(r.liquide);
+const passiva = r => num(r.eigenVermogen) + num(r.schulden);
+const bvYear = jr => Store.all('bv').filter(r => num(r.jaar) === jr).sort(by('kwartaal'));
+const priveYear = jr => Store.all('prive').filter(r => String(r.datum || '').slice(0, 4) === String(jr)).sort(by('datum', 'desc'));
+const evRows = (col, eventId) => Store.all(col).filter(r => r.eventId === eventId);
+
+function bars(items, cls) {
+  const max = Math.max(1, ...items.map(i => Math.abs(num(i.v))));
+  return `<div class="bars" style="grid-template-columns:repeat(${items.length},1fr)">${items.map(i => { const h = Math.round(Math.abs(num(i.v)) / max * 100); return `<div class="bar"><div class="v">${eur(i.v)}</div><div class="b ${num(i.v) < 0 ? 'neg' : (cls || '')}" style="height:${h}%"></div><div class="l">${esc(i.l)}</div></div>`; }).join('')}</div>`;
+}
+
+/* ---------- schermen ---------- */
+function vOverzicht() {
+  const s = Store.settings(), jr = jaar();
+  const vast = sponsorSum(jr, VAST), gesprek = sponsorSum(jr, ['In gesprek']), doel = num((s.doelen || {})[jr]);
+  const bvRows = bvYear(jr), res = sum(bvRows, resultaat);
+  const pr = priveYear(jr), prijzen = sum(pr.filter(r => r.type === 'Prijzengeld'), r => r.bedrag), astatus = sum(pr.filter(r => r.type === PRIVE_TYPES[0]), r => r.bedrag), overig = sum(pr.filter(r => r.type === PRIVE_TYPES[2]), r => r.bedrag);
+  const next = nextEvent(); const openActies = next ? evRows('acties', next.id).filter(a => a.status !== 'Klaar').length : 0;
+  const dLA = daysUntil(LA2028);
+  const team = Store.all('team');
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Overzicht</h1><p>Eén plek voor het team rond Willem: sponsoring, de cijfers van de BV, privé-inkomen en de events. Gegevens zijn ${modeText()}.</p></div></div>
+    <div class="tiles">
+      ${tile('Sponsoring vast ' + jr, eur(vast), doel ? 'van doel ' + eur(doel) + ' (' + Math.round(vast / doel * 100) + '%) · in gesprek ' + eur(gesprek) : 'nog geen jaardoel ingesteld', 'accent')}
+      ${tile('BV-resultaat ' + jr, signed(res), bvRows.length ? bvRows.length + ' van 4 kwartalen ingevoerd' : 'nog geen kwartaalcijfers uit Snelstart')}
+      ${tile('Privé-inkomen ' + jr, eur(prijzen + astatus + overig), 'prijzengeld ' + eur(prijzen) + ' · A-status ' + eur(astatus))}
+      ${tile(next ? 'Volgend event' : 'Events', next ? esc(dagenTekst(next.datum)) : '—', next ? esc(next.naam) + ' · ' + openActies + ' open actie' + (openActies === 1 ? '' : 's') : 'nog geen event gepland')}
+    </div>
+    <div class="hero">
+      <div class="card"><div class="card-head"><h3>Over Willem</h3><span class="pill info">Recurve · TeamNL</span></div><div class="card-body prose">
+        <p>Willem Bakker schiet recurve voor HSV De Vriendschap in Waalre en zit in de nationale selectie van TeamNL Handboog. Hij begon op zijn vijftiende, werkte tot 2025 als werktuigbouwkundig engineer en schiet sinds die tijd fulltime. Zijn doel: de Olympische Spelen van Los Angeles 2028, nadat hij de selectie voor Parijs 2024 net miste.</p>
+        <div class="palmares-top">
+          <div class="medal"><i style="background:#f2c12e"></i><div><b>EK-goud 2026</b><br><span>Antalya, recurve heren</span></div></div>
+          <div class="medal"><i style="background:#c47a3a"></i><div><b>Brons World Games 2025</b><br><span>Chengdu</span></div></div>
+          <div class="medal"><i style="background:#f2c12e"></i><div><b>Nederlands kampioen 2023</b><br><span>outdoor, recurve heren</span></div></div>
+          <div class="medal"><i style="background:#f2c12e"></i><div><b>Grand Prix Plovdiv 2022</b><br><span>goud, won van Gazoz</span></div></div>
+        </div>
+        <dl class="kv">
+          <dt>Club</dt><dd>HSV De Vriendschap, Dreefstraat 48C, Waalre</dd>
+          <dt>Stichting</dt><dd>Stichting Willem Bakker Archer (WBA), opgericht door zijn vader en vier ondernemers. Pakketten platina, goud, zilver, brons, materiaalsponsor, vriend en "adopteer een pijl".</dd>
+          <dt>Website</dt><dd>${linkOut('https://willembakker.eu/', 'willembakker.eu')} · ${linkOut('https://willembakker.eu/sponsors', 'sponsoren')} · ${linkOut('https://willembakker.eu/over-willem', 'over Willem')}</dd>
+          <dt>Wereldranglijst</dt><dd>Rond plek 14 (Omroep Brabant, 2026)</dd>
+          <dt>Bond</dt><dd>${linkOut('https://www.handboogsport.nl/teamnl-handboog/', 'KHSN · TeamNL Handboog')}</dd>
+        </dl>
+      </div></div>
+      <div class="card"><div class="card-head"><h3>Richting Los Angeles 2028</h3></div><div class="card-body">
+        <div class="tiles" style="grid-template-columns:1fr 1fr">
+          ${tile('Dagen tot LA 2028', dLA == null ? '—' : dLA, 'opening 14 juli 2028')}
+          ${tile(next ? 'Tot ' + esc(next.naam) : 'Volgend event', next ? (daysUntil(next.datum) == null ? '—' : daysUntil(next.datum)) : '—', next ? esc(fmtDateLong(next.datum)) : '')}
+        </div>
+        <h4>Team (${team.length})</h4>
+        <div class="list">${team.length ? team.map(t => `<div class="row"><span class="strong">${esc(t.naam)}</span><span class="muted small">${esc(t.rol || '')}</span></div>`).join('') : '<p class="muted">Nog geen teamleden. Voeg ze toe onder Team.</p>'}</div>
+        ${next ? `<a class="btn" href="#events" data-act="open-event" data-id="${esc(next.id)}">Naar ${esc(next.naam)}</a>` : ''}
+      </div></div>
+    </div>
+    <div class="card"><div class="card-head"><h3>Palmares en resultaten</h3><span class="muted small">Uit openbare bronnen, verzameld op 2 november 2026</span></div><div class="card-body">
+      <div class="list">${FEITEN.map(f => `<div class="fact"><div class="d">${esc(f.d)}</div><div><div class="t">${esc(f.t)}</div><div class="s">${esc(f.s)} <a href="${esc(f.u)}" target="_blank" rel="noopener">${esc(f.b)}</a></div></div></div>`).join('')}</div>
+    </div></div>
+  </div>`;
+}
+
+function vSponsoren() {
+  const s = Store.settings(), jr = jaar(), doelen = s.doelen || {};
+  const sponsors = Store.all('sponsors').slice().sort((a, b) => num(b.bedrag) - num(a.bedrag) || String(a.naam).localeCompare(String(b.naam)));
+  const years = yearsFrom(sponsors.map(x => x.start).concat(sponsors.map(x => x.eind), Object.keys(doelen)), [jr, jr + 1, jr + 2]);
+  const sel = UI.sponsorJaar && years.includes(num(UI.sponsorJaar)) ? num(UI.sponsorJaar) : jr;
+  const q = sponsorKwartalen(sel);
+  const planRows = years.map(y => { const doel = num(doelen[y]), vast = sponsorSum(y, VAST), gesprek = sponsorSum(y, ['In gesprek']), pct = doel ? Math.min(100, Math.round(vast / doel * 100)) : 0, gat = doel - vast; return `<tr><td class="strong">${y}</td><td class="num">${doel ? eur(doel) : '<span class="muted">—</span>'}</td><td class="num">${eur(vast)}</td><td class="num muted">${eur(gesprek)}</td><td style="min-width:140px"><div class="row"><div class="meter grow"><i class="${vast >= doel && doel ? 'over' : ''}" style="width:${pct}%"></i></div><span class="small strong">${doel ? pct + '%' : '—'}</span></div></td><td class="num">${doel ? signed(gat > 0 ? gat : 0) : '<span class="muted">—</span>'}</td></tr>`; }).join('');
+  const rows = sponsors.map(x => `<tr><td><div class="strong">${esc(x.naam)}</div>${x.notitie ? `<div class="small muted">${esc(x.notitie)}</div>` : ''}</td><td>${esc(x.pakket || '—')}</td><td class="num">${eur(x.bedrag)}</td><td>${esc(x.start || '—')}${x.eind && x.eind !== x.start ? ' – ' + esc(x.eind) : ''}</td><td>${esc(x.betaling || '—')}${x.betaling !== 'Per kwartaal' ? ' <span class="muted small">(Q' + (num(x.kwartaal) || 1) + ')</span>' : ''}</td><td>${pill(x.status)}</td><td class="small">${esc(x.contact || '')}</td><td class="acts">${editBtn('sponsors', x.id)}</td></tr>`).join('');
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Sponsoren en financiële planning</h1><p>Sponsorbijdragen per jaar, wat vast is en wat nog in gesprek is, afgezet tegen het jaardoel. De kwartaalverdeling volgt uit het betaalritme per sponsor.</p></div><div class="toolbar">${UI.readOnly ? '' : '<button class="btn" data-act="doel">Doelen bewerken</button>'}${addBtn('sponsors', 'Sponsor toevoegen')}</div></div>
+    <div class="tiles">
+      ${tile('Vast ' + jr, eur(sponsorSum(jr, VAST)), (num(doelen[jr]) ? Math.round(sponsorSum(jr, VAST) / num(doelen[jr]) * 100) + '% van ' + eur(doelen[jr]) : 'geen doel'), 'accent')}
+      ${tile('In gesprek ' + jr, eur(sponsorSum(jr, ['In gesprek'])), 'nog niet toegezegd')}
+      ${tile('Sponsoren', sponsors.filter(x => x.status !== 'Gestopt').length, sponsors.filter(x => VAST.includes(x.status)).length + ' vast · ' + sponsors.filter(x => x.status === 'In gesprek').length + ' in gesprek')}
+      ${tile('Vast ' + (jr + 1), eur(sponsorSum(jr + 1, VAST)), 'al toegezegd voor volgend jaar')}
+    </div>
+    <div class="cols">
+      <div class="card"><div class="card-head"><h3>Planning per jaar</h3></div>${tbl(['Jaar', {l:'Doel', c:'num'}, {l:'Vast', c:'num'}, {l:'In gesprek', c:'num'}, 'Dekking', {l:'Nog te vinden', c:'num'}], planRows)}</div>
+      <div class="card"><div class="card-head"><h3>Verwachte instroom per kwartaal</h3>${yearSelect('sponsorJaar', years, sel)}</div><div class="card-body">${bars([{l:'Q1', v:q[0]}, {l:'Q2', v:q[1]}, {l:'Q3', v:q[2]}, {l:'Q4', v:q[3]}], 'acc')}<p class="small muted">Alleen vaste sponsoren (toegezegd of getekend). Jaarlijkse en eenmalige bijdragen vallen in het opgegeven kwartaal.</p></div></div>
+    </div>
+    <div class="card"><div class="card-head"><h3>Sponsoren <span class="pill">${sponsors.length}</span></h3></div>${tbl(['Sponsor', 'Pakket', {l:'Bedrag / jaar', c:'num'}, 'Looptijd', 'Betaling', 'Status', 'Contact', ''], rows)}</div>
+  </div>`;
+}
+
+function vBv() {
+  const all = Store.all('bv'); const jr = jaar();
+  const years = yearsFrom(all.map(r => r.jaar), [jr]);
+  const sel = UI.bvJaar && years.includes(num(UI.bvJaar)) ? num(UI.bvJaar) : jr;
+  const rows = bvYear(sel); const byQ = {}; rows.forEach(r => { byQ[num(r.kwartaal)] = r; });
+  const last = rows.length ? rows[rows.length - 1] : null;
+  const omzetJ = sum(rows, r => r.omzet), resJ = sum(rows, resultaat), kostenJ = sum(rows, r => num(r.kosten) + num(r.afschrijvingen));
+  const wv = [1, 2, 3, 4].map(k => { const r = byQ[k]; if (!r) return `<tr><td>Q${k}</td><td class="empty" colspan="6">Nog niet ingevoerd</td><td class="acts">${UI.readOnly ? '' : `<button class="btn small ghost" data-act="add" data-col="bv" data-jaar="${sel}" data-kwartaal="${k}">Invoeren</button>`}</td></tr>`; const res = resultaat(r); return `<tr><td class="strong">Q${k}</td><td class="num">${eur(r.omzet)}</td><td class="num">${eur(r.kosten)}</td><td class="num">${eur(r.afschrijvingen)}</td><td class="num">${eur(r.belasting)}</td><td class="num strong">${signed(res)}</td><td class="num muted">${num(r.omzet) ? Math.round(res / num(r.omzet) * 100) + '%' : '—'}</td><td class="acts">${editBtn('bv', r.id)}</td></tr>`; }).join('');
+  const wvFoot = `<tr><td>Jaar ${sel}</td><td class="num">${eur(omzetJ)}</td><td class="num">${eur(sum(rows, r => r.kosten))}</td><td class="num">${eur(sum(rows, r => r.afschrijvingen))}</td><td class="num">${eur(sum(rows, r => r.belasting))}</td><td class="num">${signed(resJ)}</td><td class="num">${omzetJ ? Math.round(resJ / omzetJ * 100) + '%' : '—'}</td><td></td></tr>`;
+  const bal = [1, 2, 3, 4].map(k => { const r = byQ[k]; if (!r) return `<tr><td>Q${k}</td><td class="empty" colspan="7">—</td></tr>`; const a = activa(r), p = passiva(r), ok = Math.abs(a - p) < 1; return `<tr><td class="strong">Q${k}</td><td class="num">${eur(r.vasteActiva)}</td><td class="num">${eur(r.vlottendeActiva)}</td><td class="num">${eur(r.liquide)}</td><td class="num strong">${eur(a)}</td><td class="num">${eur(r.eigenVermogen)}</td><td class="num">${eur(r.schulden)}</td><td class="num">${ok ? `<span class="pill ok">sluit</span>` : `<span class="pill bad">verschil ${eur(a - p)}</span>`}</td></tr>`; }).join('');
+  const notes = rows.filter(r => r.notitie).map(r => `<div class="small"><span class="strong">Q${num(r.kwartaal)}:</span> ${esc(r.notitie)}</div>`).join('');
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>BV: balans en winst-en-verliesrekening</h1><p>Samenvatting per kwartaal en per jaar, overgenomen uit Snelstart. Resultaat = omzet − kosten − afschrijvingen − belasting. De balans is de stand aan het einde van het kwartaal.</p></div><div class="toolbar">${yearSelect('bvJaar', years, sel)}${UI.readOnly ? '' : `<button class="btn primary" data-act="add" data-col="bv" data-jaar="${sel}">Kwartaal toevoegen</button>`}</div></div>
+    <div class="tiles">
+      ${tile('Omzet ' + sel, eur(omzetJ), rows.length + ' van 4 kwartalen')}
+      ${tile('Kosten incl. afschrijving', eur(kostenJ), omzetJ ? Math.round(kostenJ / omzetJ * 100) + '% van omzet' : '')}
+      ${tile('Resultaat ' + sel, signed(resJ), omzetJ ? 'marge ' + Math.round(resJ / omzetJ * 100) + '%' : '', 'accent')}
+      ${tile('Eigen vermogen', last ? eur(last.eigenVermogen) : '—', last ? 'stand eind Q' + num(last.kwartaal) + ' · liquide ' + eur(last.liquide) : 'nog geen balans')}
+    </div>
+    <div class="card"><div class="card-head"><h3>Winst en verlies ${sel}</h3></div>${tbl(['Kwartaal', {l:'Omzet', c:'num'}, {l:'Kosten', c:'num'}, {l:'Afschrijvingen', c:'num'}, {l:'Belasting', c:'num'}, {l:'Resultaat', c:'num'}, {l:'Marge', c:'num'}, ''], wv, wvFoot)}</div>
+    <div class="cols">
+      <div class="card"><div class="card-head"><h3>Resultaat per kwartaal</h3></div><div class="card-body">${bars([1, 2, 3, 4].map(k => ({l:'Q' + k, v: byQ[k] ? resultaat(byQ[k]) : 0})))}</div></div>
+      <div class="card"><div class="card-head"><h3>Balans (stand einde kwartaal)</h3></div>${tbl(['Kw.', {l:'Vaste activa', c:'num'}, {l:'Vlottende activa', c:'num'}, {l:'Liquide', c:'num'}, {l:'Totaal activa', c:'num'}, {l:'Eigen vermogen', c:'num'}, {l:'Schulden', c:'num'}, {l:'Check', c:'num'}], bal)}${notes ? `<div class="card-body">${notes}</div>` : ''}</div>
+    </div>
+  </div>`;
+}
+
+function vPrive() {
+  const all = Store.all('prive'); const jr = jaar();
+  const years = yearsFrom(all.map(r => String(r.datum || '').slice(0, 4)), [jr]);
+  const sel = UI.priveJaar && years.includes(num(UI.priveJaar)) ? num(UI.priveJaar) : jr;
+  const rows = priveYear(sel);
+  const tot = t => sum(rows.filter(r => r.type === t), r => r.bedrag);
+  const body = rows.map(r => `<tr><td class="dt">${esc(fmtDate(r.datum))}</td><td>${esc(r.type)}</td><td><div>${esc(r.omschrijving || '')}</div>${r.bron ? `<div class="small muted">${esc(r.bron)}</div>` : ''}</td><td class="num strong">${eur(r.bedrag)}</td><td class="acts">${editBtn('prive', r.id)}</td></tr>`).join('');
+  const perMaand = Array.from({length:12}, (_, m) => sum(rows.filter(r => num(String(r.datum).slice(5, 7)) === m + 1), r => r.bedrag));
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Privé-inkomen</h1><p>Inkomen van Willem privé: het A-status stipendium van NOC*NSF, prijzengeld van toernooien en overig inkomen. Per boeking één regel.</p></div><div class="toolbar">${yearSelect('priveJaar', years, sel)}${addBtn('prive', 'Inkomen toevoegen')}</div></div>
+    <div class="tiles">
+      ${tile('Totaal ' + sel, eur(sum(rows, r => r.bedrag)), rows.length + ' boekingen', 'accent')}
+      ${tile('A-status', eur(tot(PRIVE_TYPES[0])), 'NOC*NSF stipendium')}
+      ${tile('Prijzengeld', eur(tot('Prijzengeld')), rows.filter(r => r.type === 'Prijzengeld').length + ' toernooien')}
+      ${tile('Overig', eur(tot(PRIVE_TYPES[2])), '')}
+    </div>
+    <div class="card"><div class="card-head"><h3>Per maand ${sel}</h3></div><div class="card-body">${bars(perMaand.map((v, i) => ({l:['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][i], v})), 'acc')}</div></div>
+    <div class="card"><div class="card-head"><h3>Boekingen ${sel}</h3></div>${tbl(['Datum', 'Soort', 'Omschrijving', {l:'Bedrag', c:'num'}, ''], body)}</div>
+  </div>`;
+}
+
+function vEvents() {
+  if (UI.eventId && Store.get('events', UI.eventId)) return vEventDetail(Store.get('events', UI.eventId));
+  const evs = eventSorted();
+  const cards = evs.map(e => { const acts = evRows('acties', e.id), open = acts.filter(a => a.status !== 'Klaar').length, d = daysUntil(e.datum); return `<button class="ev" data-act="open-event" data-id="${esc(e.id)}"><div class="row" style="justify-content:space-between"><span class="when">${esc(fmtDate(e.datum))}${e.tijd ? ' · ' + esc(e.tijd) : ''}</span>${pill(e.status)}</div><div class="strong" style="font-size:17px">${esc(e.naam)}</div><div class="muted small">${esc(e.locatie || 'locatie nog niet bekend')}</div><div class="cnt-row"><span class="pill ${d != null && d >= 0 && d <= 14 ? 'warn' : ''}">${esc(dagenTekst(e.datum))}</span><span class="pill ${open ? 'warn' : 'ok'}">${open} open van ${acts.length} acties</span></div></button>`; }).join('');
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Events</h1><p>Per event: planning met mijlpalen, actielijst met wie en wanneer, programma van de avond, financieel plaatje, presentaties met samenvatting, en de notulen.</p></div><div class="toolbar">${addBtn('events', 'Event toevoegen')}</div></div>
+    ${evs.length ? `<div class="ev-cards">${cards}</div>` : '<div class="card"><div class="card-body"><p class="muted">Nog geen events. Voeg het eerste event toe.</p></div></div>'}
+  </div>`;
+}
+
+function vEventDetail(e) {
+  const tabs = [['planning', 'Planning', evRows('mijlpalen', e.id).length], ['acties', 'Actielijst', evRows('acties', e.id).filter(a => a.status !== 'Klaar').length], ['programma', 'Programma', evRows('programma', e.id).length], ['financieel', 'Financieel', evRows('eventbudget', e.id).length], ['presentaties', 'Presentaties', evRows('presentaties', e.id).length], ['samenvatting', 'Samenvatting en notulen', 0]];
+  const tab = tabs.some(t => t[0] === UI.eventTab) ? UI.eventTab : 'planning';
+  const d = daysUntil(e.datum);
+  return `<div class="wrap">
+    <div class="row"><button class="btn ghost small" data-act="close-event">← Alle events</button></div>
+    <div class="page-head"><div><h1>${esc(e.naam)}</h1><p>${esc(fmtDateLong(e.datum))}${e.tijd ? ' om ' + esc(e.tijd) : ''} · ${esc(e.locatie || 'locatie nog niet bekend')}</p>${e.doel ? `<p class="small">${esc(e.doel)}</p>` : ''}</div><div class="toolbar">${pill(e.status)}<span class="pill ${d != null && d >= 0 && d <= 14 ? 'warn' : ''}">${esc(dagenTekst(e.datum))}</span>${editBtn('events', e.id)}</div></div>
+    <div class="tabs">${tabs.map(t => `<button class="tab${t[0] === tab ? ' active' : ''}" data-act="tab" data-tab="${t[0]}">${t[1]}${t[2] ? `<span class="cnt">${t[2]}</span>` : ''}</button>`).join('')}</div>
+    ${({planning: tabPlanning, acties: tabActies, programma: tabProgramma, financieel: tabFinancieel, presentaties: tabPresentaties, samenvatting: tabSamenvatting})[tab](e)}
+  </div>`;
+}
+function tabPlanning(e) {
+  const rows = evRows('mijlpalen', e.id).sort(by('datum'));
+  const body = rows.map(m => { const dd = daysUntil(m.datum), late = m.status !== 'Klaar' && dd != null && dd < 0; return `<tr><td class="dt ${late ? 'neg strong' : ''}">${esc(fmtDate(m.datum))}${late ? ' <span class="small">(verlopen)</span>' : ''}</td><td>${esc(m.mijlpaal)}</td><td>${esc(m.wie || '—')}</td><td>${pill(m.status)}</td><td class="acts">${editBtn('mijlpalen', m.id)}</td></tr>`; }).join('');
+  const klaar = rows.filter(r => r.status === 'Klaar').length;
+  return `<div class="card"><div class="card-head"><h3>Planning tot ${esc(fmtDate(e.datum))}</h3><div class="row"><span class="pill ${klaar === rows.length && rows.length ? 'ok' : ''}">${klaar} van ${rows.length} mijlpalen klaar</span>${addBtn('mijlpalen', 'Mijlpaal toevoegen')}</div></div>${tbl(['Datum', 'Mijlpaal', 'Wie', 'Status', ''], body)}</div>`;
+}
+function tabActies(e) {
+  const all = evRows('acties', e.id).sort((a, b) => (a.status === 'Klaar') - (b.status === 'Klaar') || String(a.deadline).localeCompare(String(b.deadline)));
+  const rows = UI.actieFilter === 'open' ? all.filter(a => a.status !== 'Klaar') : all;
+  const perWie = {}; all.filter(a => a.status !== 'Klaar').forEach(a => { const w = a.wie || 'Nog niet toegewezen'; perWie[w] = (perWie[w] || 0) + 1; });
+  const body = rows.map(a => { const dd = daysUntil(a.deadline), late = a.status !== 'Klaar' && dd != null && dd < 0, soon = a.status !== 'Klaar' && dd != null && dd >= 0 && dd <= 3; return `<tr><td><div>${esc(a.wat)}</div>${a.notitie ? `<div class="small muted">${esc(a.notitie)}</div>` : ''}</td><td>${a.wie ? esc(a.wie) : '<span class="pill bad">niet toegewezen</span>'}</td><td class="dt ${late ? 'neg strong' : soon ? 'strong' : ''}">${esc(fmtDate(a.deadline))}${late ? ' <span class="small">te laat</span>' : ''}</td><td>${pill(a.status)}</td><td class="acts">${editBtn('acties', a.id)}</td></tr>`; }).join('');
+  return `<div class="card"><div class="card-head"><h3>Actielijst</h3><div class="row"><select class="inline-input" data-change="actiefilter" aria-label="Filter"><option value="open"${UI.actieFilter === 'open' ? ' selected' : ''}>Alleen open</option><option value="alle"${UI.actieFilter === 'alle' ? ' selected' : ''}>Alles</option></select>${addBtn('acties', 'Actie toevoegen')}</div></div><div class="card-body" style="padding-bottom:0"><div class="ring-row">${Object.keys(perWie).sort().map(w => `<span class="pill ${w === 'Nog niet toegewezen' ? 'bad' : 'info'}">${esc(w)}: ${perWie[w]}</span>`).join('') || '<span class="pill ok">Alles is klaar</span>'}</div></div>${tbl(['Wat', 'Wie', 'Wanneer', 'Status', ''], body)}</div>`;
+}
+function tabProgramma(e) {
+  const rows = evRows('programma', e.id).sort(by('tijd'));
+  const totaal = sum(rows, r => r.duur);
+  const body = rows.map(p => `<tr><td class="strong">${esc(p.tijd || '—')}</td><td><div>${esc(p.onderdeel)}</div>${p.notitie ? `<div class="small muted">${esc(p.notitie)}</div>` : ''}</td><td>${esc(p.wie || '—')}</td><td class="num">${p.duur ? num(p.duur) + ' min' : '—'}</td><td class="acts">${editBtn('programma', p.id)}</td></tr>`).join('');
+  return `<div class="card"><div class="card-head"><h3>Programma van de avond</h3><div class="row"><span class="pill">${rows.length} onderdelen · ${Math.floor(totaal / 60)}u${pad(totaal % 60)}</span>${addBtn('programma', 'Onderdeel toevoegen')}</div></div>${tbl(['Tijd', 'Onderdeel', 'Wie', {l:'Duur', c:'num'}, ''], body)}</div>`;
+}
+function tabFinancieel(e) {
+  const rows = evRows('eventbudget', e.id);
+  const k = rows.filter(r => r.type === 'Kosten'), o = rows.filter(r => r.type === 'Opbrengsten');
+  const bk = sum(k, r => r.begroot), wk = sum(k, r => r.werkelijk), bo = sum(o, r => r.begroot), wo = sum(o, r => r.werkelijk);
+  const group = (arr, label) => arr.length ? `<tr><td colspan="5" class="strong" style="background:var(--surface2)">${label}</td></tr>` + arr.map(r => `<tr><td>${esc(r.post)}${r.notitie ? `<div class="small muted">${esc(r.notitie)}</div>` : ''}</td><td class="num">${eur(r.begroot)}</td><td class="num">${num(r.werkelijk) ? eur(r.werkelijk) : '<span class="muted">—</span>'}</td><td class="num">${num(r.werkelijk) ? signed(num(r.werkelijk) - num(r.begroot)) : '<span class="muted">—</span>'}</td><td class="acts">${editBtn('eventbudget', r.id)}</td></tr>`).join('') + `<tr class="total"><td>Totaal ${label.toLowerCase()}</td><td class="num">${eur(sum(arr, r => r.begroot))}</td><td class="num">${eur(sum(arr, r => r.werkelijk))}</td><td class="num"></td><td></td></tr>` : '';
+  return `<div class="wrap" style="gap:16px">
+    <div class="tiles">
+      ${tile('Begrote kosten', eur(bk), k.length + ' posten')}
+      ${tile('Begrote opbrengsten', eur(bo), o.length + ' posten')}
+      ${tile('Saldo begroot', signed(bo - bk), 'opbrengsten min kosten', 'accent')}
+      ${tile('Saldo werkelijk', signed(wo - wk), 'werkelijk ' + eur(wo) + ' − ' + eur(wk))}
+    </div>
+    <div class="card"><div class="card-head"><h3>Financieel plaatje</h3>${addBtn('eventbudget', 'Post toevoegen')}</div>${tbl(['Post', {l:'Begroot', c:'num'}, {l:'Werkelijk', c:'num'}, {l:'Verschil', c:'num'}, ''], group(k, 'Kosten') + group(o, 'Opbrengsten'))}</div>
+  </div>`;
+}
+function tabPresentaties(e) {
+  const rows = evRows('presentaties', e.id).sort(by('datum', 'desc'));
+  const items = rows.map(p => `<div class="card"><div class="card-head"><h3>${esc(p.titel)} <span class="pill">${esc(p.type || 'Presentatie')}</span></h3><div class="row"><span class="muted small">${esc(p.eigenaar || '')}${p.datum ? ' · ' + esc(fmtDate(p.datum)) : ''}</span>${editBtn('presentaties', p.id)}</div></div><div class="card-body"><div class="row"><span class="muted small">Bestand:</span> ${linkOut(p.link, p.link ? 'openen' : '')}</div>${p.samenvatting ? `<div class="pre">${esc(p.samenvatting)}</div>` : '<p class="muted small">Nog geen samenvatting.</p>'}</div></div>`).join('');
+  return `<div class="wrap" style="gap:16px">
+    <div class="row" style="justify-content:space-between"><p class="muted small" style="max-width:62ch">Opslag van presentaties: zet het bestand in een gedeelde map (Google Drive, OneDrive, Dropbox) en plak hier de link. De samenvatting hoort bij het bestand, zodat iedereen weet wat erin staat zonder het te openen.</p>${addBtn('presentaties', 'Presentatie toevoegen')}</div>
+    ${items || '<div class="card"><div class="card-body"><p class="muted">Nog geen presentaties opgeslagen voor dit event.</p></div></div>'}
+  </div>`;
+}
+function tabSamenvatting(e) {
+  return `<div class="cols">
+    <div class="card"><div class="card-head"><h3>Samenvatting van het event</h3>${UI.readOnly ? '' : `<button class="btn small" data-act="edit-text" data-id="${esc(e.id)}" data-field="samenvatting">Bewerk</button>`}</div><div class="card-body">${e.samenvatting ? `<div class="pre">${esc(e.samenvatting)}</div>` : '<p class="muted">Nog geen samenvatting. Vul na afloop in: wat is besproken, wat is toegezegd, wat zijn de vervolgstappen.</p>'}</div></div>
+    <div class="card"><div class="card-head"><h3>Notulen</h3><div class="row">${linkOut(e.notulenLink, 'Granola-notulen openen')}${UI.readOnly ? '' : `<button class="btn small" data-act="edit-text" data-id="${esc(e.id)}" data-field="notulen">Bewerk</button>`}</div></div><div class="card-body">${e.notulen ? `<div class="pre">${esc(e.notulen)}</div>` : '<p class="muted">Plak hier de tekst van de notulen, dan staan ze naast de planning en de actielijst.</p>'}</div></div>
+  </div>`;
+}
+
+function vTeam() {
+  const team = Store.all('team');
+  const colors = ['#1d5a9f', '#b5322a', '#22703f', '#b07d0a', '#5b4b9e', '#2a7f8f'];
+  const cards = team.map((t, i) => `<div class="member"><div class="avatar" style="background:${colors[i % colors.length]}">${esc(String(t.naam || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase())}</div><div class="info"><div class="nm">${esc(t.naam)}</div><div class="rl">${esc(t.rol || 'Rol invullen')}</div>${t.taken ? `<div class="tk">${esc(t.taken)}</div>` : ''}${t.email ? `<div class="small muted">${esc(t.email)}</div>` : ''}<div class="acts">${editBtn('team', t.id)}</div></div></div>`).join('');
+  const open = Store.all('acties').filter(a => a.status !== 'Klaar');
+  const perWie = teamNames().map(n => ({n, c: open.filter(a => a.wie === n).length})).filter(x => x.c);
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Team</h1><p>De zes mensen die samen de zaken rond Willem bijhouden. De namen hier verschijnen als keuze bij "wie" in de actielijsten en programma's.</p></div><div class="toolbar">${addBtn('team', 'Teamlid toevoegen')}</div></div>
+    <div class="team">${cards || '<p class="muted">Nog geen teamleden.</p>'}</div>
+    ${perWie.length ? `<div class="card"><div class="card-head"><h3>Open acties per persoon</h3></div><div class="card-body"><div class="ring-row">${perWie.map(x => `<span class="pill info">${esc(x.n)}: ${x.c}</span>`).join('')}</div></div></div>` : ''}
+  </div>`;
+}
+
+function vData() {
+  const s = Store.settings();
+  const counts = COLS.filter(c => c !== 'settings').map(c => `<span class="pill">${c}: ${Store.all(c).length}</span>`).join('');
+  const shared = Store.mode === 'shared';
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Gegevens</h1><p>Waar de gegevens staan, een kopie maken of terugzetten, en de instellingen.</p></div></div>
+    <div class="notice ${shared ? '' : 'warn'}">${shared ? 'Deze versie bewaart alles in de gedeelde opslag van dit portaal: iedereen die het portaal mag openen ziet dezelfde gegevens, live.' : 'Deze versie bewaart alles alleen in de browser op dit apparaat. Voor samenwerken met zes mensen gebruik je de gedeelde versie (het gepubliceerde portaal) of wissel je via export en import.'}</div>
+    ${Store.error ? `<div class="notice bad">De gedeelde opslag gaf een fout (${esc(Store.error.code || '')}). ${esc(Store.error.message || '')}</div>` : ''}
+    <div class="cols">
+      <div class="card"><div class="card-head"><h3>Instellingen</h3>${UI.readOnly ? '' : '<button class="btn small" data-act="settings">Bewerk</button>'}</div><div class="card-body"><dl class="kv"><dt>Huidig jaar</dt><dd>${esc(s.jaar || thisYear())}</dd><dt>Sponsordoelen</dt><dd>${Object.keys(s.doelen || {}).sort().map(y => y + ': ' + eur(s.doelen[y])).join(' · ') || '—'}</dd></dl><div class="ring-row">${counts}</div></div></div>
+      <div class="card"><div class="card-head"><h3>Kopie maken (export)</h3><button class="btn small" data-act="export">Maak export</button></div><div class="card-body">${UI.exportText ? `<div class="field"><textarea id="exportBox" readonly style="min-height:160px;font-family:ui-monospace,Menlo,monospace;font-size:12px">${esc(UI.exportText)}</textarea></div><div class="row"><button class="btn small" data-act="copy">Kopieer naar klembord</button>${window.claude ? '' : '<a class="btn small" id="dlLink" download="willembakker-portaal.json">Download JSON</a>'}</div>` : '<p class="muted small">Een export is een JSON-tekst met alle gegevens. Bewaar die als back-up of plak hem in een andere versie van dit portaal.</p>'}</div></div>
+    </div>
+    ${UI.readOnly ? '' : `<div class="cols">
+      <div class="card"><div class="card-head"><h3>Terugzetten (import)</h3></div><div class="card-body"><div class="field"><label for="importBox">Plak hier een export</label><textarea id="importBox" style="min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:12px" placeholder='{"sponsors": [...], ...}'></textarea></div><div class="field"><label for="importFile">Of kies een bestand</label><input id="importFile" type="file" accept="application/json,.json"></div><div class="row"><button class="btn" data-act="import-add">Toevoegen en bijwerken</button><button class="btn danger" data-act="import-replace">Alles vervangen</button></div><p class="muted small">Toevoegen houdt bestaande regels en overschrijft regels met hetzelfde id. Vervangen wist eerst alles.</p></div></div>
+      <div class="card"><div class="card-head"><h3>Opnieuw beginnen</h3></div><div class="card-body"><p class="muted small">Wist alle gegevens${shared ? ' voor iedereen' : ' in deze browser'} en zet de startgegevens (team, bekende sponsoren, event 2 december met voorbeeldregels) terug.</p><div class="row"><button class="btn danger" data-act="reset">Alles wissen en startgegevens terugzetten</button></div></div></div>
+    </div>`}
+  </div>`;
+}
+
+const VIEWS = {overzicht: vOverzicht, sponsoren: vSponsoren, bv: vBv, prive: vPrive, events: vEvents, team: vTeam, data: vData};
+
+/* ---------- formulieren per verzameling ---------- */
+const FORMS = {
+  team: v => ({title: v.id ? 'Teamlid bewerken' : 'Teamlid toevoegen', fields: [
+    {key:'naam', label:'Naam', required:true}, {key:'rol', label:'Rol', placeholder:'bijv. Sponsoring, Events, Financiën'}, {key:'email', label:'E-mail', type:'email'}, {key:'taken', label:'Verantwoordelijk voor', type:'textarea', placeholder:'Korte omschrijving van taken'}]}),
+  sponsors: v => ({title: v.id ? 'Sponsor bewerken' : 'Sponsor toevoegen', fields: [
+    {key:'naam', label:'Sponsor', required:true}, {key:'pakket', label:'Pakket', type:'select', options:PAKKETTEN, half:true}, {key:'status', label:'Status', type:'select', options:SPONSOR_STATUS, half:true},
+    {key:'bedrag', label:'Bedrag per jaar (€)', type:'number', half:true}, {key:'betaling', label:'Betaling', type:'select', options:BETALING, half:true},
+    {key:'start', label:'Eerste jaar', type:'number', default:jaar(), half:true}, {key:'eind', label:'Laatste jaar', type:'number', default:jaar(), half:true},
+    {key:'kwartaal', label:'Kwartaal van betaling (bij jaarlijks of eenmalig)', type:'select', options:[{v:1, l:'Q1'}, {v:2, l:'Q2'}, {v:3, l:'Q3'}, {v:4, l:'Q4'}]},
+    {key:'contact', label:'Contactpersoon'}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
+  bv: v => ({title: v.id ? 'Kwartaalcijfers bewerken' : 'Kwartaalcijfers invoeren', fields: [
+    {key:'jaar', label:'Jaar', type:'number', required:true, half:true, default:jaar()}, {key:'kwartaal', label:'Kwartaal', type:'select', options:[{v:1, l:'Q1'}, {v:2, l:'Q2'}, {v:3, l:'Q3'}, {v:4, l:'Q4'}], half:true},
+    {key:'omzet', label:'Omzet (€)', type:'number', half:true}, {key:'kosten', label:'Kosten (€)', type:'number', half:true},
+    {key:'afschrijvingen', label:'Afschrijvingen (€)', type:'number', half:true}, {key:'belasting', label:'Vennootschapsbelasting (€)', type:'number', half:true},
+    {key:'vasteActiva', label:'Vaste activa (€)', type:'number', half:true}, {key:'vlottendeActiva', label:'Vlottende activa (€)', type:'number', half:true},
+    {key:'liquide', label:'Liquide middelen (€)', type:'number', half:true}, {key:'eigenVermogen', label:'Eigen vermogen (€)', type:'number', half:true},
+    {key:'schulden', label:'Schulden kort + lang (€)', type:'number', hint:'Activa moeten gelijk zijn aan eigen vermogen plus schulden.'},
+    {key:'notitie', label:'Toelichting', type:'textarea', placeholder:'Bijzonderheden uit Snelstart, bijv. grote uitgaven of nog te ontvangen sponsorgeld'}]}),
+  prive: v => ({title: v.id ? 'Inkomen bewerken' : 'Inkomen toevoegen', fields: [
+    {key:'datum', label:'Datum', type:'date', required:true, default:todayIso(), half:true}, {key:'type', label:'Soort', type:'select', options:PRIVE_TYPES, half:true},
+    {key:'bedrag', label:'Bedrag (€)', type:'number', required:true}, {key:'omschrijving', label:'Omschrijving', placeholder:'bijv. stipendium november, prijzengeld EK Antalya'}, {key:'bron', label:'Bron / toernooi'}]}),
+  events: v => ({title: v.id ? 'Event bewerken' : 'Event toevoegen', fields: [
+    {key:'naam', label:'Naam', required:true}, {key:'datum', label:'Datum', type:'date', required:true, half:true}, {key:'tijd', label:'Aanvang', type:'time', half:true},
+    {key:'locatie', label:'Locatie'}, {key:'status', label:'Status', type:'select', options:EVENT_STATUS}, {key:'doel', label:'Doel van het event', type:'textarea'}, {key:'notulenLink', label:'Link naar notulen', type:'url'}]}),
+  mijlpalen: v => ({title: v.id ? 'Mijlpaal bewerken' : 'Mijlpaal toevoegen', fields: [
+    {key:'datum', label:'Datum', type:'date', required:true, half:true}, {key:'status', label:'Status', type:'select', options:TAAK_STATUS, half:true}, {key:'mijlpaal', label:'Mijlpaal', required:true}, {key:'wie', label:'Wie', type:'select', options:wieOptions(), allowEmpty:true}]}),
+  acties: v => ({title: v.id ? 'Actie bewerken' : 'Actie toevoegen', fields: [
+    {key:'wat', label:'Wat', required:true}, {key:'wie', label:'Wie', type:'select', options:wieOptions(), allowEmpty:true, half:true}, {key:'deadline', label:'Wanneer', type:'date', half:true},
+    {key:'status', label:'Status', type:'select', options:TAAK_STATUS}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
+  programma: v => ({title: v.id ? 'Programma-onderdeel bewerken' : 'Programma-onderdeel toevoegen', fields: [
+    {key:'tijd', label:'Tijd', type:'time', required:true, half:true}, {key:'duur', label:'Duur (minuten)', type:'number', half:true}, {key:'onderdeel', label:'Onderdeel', required:true},
+    {key:'wie', label:'Wie', type:'select', options:wieOptions(), allowEmpty:true}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
+  eventbudget: v => ({title: v.id ? 'Post bewerken' : 'Post toevoegen', fields: [
+    {key:'type', label:'Soort', type:'select', options:BUDGET_TYPE, half:true}, {key:'post', label:'Post', required:true, half:true},
+    {key:'begroot', label:'Begroot (€)', type:'number', half:true}, {key:'werkelijk', label:'Werkelijk (€)', type:'number', half:true}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
+  presentaties: v => ({title: v.id ? 'Presentatie bewerken' : 'Presentatie toevoegen', fields: [
+    {key:'titel', label:'Titel', required:true}, {key:'type', label:'Soort', type:'select', options:PRES_TYPES, half:true}, {key:'datum', label:'Datum', type:'date', half:true, default:todayIso()},
+    {key:'eigenaar', label:'Eigenaar', type:'select', options:wieOptions(), allowEmpty:true}, {key:'link', label:'Link naar bestand', type:'url', placeholder:'https://…'},
+    {key:'samenvatting', label:'Samenvatting', type:'textarea', placeholder:'Waar gaat het over, belangrijkste boodschap, cijfers die erin staan'}]})
+};
+
+/* ---------- acties ---------- */
+const EVENT_CHILD = ['mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties'];
+function openRecordForm(col, existing, extra) {
+  const values = Object.assign({}, existing || {}, extra || {});
+  const spec = FORMS[col](values);
+  openForm({title: spec.title, fields: spec.fields, values, onDelete: existing ? async () => { await Store.del(col, existing.id); if (col === 'events') { for (const c of EVENT_CHILD) for (const r of evRows(c, existing.id)) await Store.del(c, r.id); UI.eventId = null; saveUi(); } toast('Verwijderd'); render(); } : null,
+    onSave: async data => {
+      const doc = Object.assign({}, existing || {}, data);
+      if (!existing && EVENT_CHILD.includes(col)) doc.eventId = UI.eventId;
+      if (col === 'bv') { const id = num(doc.jaar) + '-q' + num(doc.kwartaal); const clash = Store.get('bv', id); if (clash && (!existing || clash.id !== existing.id)) throw new Error('bestaat al'); if (existing && existing.id !== id) await Store.del('bv', existing.id); doc.id = id; }
+      await Store.put(col, doc); toast('Opgeslagen'); render();
+    }});
+}
+const ACTIONS = {
+  add(d) { openRecordForm(d.col, null, d.col === 'bv' ? {jaar: num(d.jaar) || jaar(), kwartaal: num(d.kwartaal) || 1} : null); },
+  edit(d) { const r = Store.get(d.col, d.id); if (r) openRecordForm(d.col, r); },
+  'open-event'(d) { UI.eventId = d.id; UI.view = 'events'; saveUi(); if (location.hash !== '#events') location.hash = 'events'; else render(); },
+  'close-event'() { UI.eventId = null; saveUi(); render(); },
+  tab(d) { UI.eventTab = d.tab; saveUi(); render(); },
+  'edit-text'(d) {
+    const e = Store.get('events', d.id); if (!e) return; const f = d.field;
+    openForm({title: f === 'notulen' ? 'Notulen' : 'Samenvatting van het event', fields: [{key:f, label: f === 'notulen' ? 'Tekst van de notulen' : 'Samenvatting', type:'textarea'}].concat(f === 'notulen' ? [{key:'notulenLink', label:'Link naar notulen', type:'url'}] : []), values: e,
+      onSave: async data => { await Store.put('events', Object.assign({}, e, data)); toast('Opgeslagen'); render(); }});
+  },
+  doel() {
+    const s = Store.settings(), jr = jaar(); const years = [jr, jr + 1, jr + 2];
+    openForm({title: 'Sponsordoelen per jaar', fields: years.map(y => ({key:'d' + y, label:'Doel ' + y + ' (€)', type:'number'})), values: Object.fromEntries(years.map(y => ['d' + y, (s.doelen || {})[y] || ''])),
+      onSave: async data => { const doelen = Object.assign({}, s.doelen || {}); years.forEach(y => { doelen[y] = num(data['d' + y]); }); await Store.put('settings', Object.assign({}, s, {id:'main', doelen})); toast('Doelen opgeslagen'); render(); }});
+  },
+  settings() {
+    const s = Store.settings();
+    openForm({title: 'Instellingen', fields: [{key:'jaar', label:'Huidig jaar (voor de overzichten)', type:'number', required:true}], values: {jaar: s.jaar || thisYear()},
+      onSave: async data => { await Store.put('settings', Object.assign({}, s, {id:'main', jaar: num(data.jaar)})); toast('Opgeslagen'); render(); }});
+  },
+  export() { UI.exportText = Store.exportJson(); render(); const a = $('#dlLink'); if (a) { try { a.href = URL.createObjectURL(new Blob([UI.exportText], {type:'application/json'})); } catch (e) { a.remove(); } } },
+  async copy() { const t = UI.exportText; try { await navigator.clipboard.writeText(t); toast('Gekopieerd'); } catch (e) { const box = $('#exportBox'); if (box) { box.focus(); box.select(); } toast('Selecteer de tekst en kopieer met Ctrl+C'); } },
+  async 'import-add'() { await doImport(false); },
+  async 'import-replace'(d, el) { if (!el.classList.contains('armed')) { el.classList.add('armed'); el.textContent = 'Zeker? Alles wordt gewist. Klik nogmaals'; setTimeout(() => { el.classList.remove('armed'); el.textContent = 'Alles vervangen'; }, 5000); return; } await doImport(true); },
+  async reset(d, el) {
+    if (!el.classList.contains('armed')) { el.classList.add('armed'); el.textContent = 'Zeker? Klik nogmaals om alles te wissen'; setTimeout(() => { el.classList.remove('armed'); el.textContent = 'Alles wissen en startgegevens terugzetten'; }, 5000); return; }
+    el.disabled = true; try { await Store.clearAll(); for (const c of COLS) for (const d2 of (SEED[c] || [])) await Store.put(c, Object.assign({}, d2)); toast('Startgegevens teruggezet'); } catch (e) { /* al gemeld */ } UI.eventId = null; render();
+  }
+};
+async function doImport(replace) {
+  let text = ($('#importBox') || {}).value || '';
+  const fileEl = $('#importFile');
+  if (!text.trim() && fileEl && fileEl.files && fileEl.files[0]) text = await fileEl.files[0].text();
+  if (!text.trim()) { toast('Plak eerst een export of kies een bestand'); return; }
+  try { await Store.importJson(text, replace); toast('Import klaar'); render(); } catch (e) { toast('Import mislukt: controleer of het een geldige export is'); }
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const h = ACTIONS[el.dataset.act]; if (!h) return;
+  e.preventDefault(); h(el.dataset, el);
+});
+document.addEventListener('change', e => {
+  const el = e.target.closest('[data-change]'); if (!el) return;
+  if (el.dataset.change === 'year') { UI[el.dataset.scope] = num(el.value); saveUi(); render(); }
+  if (el.dataset.change === 'actiefilter') { UI.actieFilter = el.value; saveUi(); render(); }
+});
+
+/* ---------- navigatie en renderen ---------- */
+function route() { const h = (location.hash || '#overzicht').slice(1); UI.view = VIEWS[h] ? h : 'overzicht'; }
+let raf = null;
+function renderSoon() { if (raf) return; raf = requestAnimationFrame(() => { raf = null; render(); }); }
+function render() {
+  const main = $('#main'); const y = main.scrollTop;
+  try { main.innerHTML = VIEWS[UI.view](); } catch (e) { main.innerHTML = `<div class="wrap"><div class="notice bad">Er ging iets mis bij het tonen van dit scherm (${esc(e.message)}).</div></div>`; }
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.view === UI.view));
+  document.querySelectorAll('[data-cnt]').forEach(el => { const c = el.dataset.cnt; const n = c === 'events' ? Store.all('events').filter(ev => ev.status !== 'Afgerond' && ev.status !== 'Geannuleerd').length : Store.all(c).length; el.textContent = n || ''; el.hidden = !n; });
+  main.scrollTop = y;
+}
+function setMode() {
+  const b = $('#modeBadge');
+  if (Store.error) { b.className = 'pill bad'; b.innerHTML = '<span class="dot"></span>Opslag niet bereikbaar'; }
+  else if (Store.mode === 'shared') { b.className = 'pill ok'; b.innerHTML = '<span class="dot"></span>Gedeeld met het team' + (UI.readOnly ? ' · alleen lezen' : ''); }
+  else { b.className = 'pill warn'; b.innerHTML = '<span class="dot"></span>Alleen in deze browser'; }
+}
+window.addEventListener('hashchange', () => { route(); if (UI.view !== 'events') { /* eventkeuze blijft bewaard */ } render(); });
+Store.onChange(() => { renderSoon(); setMode(); });
+(async function init() {
+  route();
+  await Store.init();
+  if (Store.mode === 'shared') { try { const user = window.claude && await window.claude.use('user'); if (user) { const w = await user.can('data.write'); if (w === false) UI.readOnly = true; } } catch (e) { /* onbekend: bewerken toestaan */ } }
+  setMode(); render();
+})();
+})();
+</script>
+</body>
+</html>
