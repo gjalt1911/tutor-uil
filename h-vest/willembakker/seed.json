@@ -1,0 +1,516 @@
+{
+ "settings": [
+  {
+   "id": "main",
+   "jaar": 2026,
+   "doelen": {
+    "2026": 40000,
+    "2027": 50000,
+    "2028": 60000
+   },
+   "doelToelichting": "Voorbeelddoelen per jaar: aanpassen in Sponsoren › Doelen bewerken.",
+   "volgendeVergadering": "2026-11-10",
+   "pijlPrijs": 80
+  }
+ ],
+ "team": [
+  {
+   "id": "t-gjalt",
+   "naam": "Gjalt",
+   "rol": "Financieel",
+   "email": "gjaltvanhes@me.com",
+   "taken": "Financiën en planning, BV-cijfers (Snelstart), dit portaal, bezoek Het Klooster"
+  },
+  {
+   "id": "t-piet",
+   "naam": "Piet",
+   "rol": "Sponsoring",
+   "email": "",
+   "taken": "Sponsorwerving, nabellen voormalige \"adopteer een pijl\"-sponsors"
+  },
+  {
+   "id": "t-tanja",
+   "naam": "Tanja",
+   "rol": "Topsportbegeleider",
+   "email": "",
+   "taken": "Begeleiding van Willem als topsporter"
+  },
+  {
+   "id": "t-ruud",
+   "naam": "Ruud",
+   "rol": "Legal",
+   "email": "",
+   "taken": "Juridische zaken; coördinatie en draaiboek sponsoravond 2 december"
+  },
+  {
+   "id": "t-cornelie",
+   "naam": "Cornelie",
+   "rol": "Marketing",
+   "email": "",
+   "taken": "Marketing en communicatie"
+  },
+  {
+   "id": "t-herbert",
+   "naam": "Herbert",
+   "rol": "Vader van Willem, stichting",
+   "email": "",
+   "taken": "Contact met Het Klooster, sponsornetwerk"
+  },
+  {
+   "id": "t-willem",
+   "naam": "Willem",
+   "rol": "De sporter",
+   "email": "",
+   "taken": "Contact met grote sponsoren en sprekers; uitnodigingen"
+  }
+ ],
+ "sponsors": [
+  {
+   "id": "s-saluqi",
+   "naam": "Saluqi Motors",
+   "pakket": "Goud",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen."
+  },
+  {
+   "id": "s-org",
+   "naam": "ORGwaalre",
+   "pakket": "Goud",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen."
+  },
+  {
+   "id": "s-fototb",
+   "naam": "FotoTB.nl",
+   "pakket": "Goud",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen."
+  },
+  {
+   "id": "s-fz",
+   "naam": "Financieel Zeker",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Noemt zichzelf sponsor en publiceert nieuwsberichten over Willem. Pakket en bedrag nog invullen."
+  },
+  {
+   "id": "s-robert",
+   "naam": "Robert (grote sponsor)",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Uit de notulen van 2 november: nog niet aangemeld voor 2 december. Willem belt om te activeren en zijn netwerk te laten delen. Achternaam, pakket en bedrag invullen."
+  },
+  {
+   "id": "s-roelie",
+   "naam": "Roelie (grote sponsor)",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Uit de notulen van 2 november: nog niet aangemeld voor 2 december. Willem belt. Achternaam, pakket en bedrag invullen."
+  },
+  {
+   "id": "s-kees",
+   "naam": "Kees (grote sponsor)",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Uit de notulen van 2 november: nog niet aangemeld voor 2 december. Willem belt. Achternaam, pakket en bedrag invullen."
+  },
+  {
+   "id": "s-pijl",
+   "naam": "Adopteer een pijl (20 voormalige sponsors)",
+   "pakket": "Pijl-adoptie",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Eenmalig",
+   "kwartaal": 4,
+   "status": "In gesprek",
+   "contact": "Piet",
+   "notitie": "€ 80 per pijl, 12 per set (circa € 900 per set). Piet belt de twintig voormalige sponsors na; nog geen terugkoppeling. QR-code op tafelvlaggetjes op 2 december."
+  },
+  {
+   "id": "s-weconnect",
+   "naam": "WeConnect",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Eenmalig",
+   "kwartaal": 4,
+   "status": "Gestopt",
+   "contact": "",
+   "notitie": "Gevraagd voor extra sponsoring van de avond van 2 december, geweigerd."
+  }
+ ],
+ "bv": [],
+ "prive": [],
+ "events": [
+  {
+   "id": "ev-2dec",
+   "naam": "Sponsoravond 2 december",
+   "datum": "2026-12-02",
+   "tijd": "19:00",
+   "locatie": "Het Klooster",
+   "doel": "Sponsoren, kandidaat-sponsoren en netwerk van Willem bij elkaar brengen rond het thema innovatie, het EK-goud benoemen en nieuwe sponsoring werven, onder meer via \"adopteer een pijl\".",
+   "status": "In voorbereiding",
+   "coordinator": "Ruud",
+   "presentator": "Michael",
+   "aanmeldingen": 7,
+   "verwacht": 15,
+   "capaciteit": 120,
+   "samenvatting": "Sponsoravond in Het Klooster (€ 400 inclusief faciliteiten, capaciteit circa 120). Zeven aanmeldingen, verwachting 14-15 personen; uitnodigingsmail en WhatsApp-berichten gaan 2 november uit. Programma: inloop 19:00, welkom door Michael 19:30, daarna Willem (intro, weg naar LA, innovatie, EK benoemen), Jacco (innovatie: data en meting), Jan van Veen (innovatie in zijn sport) en een afsluitende sponsoroproep door Jacco zonder harde pitch. Sponsoring via \"adopteer een pijl\" (€ 80 per pijl, set van 12) met QR-code op tafelvlaggetjes. Ruud coördineert en maakt het draaiboek, Gjalt richt deze werkplek in en bezoekt Het Klooster, Willem belt de grote sponsoren (Robert, Roelie, Kees) en stemt de sprekers af, Piet belt de voormalige pijl-sponsors na. Volgende vergadering: dinsdag 10 november.",
+   "notulen": "Notulen vergadering 2 november 2026 (Granola)\n\nAanmeldingen en locatie\n- Zeven aanmeldingen tot nu toe, verwachting 14-15 mensen (sommigen komen met meerdere).\n- Locatie: Het Klooster, 400 euro voor de avond inclusief faciliteiten. Capaciteit circa 120 personen.\n- WeConnect gevraagd voor extra sponsoring, maar geweigerd.\n\nUitnodigingen en gasten werven\n- Uitnodigingsmail gaat vanavond uit naar de adverteerders/nieuwsbrieflijst.\n- WhatsApp-berichten al verstuurd, reacties worden afgewacht.\n- Grote sponsoren (Robert, Roelie, Kees) nog niet aangemeld: bellen om te activeren en netwerk te laten delen.\n- Stagiairs van TMC ook uitgenodigd, zijn enthousiast.\n- Pepijn doet een praatje; als hij er niet bij kan zijn, doet Willem het zelf.\n\nProgramma en sprekers\n- Inloop om 19:00 met koffie, thee en iets erbij.\n- Michael heet welkom om 19:30 als presentator.\n- Voorgestelde volgorde: a. Willem: korte intro (wie ben ik, weg naar LA, waarom innovatie); b. Jacco: innovatieverhaal (data en meting, vergelijkbaar met wat hij in het bad deed); c. Jan van Veen: innovatie in zijn sport; d. Afsluiting: Jacco doet de oproep richting sponsoring (\"dit kost geld, doe mee\").\n- Verhalen moeten van tevoren worden afgestemd zodat ze op elkaar aansluiten.\n- Sprekers kort houden: vragen duren snel 5 minuten.\n- Europees Kampioenschap moet expliciet worden benoemd in Willems verhaal.\n\nSponsoring en fondsenwerving\n- Pijlen kosten 80 euro per stuk, 12 per set = 900 euro per set.\n- Idee: \"adopteer een pijl\"-model, QR-code op tafelvlaggetjes.\n- Jacco noemt het aan het einde, zonder harde verkooppitch.\n- Persoonlijk benaderen van bekenden werkt het beste.\n- Sponsorenoverzicht ligt nu alleen bij Willem: moet centraal toegankelijk worden.\n- Piet zou voormalige \"adopteer een pijl\"-sponsors nabellen: nog geen terugkoppeling.\n\nCoördinatie en taakverdeling\n- Ruud neemt de coördinatie op zich en maakt een draaiboek/actielijst (eerst als Word, daarna gedeeld).\n- Overlegt met Het Klooster (via Herbert) over zaalinrichting.\n- Gjalt maakt een website/centrale plek aan voor planning, documenten en sponsoroverzicht; iedereen krijgt inloggegevens; tabblad voor sponsoren toevoegen.\n- Willem belt grote sponsoren persoonlijk en houdt contact met alle sprekers.\n- Afgesproken: Willem ontlast zoveel mogelijk, afgelopen week was te druk.\n\nPraktische zaken en vervolgafspraak\n- Hapjes na afloop regelen: Het Klooster heeft geen keuken, zelf regelen of Lucca Catering vragen.\n- Zaalinrichting: veel staantafels, beperkt zitplaatsen; Gjalt gaat Het Klooster bezoeken.\n- Antonio Engelen (Brabantsport) wil in gesprek met Willem: afspraak plannen deze of volgende week.\n- Gesprek met Jacco: woensdag om 11:30, Willem rijdt naar de Willylaan.\n- Volgende vergadering: dinsdag 10 november.\n\nVolgende stappen\n- Uitnodigingsmail versturen naar adverteerders- en nieuwsbrieflijst (Willem): vanavond nog versturen.\n- Grote sponsoren bellen: Robert, Roelie en Kees (Willem): bedanken, event aankondigen en vragen om te delen in hun netwerk.\n- Afspraak plannen met Antonio Engelen van Brabantsport: na het TMC-gesprek van morgen inplannen, deze of volgende week.\n- Draaiboek en actielijst opstellen (Ruud): vandaag of morgen als Word-document, daarna rondsturen.\n- Centrale website/werkplek aanmaken met sponsorentabblad (Gjalt): iedereen krijgt inloggegevens; sponsoroverzicht van Willem erin verwerken.\n- Het Klooster bezoeken voor zaalinrichting en praktische afspraken (Gjalt): afstemmen met Herbert; capaciteit en indeling bepalen.\n- Hapjesregeling uitzoeken voor na afloop: Het Klooster heeft geen keuken, Lucca Catering benaderen of zelf regelen.\n- Piet nabellen over voortgang \"adopteer een pijl\"-sponsorlijst: Piet zou de twintig voormalige sponsors nabellen; nog geen terugkoppeling ontvangen.",
+   "notulenLink": "https://notes.granola.ai/t/1aea931f-850d-4ae3-a3ef-3fff8043aa32"
+  }
+ ],
+ "mijlpalen": [
+  {
+   "id": "m-1",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-02",
+   "mijlpaal": "Uitnodigingen verstuurd: mail naar adverteerders- en nieuwsbrieflijst, WhatsApp-berichten",
+   "wie": "Willem",
+   "status": "Bezig"
+  },
+  {
+   "id": "m-2",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-10",
+   "mijlpaal": "Vergadering team (dinsdag 10 november)",
+   "wie": "Ruud",
+   "status": "Open"
+  },
+  {
+   "id": "m-3",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-18",
+   "mijlpaal": "Sprekers en programma definitief, verhalen op elkaar afgestemd",
+   "wie": "Willem",
+   "status": "Open"
+  },
+  {
+   "id": "m-4",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-25",
+   "mijlpaal": "Hapjes, zaalinrichting en tafelvlaggetjes met QR-code geregeld",
+   "wie": "Ruud",
+   "status": "Open"
+  },
+  {
+   "id": "m-5",
+   "eventId": "ev-2dec",
+   "datum": "2026-12-01",
+   "mijlpaal": "Doorloop in Het Klooster (techniek, opstelling, catering)",
+   "wie": "Gjalt",
+   "status": "Open"
+  },
+  {
+   "id": "m-6",
+   "eventId": "ev-2dec",
+   "datum": "2026-12-02",
+   "mijlpaal": "Sponsoravond",
+   "wie": "",
+   "status": "Open"
+  }
+ ],
+ "acties": [
+  {
+   "id": "a-1",
+   "eventId": "ev-2dec",
+   "wat": "Uitnodigingsmail versturen naar adverteerders- en nieuwsbrieflijst",
+   "wie": "Willem",
+   "deadline": "2026-11-02",
+   "status": "Open",
+   "notitie": "Vanavond nog versturen."
+  },
+  {
+   "id": "a-2",
+   "eventId": "ev-2dec",
+   "wat": "Grote sponsoren bellen: Robert, Roelie en Kees",
+   "wie": "Willem",
+   "deadline": "2026-11-06",
+   "status": "Open",
+   "notitie": "Bedanken, event aankondigen en vragen om te delen in hun netwerk. Ze zijn nog niet aangemeld."
+  },
+  {
+   "id": "a-3",
+   "eventId": "ev-2dec",
+   "wat": "Draaiboek en actielijst opstellen",
+   "wie": "Ruud",
+   "deadline": "2026-11-03",
+   "status": "Open",
+   "notitie": "Vandaag of morgen als Word-document, daarna rondsturen en hier in het portaal zetten."
+  },
+  {
+   "id": "a-4",
+   "eventId": "ev-2dec",
+   "wat": "Gesprek met Jacco (woensdag 11:30, Willylaan)",
+   "wie": "Willem",
+   "deadline": "2026-11-04",
+   "status": "Open",
+   "notitie": "Willem rijdt ernaartoe. Innovatieverhaal en de sponsoroproep aan het einde afstemmen."
+  },
+  {
+   "id": "a-5",
+   "eventId": "ev-2dec",
+   "wat": "Centrale werkplek met sponsorentabblad inrichten; iedereen inloggegevens geven",
+   "wie": "Gjalt",
+   "deadline": "2026-11-09",
+   "status": "Bezig",
+   "notitie": "Sponsoroverzicht van Willem erin verwerken. Klaar vóór de vergadering van 10 november."
+  },
+  {
+   "id": "a-6",
+   "eventId": "ev-2dec",
+   "wat": "Het Klooster bezoeken voor zaalinrichting en praktische afspraken",
+   "wie": "Gjalt",
+   "deadline": "2026-11-09",
+   "status": "Open",
+   "notitie": "Afstemmen met Herbert. Veel staantafels, beperkt zitplaatsen; capaciteit en indeling bepalen."
+  },
+  {
+   "id": "a-7",
+   "eventId": "ev-2dec",
+   "wat": "Sponsoroverzicht van Willem centraal in het portaal zetten",
+   "wie": "Willem",
+   "deadline": "2026-11-09",
+   "status": "Open",
+   "notitie": "Ligt nu alleen bij Willem; moet voor iedereen toegankelijk zijn (tabblad Sponsoren)."
+  },
+  {
+   "id": "a-8",
+   "eventId": "ev-2dec",
+   "wat": "Piet nabellen over de \"adopteer een pijl\"-sponsorlijst",
+   "wie": "Piet",
+   "deadline": "2026-11-10",
+   "status": "Open",
+   "notitie": "Twintig voormalige sponsors nabellen; nog geen terugkoppeling ontvangen."
+  },
+  {
+   "id": "a-9",
+   "eventId": "ev-2dec",
+   "wat": "Hapjesregeling voor na afloop uitzoeken",
+   "wie": "",
+   "deadline": "2026-11-10",
+   "status": "Open",
+   "notitie": "Het Klooster heeft geen keuken: Lucca Catering benaderen of zelf regelen. Nog toewijzen."
+  },
+  {
+   "id": "a-10",
+   "eventId": "ev-2dec",
+   "wat": "WhatsApp-reacties opvolgen en aanmeldingen bijhouden",
+   "wie": "Willem",
+   "deadline": "2026-11-10",
+   "status": "Bezig",
+   "notitie": "Zeven aanmeldingen; verwachting 14-15 personen (sommigen komen met meerdere). Stagiairs TMC zijn uitgenodigd en enthousiast."
+  },
+  {
+   "id": "a-11",
+   "eventId": "ev-2dec",
+   "wat": "Afspraak plannen met Antonio Engelen (Brabantsport)",
+   "wie": "Willem",
+   "deadline": "2026-11-13",
+   "status": "Open",
+   "notitie": "Na het TMC-gesprek van 3 november inplannen, deze of volgende week."
+  },
+  {
+   "id": "a-12",
+   "eventId": "ev-2dec",
+   "wat": "Pepijn bevestigen voor zijn praatje",
+   "wie": "Willem",
+   "deadline": "2026-11-18",
+   "status": "Open",
+   "notitie": "Als Pepijn er niet bij kan zijn, doet Willem het zelf."
+  },
+  {
+   "id": "a-13",
+   "eventId": "ev-2dec",
+   "wat": "Verhalen van de sprekers op elkaar afstemmen (Willem, Jacco, Jan van Veen)",
+   "wie": "Willem",
+   "deadline": "2026-11-24",
+   "status": "Open",
+   "notitie": "Kort houden (vragen duren snel 5 minuten). Het EK expliciet benoemen in Willems verhaal."
+  },
+  {
+   "id": "a-14",
+   "eventId": "ev-2dec",
+   "wat": "QR-code en tafelvlaggetjes \"adopteer een pijl\" maken",
+   "wie": "",
+   "deadline": "2026-11-25",
+   "status": "Open",
+   "notitie": "€ 80 per pijl, 12 per set. Nog toewijzen (marketing?)."
+  }
+ ],
+ "programma": [
+  {
+   "id": "p-1",
+   "eventId": "ev-2dec",
+   "tijd": "19:00",
+   "onderdeel": "Inloop met koffie, thee en iets erbij",
+   "wie": "",
+   "duur": 30,
+   "notitie": ""
+  },
+  {
+   "id": "p-2",
+   "eventId": "ev-2dec",
+   "tijd": "19:30",
+   "onderdeel": "Welkom door de presentator",
+   "wie": "Michael",
+   "duur": 10,
+   "notitie": ""
+  },
+  {
+   "id": "p-3",
+   "eventId": "ev-2dec",
+   "tijd": "19:40",
+   "onderdeel": "Willem: korte intro, wie ben ik, de weg naar LA 2028 en waarom innovatie",
+   "wie": "Willem",
+   "duur": 15,
+   "notitie": "Het Europees Kampioenschap expliciet benoemen."
+  },
+  {
+   "id": "p-4",
+   "eventId": "ev-2dec",
+   "tijd": "19:55",
+   "onderdeel": "Jacco: innovatieverhaal over data en meting",
+   "wie": "Jacco",
+   "duur": 15,
+   "notitie": "Vergelijkbaar met wat hij in het bad deed."
+  },
+  {
+   "id": "p-5",
+   "eventId": "ev-2dec",
+   "tijd": "20:10",
+   "onderdeel": "Jan van Veen: innovatie in zijn sport",
+   "wie": "Jan van Veen",
+   "duur": 15,
+   "notitie": ""
+  },
+  {
+   "id": "p-6",
+   "eventId": "ev-2dec",
+   "tijd": "20:25",
+   "onderdeel": "Praatje Pepijn",
+   "wie": "Pepijn",
+   "duur": 10,
+   "notitie": "Als Pepijn er niet bij kan zijn, doet Willem het zelf. Plek in het programma nog bevestigen."
+  },
+  {
+   "id": "p-7",
+   "eventId": "ev-2dec",
+   "tijd": "20:35",
+   "onderdeel": "Afsluiting: Jacco doet de oproep richting sponsoring",
+   "wie": "Jacco",
+   "duur": 10,
+   "notitie": "\"Dit kost geld, doe mee\", zonder harde verkooppitch. Adopteer een pijl noemen (QR-code op de tafelvlaggetjes)."
+  },
+  {
+   "id": "p-8",
+   "eventId": "ev-2dec",
+   "tijd": "20:45",
+   "onderdeel": "Hapjes, borrel en netwerken",
+   "wie": "",
+   "duur": 60,
+   "notitie": "Persoonlijk benaderen van bekenden werkt het beste. Tijden zijn een voorstel; sprekers kort houden."
+  }
+ ],
+ "eventbudget": [
+  {
+   "id": "b-1",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Zaalhuur Het Klooster, inclusief faciliteiten",
+   "begroot": 400,
+   "werkelijk": 0,
+   "notitie": "Afgesproken bedrag voor de avond."
+  },
+  {
+   "id": "b-2",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Koffie, thee en iets erbij bij de inloop",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Nog begroten."
+  },
+  {
+   "id": "b-3",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Hapjes na afloop (Lucca Catering of zelf regelen)",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Offerte opvragen; Het Klooster heeft geen keuken."
+  },
+  {
+   "id": "b-4",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Tafelvlaggetjes met QR-code \"adopteer een pijl\"",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Nog begroten."
+  },
+  {
+   "id": "b-5",
+   "eventId": "ev-2dec",
+   "type": "Opbrengsten",
+   "post": "Adopteer een pijl (€ 80 per pijl, set van 12 is circa € 900)",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Doel nog afspreken, bijvoorbeeld in sets."
+  },
+  {
+   "id": "b-6",
+   "eventId": "ev-2dec",
+   "type": "Opbrengsten",
+   "post": "Sponsortoezeggingen naar aanleiding van de avond",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "WeConnect is gevraagd en heeft geweigerd."
+  }
+ ],
+ "presentaties": []
+}

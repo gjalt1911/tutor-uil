@@ -36,6 +36,7 @@
   --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 h1,h2,h3,h4{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.005em}
@@ -165,6 +166,12 @@ select.inline-input{padding:5px 8px;font-size:14px}
 .medal i{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
 .medal b{font-family:var(--display);font-size:16px;font-weight:600}
 .medal span{font-size:13px;color:var(--fg2)}
+.login{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;align-items:center;justify-content:center;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:auto}
+.login-box{width:min(380px,100%);display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:26px 24px;box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.login-box .mark{width:52px;height:52px}
+.login-box h2{font-size:26px}
+code.ww{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:2px 8px;user-select:all}
+.notice{justify-content:space-between}
 @media (max-width:760px){
   .app{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "nav" "main"}
   .nav{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line);padding-block:8px;padding-right:max(16px,env(safe-area-inset-right,0px));max-height:none;gap:4px}
@@ -193,7 +200,7 @@ select.inline-input{padding:5px 8px;font-size:14px}
         <div class="brand-sub">Teamportaal · recurve · Waalre</div>
       </div>
     </div>
-    <div class="top-right"><span id="modeBadge" class="pill"><span class="dot"></span>Laden…</span></div>
+    <div class="top-right row"><span id="modeBadge" class="pill"><span class="dot"></span>Laden…</span><button class="btn small ghost" id="logoutBtn" data-act="logout" hidden>Uitloggen</button></div>
   </header>
   <nav class="nav" id="nav" aria-label="Onderdelen">
     <a href="#overzicht" data-view="overzicht">Overzicht</a>
@@ -203,10 +210,23 @@ select.inline-input{padding:5px 8px;font-size:14px}
     <a href="#events" data-view="events">Events <span class="cnt" data-cnt="events"></span></a>
     <a href="#team" data-view="team">Team <span class="cnt" data-cnt="team"></span></a>
     <a href="#data" data-view="data">Gegevens</a>
+    <a href="#beheer" data-view="beheer" id="navBeheer" hidden>Beheer</a>
   </nav>
   <main class="main" id="main"><div class="wrap"><p class="muted">Laden…</p></div></main>
 </div>
 <dialog id="dlg"><form id="dlgForm" novalidate></form></dialog>
+<datalist id="wieList"></datalist>
+<div id="login" class="login" hidden>
+  <form id="loginForm" class="login-box" novalidate>
+    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#f4f4f2" stroke="#8a96a5" stroke-width="1"/><circle cx="20" cy="20" r="15.2" fill="#1b1b1b"/><circle cx="20" cy="20" r="11.4" fill="#1f63b4"/><circle cx="20" cy="20" r="7.6" fill="#d8352a"/><circle cx="20" cy="20" r="3.8" fill="#f2c12e"/></svg>
+    <h2>Willem Bakker · teamportaal</h2>
+    <p class="muted small">Log in met je voornaam en wachtwoord.</p>
+    <div class="field"><label for="loginNaam">Voornaam</label><input id="loginNaam" name="naam" autocomplete="username" autocapitalize="none" required></div>
+    <div class="field"><label for="loginWw">Wachtwoord</label><input id="loginWw" name="wachtwoord" type="password" autocomplete="current-password" required></div>
+    <div class="err" id="loginErr" hidden></div>
+    <button type="submit" class="btn primary" id="loginBtn">Inloggen</button>
+  </form>
+</div>
 <div id="toast" class="toast" hidden></div>
 <script>
 (function(){
@@ -257,56 +277,520 @@ const FEITEN = [
 ];
 
 const SEED = {
-  settings: [{id:'main', jaar: 2026, doelen: {'2026': 40000, '2027': 50000, '2028': 60000}, doelToelichting: 'Voorbeelddoelen per jaar: aanpassen in Sponsoren › Doel bewerken.'}],
-  team: [
-    {id:'t-gjalt', naam:'Gjalt van Hes', rol:'Financiën & planning', email:'gjaltvanhes@me.com', taken:'Sponsorplanning, BV-cijfers (Snelstart), portaal'},
-    {id:'t-2', naam:'Teamlid 2', rol:'Rol invullen', email:'', taken:''},
-    {id:'t-3', naam:'Teamlid 3', rol:'Rol invullen', email:'', taken:''},
-    {id:'t-4', naam:'Teamlid 4', rol:'Rol invullen', email:'', taken:''},
-    {id:'t-5', naam:'Teamlid 5', rol:'Rol invullen', email:'', taken:''},
-    {id:'t-6', naam:'Teamlid 6', rol:'Rol invullen', email:'', taken:''}
-  ],
-  sponsors: [
-    {id:'s-saluqi', naam:'Saluqi Motors', pakket:'Goud', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen.'},
-    {id:'s-org', naam:'ORGwaalre', pakket:'Goud', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen.'},
-    {id:'s-fototb', naam:'FotoTB.nl', pakket:'Goud', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen.'},
-    {id:'s-fz', naam:'Financieel Zeker', pakket:'Anders', bedrag:0, start:2026, eind:2026, betaling:'Jaarlijks', kwartaal:1, status:'Getekend', contact:'', notitie:'Noemt zichzelf sponsor en publiceert nieuwsberichten over Willem. Pakket en bedrag nog invullen.'}
-  ],
-  bv: [],
-  prive: [],
-  events: [{id:'ev-2dec', naam:'Event 2 december', datum:'2026-12-02', tijd:'19:00', locatie:'Nog vast te leggen', doel:'Doel en opzet overnemen uit de Granola-notulen.', status:'In voorbereiding', samenvatting:'', notulen:'', notulenLink:'https://notes.granola.ai/t/1aea931f-850d-4ae3-a3ef-3fff8043aa32'}],
-  mijlpalen: [
-    {id:'m-1', eventId:'ev-2dec', datum:'2026-11-11', mijlpaal:'Gastenlijst en uitnodigingen verstuurd', wie:'', status:'Open'},
-    {id:'m-2', eventId:'ev-2dec', datum:'2026-11-18', mijlpaal:'Programma van de avond definitief', wie:'', status:'Open'},
-    {id:'m-3', eventId:'ev-2dec', datum:'2026-11-25', mijlpaal:'Presentatie en financieel plaatje klaar', wie:'', status:'Open'},
-    {id:'m-4', eventId:'ev-2dec', datum:'2026-12-01', mijlpaal:'Doorloop op locatie (techniek, catering, opstelling)', wie:'', status:'Open'},
-    {id:'m-5', eventId:'ev-2dec', datum:'2026-12-02', mijlpaal:'Event', wie:'', status:'Open'}
-  ],
-  acties: [
-    {id:'a-1', eventId:'ev-2dec', wat:'Locatie vastleggen (voorbeeld)', wie:'', deadline:'2026-11-06', status:'Open', notitie:''},
-    {id:'a-2', eventId:'ev-2dec', wat:'Gastenlijst opstellen: sponsoren, kandidaat-sponsoren, pers (voorbeeld)', wie:'', deadline:'2026-11-09', status:'Open', notitie:''},
-    {id:'a-3', eventId:'ev-2dec', wat:'Uitnodiging ontwerpen en versturen (voorbeeld)', wie:'', deadline:'2026-11-11', status:'Open', notitie:''},
-    {id:'a-4', eventId:'ev-2dec', wat:'Presentatie Willem: seizoen 2026 en route naar LA 2028 (voorbeeld)', wie:'', deadline:'2026-11-25', status:'Open', notitie:''},
-    {id:'a-5', eventId:'ev-2dec', wat:'Financieel plaatje en sponsorpakketten uitwerken (voorbeeld)', wie:'', deadline:'2026-11-25', status:'Open', notitie:''},
-    {id:'a-6', eventId:'ev-2dec', wat:'Catering en drank regelen (voorbeeld)', wie:'', deadline:'2026-11-27', status:'Open', notitie:''},
-    {id:'a-7', eventId:'ev-2dec', wat:'Beamer, geluid en opname checken (voorbeeld)', wie:'', deadline:'2026-12-01', status:'Open', notitie:''}
-  ],
-  programma: [
-    {id:'p-1', eventId:'ev-2dec', tijd:'19:00', onderdeel:'Inloop en ontvangst (voorbeeld)', wie:'', duur:30, notitie:''},
-    {id:'p-2', eventId:'ev-2dec', tijd:'19:30', onderdeel:'Welkom en opening (voorbeeld)', wie:'', duur:10, notitie:''},
-    {id:'p-3', eventId:'ev-2dec', tijd:'19:40', onderdeel:'Willem aan het woord: EK-goud 2026 en de weg naar LA 2028 (voorbeeld)', wie:'Willem Bakker', duur:30, notitie:''},
-    {id:'p-4', eventId:'ev-2dec', tijd:'20:10', onderdeel:'Financieel plaatje en sponsormogelijkheden (voorbeeld)', wie:'', duur:20, notitie:''},
-    {id:'p-5', eventId:'ev-2dec', tijd:'20:30', onderdeel:'Vragen, netwerken en borrel (voorbeeld)', wie:'', duur:60, notitie:''},
-    {id:'p-6', eventId:'ev-2dec', tijd:'21:30', onderdeel:'Afsluiting (voorbeeld)', wie:'', duur:10, notitie:''}
-  ],
-  eventbudget: [
-    {id:'b-1', eventId:'ev-2dec', type:'Kosten', post:'Zaalhuur (voorbeeld)', begroot:500, werkelijk:0, notitie:''},
-    {id:'b-2', eventId:'ev-2dec', type:'Kosten', post:'Catering en drank (voorbeeld)', begroot:1200, werkelijk:0, notitie:''},
-    {id:'b-3', eventId:'ev-2dec', type:'Kosten', post:'Drukwerk en uitnodigingen (voorbeeld)', begroot:150, werkelijk:0, notitie:''},
-    {id:'b-4', eventId:'ev-2dec', type:'Kosten', post:'Techniek: beamer, geluid, opname (voorbeeld)', begroot:300, werkelijk:0, notitie:''},
-    {id:'b-5', eventId:'ev-2dec', type:'Opbrengsten', post:'Sponsortoezeggingen tijdens de avond (voorbeeld)', begroot:10000, werkelijk:0, notitie:''}
-  ],
-  presentaties: []
+ "settings": [
+  {
+   "id": "main",
+   "jaar": 2026,
+   "doelen": {
+    "2026": 40000,
+    "2027": 50000,
+    "2028": 60000
+   },
+   "doelToelichting": "Voorbeelddoelen per jaar: aanpassen in Sponsoren › Doelen bewerken.",
+   "volgendeVergadering": "2026-11-10",
+   "pijlPrijs": 80
+  }
+ ],
+ "team": [
+  {
+   "id": "t-gjalt",
+   "naam": "Gjalt",
+   "rol": "Financieel",
+   "email": "gjaltvanhes@me.com",
+   "taken": "Financiën en planning, BV-cijfers (Snelstart), dit portaal, bezoek Het Klooster"
+  },
+  {
+   "id": "t-piet",
+   "naam": "Piet",
+   "rol": "Sponsoring",
+   "email": "",
+   "taken": "Sponsorwerving, nabellen voormalige \"adopteer een pijl\"-sponsors"
+  },
+  {
+   "id": "t-tanja",
+   "naam": "Tanja",
+   "rol": "Topsportbegeleider",
+   "email": "",
+   "taken": "Begeleiding van Willem als topsporter"
+  },
+  {
+   "id": "t-ruud",
+   "naam": "Ruud",
+   "rol": "Legal",
+   "email": "",
+   "taken": "Juridische zaken; coördinatie en draaiboek sponsoravond 2 december"
+  },
+  {
+   "id": "t-cornelie",
+   "naam": "Cornelie",
+   "rol": "Marketing",
+   "email": "",
+   "taken": "Marketing en communicatie"
+  },
+  {
+   "id": "t-herbert",
+   "naam": "Herbert",
+   "rol": "Vader van Willem, stichting",
+   "email": "",
+   "taken": "Contact met Het Klooster, sponsornetwerk"
+  },
+  {
+   "id": "t-willem",
+   "naam": "Willem",
+   "rol": "De sporter",
+   "email": "",
+   "taken": "Contact met grote sponsoren en sprekers; uitnodigingen"
+  }
+ ],
+ "sponsors": [
+  {
+   "id": "s-saluqi",
+   "naam": "Saluqi Motors",
+   "pakket": "Goud",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen."
+  },
+  {
+   "id": "s-org",
+   "naam": "ORGwaalre",
+   "pakket": "Goud",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen."
+  },
+  {
+   "id": "s-fototb",
+   "naam": "FotoTB.nl",
+   "pakket": "Goud",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Staat als goudsponsor op willembakker.eu. Bedrag en looptijd nog invullen."
+  },
+  {
+   "id": "s-fz",
+   "naam": "Financieel Zeker",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Noemt zichzelf sponsor en publiceert nieuwsberichten over Willem. Pakket en bedrag nog invullen."
+  },
+  {
+   "id": "s-robert",
+   "naam": "Robert (grote sponsor)",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Uit de notulen van 2 november: nog niet aangemeld voor 2 december. Willem belt om te activeren en zijn netwerk te laten delen. Achternaam, pakket en bedrag invullen."
+  },
+  {
+   "id": "s-roelie",
+   "naam": "Roelie (grote sponsor)",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Uit de notulen van 2 november: nog niet aangemeld voor 2 december. Willem belt. Achternaam, pakket en bedrag invullen."
+  },
+  {
+   "id": "s-kees",
+   "naam": "Kees (grote sponsor)",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Jaarlijks",
+   "kwartaal": 1,
+   "status": "Getekend",
+   "contact": "",
+   "notitie": "Uit de notulen van 2 november: nog niet aangemeld voor 2 december. Willem belt. Achternaam, pakket en bedrag invullen."
+  },
+  {
+   "id": "s-pijl",
+   "naam": "Adopteer een pijl (20 voormalige sponsors)",
+   "pakket": "Pijl-adoptie",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Eenmalig",
+   "kwartaal": 4,
+   "status": "In gesprek",
+   "contact": "Piet",
+   "notitie": "€ 80 per pijl, 12 per set (circa € 900 per set). Piet belt de twintig voormalige sponsors na; nog geen terugkoppeling. QR-code op tafelvlaggetjes op 2 december."
+  },
+  {
+   "id": "s-weconnect",
+   "naam": "WeConnect",
+   "pakket": "Anders",
+   "bedrag": 0,
+   "start": 2026,
+   "eind": 2026,
+   "betaling": "Eenmalig",
+   "kwartaal": 4,
+   "status": "Gestopt",
+   "contact": "",
+   "notitie": "Gevraagd voor extra sponsoring van de avond van 2 december, geweigerd."
+  }
+ ],
+ "bv": [],
+ "prive": [],
+ "events": [
+  {
+   "id": "ev-2dec",
+   "naam": "Sponsoravond 2 december",
+   "datum": "2026-12-02",
+   "tijd": "19:00",
+   "locatie": "Het Klooster",
+   "doel": "Sponsoren, kandidaat-sponsoren en netwerk van Willem bij elkaar brengen rond het thema innovatie, het EK-goud benoemen en nieuwe sponsoring werven, onder meer via \"adopteer een pijl\".",
+   "status": "In voorbereiding",
+   "coordinator": "Ruud",
+   "presentator": "Michael",
+   "aanmeldingen": 7,
+   "verwacht": 15,
+   "capaciteit": 120,
+   "samenvatting": "Sponsoravond in Het Klooster (€ 400 inclusief faciliteiten, capaciteit circa 120). Zeven aanmeldingen, verwachting 14-15 personen; uitnodigingsmail en WhatsApp-berichten gaan 2 november uit. Programma: inloop 19:00, welkom door Michael 19:30, daarna Willem (intro, weg naar LA, innovatie, EK benoemen), Jacco (innovatie: data en meting), Jan van Veen (innovatie in zijn sport) en een afsluitende sponsoroproep door Jacco zonder harde pitch. Sponsoring via \"adopteer een pijl\" (€ 80 per pijl, set van 12) met QR-code op tafelvlaggetjes. Ruud coördineert en maakt het draaiboek, Gjalt richt deze werkplek in en bezoekt Het Klooster, Willem belt de grote sponsoren (Robert, Roelie, Kees) en stemt de sprekers af, Piet belt de voormalige pijl-sponsors na. Volgende vergadering: dinsdag 10 november.",
+   "notulen": "Notulen vergadering 2 november 2026 (Granola)\n\nAanmeldingen en locatie\n- Zeven aanmeldingen tot nu toe, verwachting 14-15 mensen (sommigen komen met meerdere).\n- Locatie: Het Klooster, 400 euro voor de avond inclusief faciliteiten. Capaciteit circa 120 personen.\n- WeConnect gevraagd voor extra sponsoring, maar geweigerd.\n\nUitnodigingen en gasten werven\n- Uitnodigingsmail gaat vanavond uit naar de adverteerders/nieuwsbrieflijst.\n- WhatsApp-berichten al verstuurd, reacties worden afgewacht.\n- Grote sponsoren (Robert, Roelie, Kees) nog niet aangemeld: bellen om te activeren en netwerk te laten delen.\n- Stagiairs van TMC ook uitgenodigd, zijn enthousiast.\n- Pepijn doet een praatje; als hij er niet bij kan zijn, doet Willem het zelf.\n\nProgramma en sprekers\n- Inloop om 19:00 met koffie, thee en iets erbij.\n- Michael heet welkom om 19:30 als presentator.\n- Voorgestelde volgorde: a. Willem: korte intro (wie ben ik, weg naar LA, waarom innovatie); b. Jacco: innovatieverhaal (data en meting, vergelijkbaar met wat hij in het bad deed); c. Jan van Veen: innovatie in zijn sport; d. Afsluiting: Jacco doet de oproep richting sponsoring (\"dit kost geld, doe mee\").\n- Verhalen moeten van tevoren worden afgestemd zodat ze op elkaar aansluiten.\n- Sprekers kort houden: vragen duren snel 5 minuten.\n- Europees Kampioenschap moet expliciet worden benoemd in Willems verhaal.\n\nSponsoring en fondsenwerving\n- Pijlen kosten 80 euro per stuk, 12 per set = 900 euro per set.\n- Idee: \"adopteer een pijl\"-model, QR-code op tafelvlaggetjes.\n- Jacco noemt het aan het einde, zonder harde verkooppitch.\n- Persoonlijk benaderen van bekenden werkt het beste.\n- Sponsorenoverzicht ligt nu alleen bij Willem: moet centraal toegankelijk worden.\n- Piet zou voormalige \"adopteer een pijl\"-sponsors nabellen: nog geen terugkoppeling.\n\nCoördinatie en taakverdeling\n- Ruud neemt de coördinatie op zich en maakt een draaiboek/actielijst (eerst als Word, daarna gedeeld).\n- Overlegt met Het Klooster (via Herbert) over zaalinrichting.\n- Gjalt maakt een website/centrale plek aan voor planning, documenten en sponsoroverzicht; iedereen krijgt inloggegevens; tabblad voor sponsoren toevoegen.\n- Willem belt grote sponsoren persoonlijk en houdt contact met alle sprekers.\n- Afgesproken: Willem ontlast zoveel mogelijk, afgelopen week was te druk.\n\nPraktische zaken en vervolgafspraak\n- Hapjes na afloop regelen: Het Klooster heeft geen keuken, zelf regelen of Lucca Catering vragen.\n- Zaalinrichting: veel staantafels, beperkt zitplaatsen; Gjalt gaat Het Klooster bezoeken.\n- Antonio Engelen (Brabantsport) wil in gesprek met Willem: afspraak plannen deze of volgende week.\n- Gesprek met Jacco: woensdag om 11:30, Willem rijdt naar de Willylaan.\n- Volgende vergadering: dinsdag 10 november.\n\nVolgende stappen\n- Uitnodigingsmail versturen naar adverteerders- en nieuwsbrieflijst (Willem): vanavond nog versturen.\n- Grote sponsoren bellen: Robert, Roelie en Kees (Willem): bedanken, event aankondigen en vragen om te delen in hun netwerk.\n- Afspraak plannen met Antonio Engelen van Brabantsport: na het TMC-gesprek van morgen inplannen, deze of volgende week.\n- Draaiboek en actielijst opstellen (Ruud): vandaag of morgen als Word-document, daarna rondsturen.\n- Centrale website/werkplek aanmaken met sponsorentabblad (Gjalt): iedereen krijgt inloggegevens; sponsoroverzicht van Willem erin verwerken.\n- Het Klooster bezoeken voor zaalinrichting en praktische afspraken (Gjalt): afstemmen met Herbert; capaciteit en indeling bepalen.\n- Hapjesregeling uitzoeken voor na afloop: Het Klooster heeft geen keuken, Lucca Catering benaderen of zelf regelen.\n- Piet nabellen over voortgang \"adopteer een pijl\"-sponsorlijst: Piet zou de twintig voormalige sponsors nabellen; nog geen terugkoppeling ontvangen.",
+   "notulenLink": "https://notes.granola.ai/t/1aea931f-850d-4ae3-a3ef-3fff8043aa32"
+  }
+ ],
+ "mijlpalen": [
+  {
+   "id": "m-1",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-02",
+   "mijlpaal": "Uitnodigingen verstuurd: mail naar adverteerders- en nieuwsbrieflijst, WhatsApp-berichten",
+   "wie": "Willem",
+   "status": "Bezig"
+  },
+  {
+   "id": "m-2",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-10",
+   "mijlpaal": "Vergadering team (dinsdag 10 november)",
+   "wie": "Ruud",
+   "status": "Open"
+  },
+  {
+   "id": "m-3",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-18",
+   "mijlpaal": "Sprekers en programma definitief, verhalen op elkaar afgestemd",
+   "wie": "Willem",
+   "status": "Open"
+  },
+  {
+   "id": "m-4",
+   "eventId": "ev-2dec",
+   "datum": "2026-11-25",
+   "mijlpaal": "Hapjes, zaalinrichting en tafelvlaggetjes met QR-code geregeld",
+   "wie": "Ruud",
+   "status": "Open"
+  },
+  {
+   "id": "m-5",
+   "eventId": "ev-2dec",
+   "datum": "2026-12-01",
+   "mijlpaal": "Doorloop in Het Klooster (techniek, opstelling, catering)",
+   "wie": "Gjalt",
+   "status": "Open"
+  },
+  {
+   "id": "m-6",
+   "eventId": "ev-2dec",
+   "datum": "2026-12-02",
+   "mijlpaal": "Sponsoravond",
+   "wie": "",
+   "status": "Open"
+  }
+ ],
+ "acties": [
+  {
+   "id": "a-1",
+   "eventId": "ev-2dec",
+   "wat": "Uitnodigingsmail versturen naar adverteerders- en nieuwsbrieflijst",
+   "wie": "Willem",
+   "deadline": "2026-11-02",
+   "status": "Open",
+   "notitie": "Vanavond nog versturen."
+  },
+  {
+   "id": "a-2",
+   "eventId": "ev-2dec",
+   "wat": "Grote sponsoren bellen: Robert, Roelie en Kees",
+   "wie": "Willem",
+   "deadline": "2026-11-06",
+   "status": "Open",
+   "notitie": "Bedanken, event aankondigen en vragen om te delen in hun netwerk. Ze zijn nog niet aangemeld."
+  },
+  {
+   "id": "a-3",
+   "eventId": "ev-2dec",
+   "wat": "Draaiboek en actielijst opstellen",
+   "wie": "Ruud",
+   "deadline": "2026-11-03",
+   "status": "Open",
+   "notitie": "Vandaag of morgen als Word-document, daarna rondsturen en hier in het portaal zetten."
+  },
+  {
+   "id": "a-4",
+   "eventId": "ev-2dec",
+   "wat": "Gesprek met Jacco (woensdag 11:30, Willylaan)",
+   "wie": "Willem",
+   "deadline": "2026-11-04",
+   "status": "Open",
+   "notitie": "Willem rijdt ernaartoe. Innovatieverhaal en de sponsoroproep aan het einde afstemmen."
+  },
+  {
+   "id": "a-5",
+   "eventId": "ev-2dec",
+   "wat": "Centrale werkplek met sponsorentabblad inrichten; iedereen inloggegevens geven",
+   "wie": "Gjalt",
+   "deadline": "2026-11-09",
+   "status": "Bezig",
+   "notitie": "Sponsoroverzicht van Willem erin verwerken. Klaar vóór de vergadering van 10 november."
+  },
+  {
+   "id": "a-6",
+   "eventId": "ev-2dec",
+   "wat": "Het Klooster bezoeken voor zaalinrichting en praktische afspraken",
+   "wie": "Gjalt",
+   "deadline": "2026-11-09",
+   "status": "Open",
+   "notitie": "Afstemmen met Herbert. Veel staantafels, beperkt zitplaatsen; capaciteit en indeling bepalen."
+  },
+  {
+   "id": "a-7",
+   "eventId": "ev-2dec",
+   "wat": "Sponsoroverzicht van Willem centraal in het portaal zetten",
+   "wie": "Willem",
+   "deadline": "2026-11-09",
+   "status": "Open",
+   "notitie": "Ligt nu alleen bij Willem; moet voor iedereen toegankelijk zijn (tabblad Sponsoren)."
+  },
+  {
+   "id": "a-8",
+   "eventId": "ev-2dec",
+   "wat": "Piet nabellen over de \"adopteer een pijl\"-sponsorlijst",
+   "wie": "Piet",
+   "deadline": "2026-11-10",
+   "status": "Open",
+   "notitie": "Twintig voormalige sponsors nabellen; nog geen terugkoppeling ontvangen."
+  },
+  {
+   "id": "a-9",
+   "eventId": "ev-2dec",
+   "wat": "Hapjesregeling voor na afloop uitzoeken",
+   "wie": "",
+   "deadline": "2026-11-10",
+   "status": "Open",
+   "notitie": "Het Klooster heeft geen keuken: Lucca Catering benaderen of zelf regelen. Nog toewijzen."
+  },
+  {
+   "id": "a-10",
+   "eventId": "ev-2dec",
+   "wat": "WhatsApp-reacties opvolgen en aanmeldingen bijhouden",
+   "wie": "Willem",
+   "deadline": "2026-11-10",
+   "status": "Bezig",
+   "notitie": "Zeven aanmeldingen; verwachting 14-15 personen (sommigen komen met meerdere). Stagiairs TMC zijn uitgenodigd en enthousiast."
+  },
+  {
+   "id": "a-11",
+   "eventId": "ev-2dec",
+   "wat": "Afspraak plannen met Antonio Engelen (Brabantsport)",
+   "wie": "Willem",
+   "deadline": "2026-11-13",
+   "status": "Open",
+   "notitie": "Na het TMC-gesprek van 3 november inplannen, deze of volgende week."
+  },
+  {
+   "id": "a-12",
+   "eventId": "ev-2dec",
+   "wat": "Pepijn bevestigen voor zijn praatje",
+   "wie": "Willem",
+   "deadline": "2026-11-18",
+   "status": "Open",
+   "notitie": "Als Pepijn er niet bij kan zijn, doet Willem het zelf."
+  },
+  {
+   "id": "a-13",
+   "eventId": "ev-2dec",
+   "wat": "Verhalen van de sprekers op elkaar afstemmen (Willem, Jacco, Jan van Veen)",
+   "wie": "Willem",
+   "deadline": "2026-11-24",
+   "status": "Open",
+   "notitie": "Kort houden (vragen duren snel 5 minuten). Het EK expliciet benoemen in Willems verhaal."
+  },
+  {
+   "id": "a-14",
+   "eventId": "ev-2dec",
+   "wat": "QR-code en tafelvlaggetjes \"adopteer een pijl\" maken",
+   "wie": "",
+   "deadline": "2026-11-25",
+   "status": "Open",
+   "notitie": "€ 80 per pijl, 12 per set. Nog toewijzen (marketing?)."
+  }
+ ],
+ "programma": [
+  {
+   "id": "p-1",
+   "eventId": "ev-2dec",
+   "tijd": "19:00",
+   "onderdeel": "Inloop met koffie, thee en iets erbij",
+   "wie": "",
+   "duur": 30,
+   "notitie": ""
+  },
+  {
+   "id": "p-2",
+   "eventId": "ev-2dec",
+   "tijd": "19:30",
+   "onderdeel": "Welkom door de presentator",
+   "wie": "Michael",
+   "duur": 10,
+   "notitie": ""
+  },
+  {
+   "id": "p-3",
+   "eventId": "ev-2dec",
+   "tijd": "19:40",
+   "onderdeel": "Willem: korte intro, wie ben ik, de weg naar LA 2028 en waarom innovatie",
+   "wie": "Willem",
+   "duur": 15,
+   "notitie": "Het Europees Kampioenschap expliciet benoemen."
+  },
+  {
+   "id": "p-4",
+   "eventId": "ev-2dec",
+   "tijd": "19:55",
+   "onderdeel": "Jacco: innovatieverhaal over data en meting",
+   "wie": "Jacco",
+   "duur": 15,
+   "notitie": "Vergelijkbaar met wat hij in het bad deed."
+  },
+  {
+   "id": "p-5",
+   "eventId": "ev-2dec",
+   "tijd": "20:10",
+   "onderdeel": "Jan van Veen: innovatie in zijn sport",
+   "wie": "Jan van Veen",
+   "duur": 15,
+   "notitie": ""
+  },
+  {
+   "id": "p-6",
+   "eventId": "ev-2dec",
+   "tijd": "20:25",
+   "onderdeel": "Praatje Pepijn",
+   "wie": "Pepijn",
+   "duur": 10,
+   "notitie": "Als Pepijn er niet bij kan zijn, doet Willem het zelf. Plek in het programma nog bevestigen."
+  },
+  {
+   "id": "p-7",
+   "eventId": "ev-2dec",
+   "tijd": "20:35",
+   "onderdeel": "Afsluiting: Jacco doet de oproep richting sponsoring",
+   "wie": "Jacco",
+   "duur": 10,
+   "notitie": "\"Dit kost geld, doe mee\", zonder harde verkooppitch. Adopteer een pijl noemen (QR-code op de tafelvlaggetjes)."
+  },
+  {
+   "id": "p-8",
+   "eventId": "ev-2dec",
+   "tijd": "20:45",
+   "onderdeel": "Hapjes, borrel en netwerken",
+   "wie": "",
+   "duur": 60,
+   "notitie": "Persoonlijk benaderen van bekenden werkt het beste. Tijden zijn een voorstel; sprekers kort houden."
+  }
+ ],
+ "eventbudget": [
+  {
+   "id": "b-1",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Zaalhuur Het Klooster, inclusief faciliteiten",
+   "begroot": 400,
+   "werkelijk": 0,
+   "notitie": "Afgesproken bedrag voor de avond."
+  },
+  {
+   "id": "b-2",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Koffie, thee en iets erbij bij de inloop",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Nog begroten."
+  },
+  {
+   "id": "b-3",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Hapjes na afloop (Lucca Catering of zelf regelen)",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Offerte opvragen; Het Klooster heeft geen keuken."
+  },
+  {
+   "id": "b-4",
+   "eventId": "ev-2dec",
+   "type": "Kosten",
+   "post": "Tafelvlaggetjes met QR-code \"adopteer een pijl\"",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Nog begroten."
+  },
+  {
+   "id": "b-5",
+   "eventId": "ev-2dec",
+   "type": "Opbrengsten",
+   "post": "Adopteer een pijl (€ 80 per pijl, set van 12 is circa € 900)",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "Doel nog afspreken, bijvoorbeeld in sets."
+  },
+  {
+   "id": "b-6",
+   "eventId": "ev-2dec",
+   "type": "Opbrengsten",
+   "post": "Sponsortoezeggingen naar aanleiding van de avond",
+   "begroot": 0,
+   "werkelijk": 0,
+   "notitie": "WeConnect is gevraagd en heeft geweigerd."
+  }
+ ],
+ "presentaties": []
 };
 
 /* ---------- opslag: gedeeld (Claude-artifact db) of lokaal (browser) ---------- */
@@ -331,15 +815,25 @@ const Store = {
     let db = null;
     try { if (window.claude && typeof window.claude.use === 'function') db = await window.claude.use('db'); } catch (e) { db = null; }
     if (db) { this.mode = 'shared'; this.backend = DbBackend; await DbBackend.init(db); }
+    else if (/^https?:/.test(location.protocol) && await ApiBackend.probe()) { this.mode = 'api'; this.backend = ApiBackend; if (ApiBackend.user) await ApiBackend.init(); }
     else { this.mode = 'local'; this.backend = LocalBackend; LocalBackend.init(); }
+  },
+  async bulk(writes) {
+    if (this.backend.bulk) { try { await this.backend.bulk(writes); } catch (e) { toast('Opslaan mislukt: ' + (e && e.code ? e.code : 'onbekende fout')); throw e; } return; }
+    for (const w of writes) { if (w.op === 'delete') await this.del(w.col, w.id); else await this.put(w.col, w.doc); }
   },
   exportJson() { const out = {}; COLS.forEach(c => { out[c] = this.all(c); }); out._export = {app:'willembakker-portaal', versie:1, datum:new Date().toISOString(), modus:this.mode}; return JSON.stringify(out, null, 2); },
   async importJson(text, replace) {
-    const obj = JSON.parse(text);
-    if (replace) await this.clearAll();
-    for (const c of COLS) { const arr = Array.isArray(obj[c]) ? obj[c] : []; for (const d of arr) { if (d && typeof d === 'object' && d.id) await this.put(c, d); } }
+    const obj = JSON.parse(text); const writes = [];
+    if (replace) COLS.forEach(c => this.all(c).forEach(d => writes.push({op:'delete', col:c, id:d.id})));
+    COLS.forEach(c => { const arr = Array.isArray(obj[c]) ? obj[c] : []; arr.forEach(d => { if (d && typeof d === 'object' && d.id) writes.push({op:'set', col:c, id:d.id, doc:d}); }); });
+    await this.bulk(writes);
   },
-  async clearAll() { for (const c of COLS) { for (const d of this.all(c).slice()) await this.del(c, d.id); } }
+  async resetToSeed() {
+    const writes = []; COLS.forEach(c => this.all(c).forEach(d => writes.push({op:'delete', col:c, id:d.id})));
+    COLS.forEach(c => (SEED[c] || []).forEach(d => writes.push({op:'set', col:c, id:d.id, doc:Object.assign({}, d)})));
+    await this.bulk(writes);
+  }
 };
 
 const LocalBackend = {
@@ -375,6 +869,36 @@ const DbBackend = {
   del(col, id) { return this.db.collection(col).doc(id).delete(); }
 };
 
+
+/* ---------- server-opslag (Node-server op de Mac mini, met inlog) ---------- */
+const ApiBackend = {
+  user: null, es: null, versie: 0,
+  async probe() {
+    try { const r = await fetch('api/me', {credentials:'same-origin', headers:{'Accept':'application/json'}}); if (!(r.headers.get('content-type') || '').includes('application/json')) return false; if (r.status === 200) { this.user = await r.json(); return true; } if (r.status === 401) { this.user = null; return true; } return false; } catch (e) { return false; }
+  },
+  async req(method, path, body) {
+    const r = await fetch(path, {method, credentials:'same-origin', headers:{'Content-Type':'application/json', 'Accept':'application/json'}, body: body === undefined ? undefined : JSON.stringify(body)});
+    if (r.status === 401) { this.user = null; showLogin(); throw {code:'niet ingelogd'}; }
+    let j = null; try { j = await r.json(); } catch (e) { j = null; }
+    if (!r.ok) throw {code: (j && j.fout) || ('HTTP ' + r.status)};
+    return j;
+  },
+  async load() { const j = await this.req('GET', 'api/data'); this.versie = j.versie; COLS.forEach(c => { Store.cache[c] = Array.isArray(j.data[c]) ? j.data[c] : []; }); Store.error = null; Store.emit(); },
+  connect() {
+    if (this.es || !window.EventSource) return;
+    this.es = new EventSource('api/stream'); const self = this;
+    this.es.addEventListener('change', e => { try { const v = JSON.parse(e.data).versie; if (v !== self.versie) self.load().catch(() => {}); } catch (x) { /* negeren */ } });
+  },
+  async init() { await this.load(); this.connect(); },
+  async put(col, doc) { const arr = Store.cache[col]; const i = arr.findIndex(d => d.id === doc.id); if (i >= 0) arr[i] = doc; else arr.push(doc); Store.emit(); try { const j = await this.req('PUT', 'api/data/' + col + '/' + encodeURIComponent(doc.id), doc); this.versie = j.versie; } catch (e) { this.load().catch(() => {}); throw e; } },
+  async del(col, id) { Store.cache[col] = Store.cache[col].filter(d => d.id !== id); Store.emit(); try { const j = await this.req('DELETE', 'api/data/' + col + '/' + encodeURIComponent(id)); this.versie = j.versie; } catch (e) { this.load().catch(() => {}); throw e; } },
+  async bulk(writes) { const j = await this.req('POST', 'api/data/bulk', {writes}); this.versie = j.versie; await this.load(); },
+  async login(naam, wachtwoord) { const j = await this.req('POST', 'api/login', {naam, wachtwoord}); this.user = j; },
+  async logout() { try { await this.req('POST', 'api/logout', {}); } catch (e) { /* al uitgelogd */ } this.user = null; if (this.es) { this.es.close(); this.es = null; } COLS.forEach(c => { Store.cache[c] = []; }); }
+};
+function showLogin() { const l = $('#login'); l.hidden = false; const n = $('#loginNaam'); if (n && !n.value) n.focus(); }
+function hideLogin() { $('#login').hidden = true; }
+
 /* ---------- formulier-dialoog ---------- */
 function fieldHtml(f, v) {
   const id = 'f_' + f.key; const val = v == null ? (f.default == null ? '' : f.default) : v;
@@ -386,7 +910,7 @@ function fieldHtml(f, v) {
     input = `<textarea id="${id}" name="${esc(f.key)}" placeholder="${esc(f.placeholder || '')}">${esc(val)}</textarea>`;
   } else {
     const t = f.type === 'number' ? 'text' : (f.type || 'text');
-    input = `<input id="${id}" name="${esc(f.key)}" type="${t}" value="${esc(val)}" placeholder="${esc(f.placeholder || '')}"${f.type === 'number' ? ' inputmode="decimal"' : ''}${f.required ? ' required' : ''}>`;
+    input = `<input id="${id}" name="${esc(f.key)}" type="${t}" value="${esc(val)}" placeholder="${esc(f.placeholder || '')}"${f.type === 'number' ? ' inputmode="decimal"' : ''}${f.list ? ` list="${esc(f.list)}" autocomplete="off"` : ''}${f.required ? ' required' : ''}>`;
   }
   return `<div class="field${f.half ? ' half' : ''}"><label for="${id}">${esc(f.label)}${f.required ? ' *' : ''}</label>${input}${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}</div>`;
 }
@@ -427,7 +951,7 @@ const addBtn = (col, label) => UI.readOnly ? '' : `<button class="btn primary sm
 const tile = (lbl, val, sub, cls) => `<div class="tile ${cls || ''}"><div class="lbl">${esc(lbl)}</div><div class="val">${val}</div><div class="sub">${sub || ''}</div></div>`;
 const tbl = (head, body, foot) => `<div class="scroll"><table><thead><tr>${head.map(h => typeof h === 'string' ? `<th>${h}</th>` : `<th class="${h.c || ''}">${h.l}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td class="empty" colspan="${head.length}">Nog niets ingevuld.</td></tr>`}</tbody>${foot ? `<tfoot>${foot}</tfoot>` : ''}</table></div>`;
 const signed = n => `<span class="${n < 0 ? 'neg' : ''}">${eur(n)}</span>`;
-const modeText = () => Store.mode === 'shared' ? 'gedeeld met iedereen die dit portaal mag openen' : 'alleen opgeslagen in deze browser (zie Gegevens om te delen)';
+const modeText = () => Store.mode === 'shared' ? 'gedeeld met iedereen die dit portaal mag openen' : Store.mode === 'api' ? 'opgeslagen op de server; iedereen met een inlog ziet dezelfde gegevens' : 'alleen opgeslagen in deze browser (zie Gegevens om te delen)';
 const teamNames = () => Store.all('team').map(t => t.naam).filter(Boolean);
 const wieOptions = () => ['Willem Bakker'].concat(teamNames().filter(n => n !== 'Willem Bakker'));
 const yearsFrom = (vals, extra) => { const set = new Set(extra || []); vals.forEach(v => { const y = parseInt(v, 10); if (y) set.add(y); }); return Array.from(set).sort(); };
@@ -502,6 +1026,7 @@ function vOverzicht() {
           ${tile('Dagen tot LA 2028', dLA == null ? '—' : dLA, 'opening 14 juli 2028')}
           ${tile(next ? 'Tot ' + esc(next.naam) : 'Volgend event', next ? (daysUntil(next.datum) == null ? '—' : daysUntil(next.datum)) : '—', next ? esc(fmtDateLong(next.datum)) : '')}
         </div>
+        ${s.volgendeVergadering ? `<div class="notice"><span>Volgende vergadering: <strong>${esc(fmtDateLong(s.volgendeVergadering))}</strong> (${esc(dagenTekst(s.volgendeVergadering))})</span></div>` : ''}
         <h4>Team (${team.length})</h4>
         <div class="list">${team.length ? team.map(t => `<div class="row"><span class="strong">${esc(t.naam)}</span><span class="muted small">${esc(t.rol || '')}</span></div>`).join('') : '<p class="muted">Nog geen teamleden. Voeg ze toe onder Team.</p>'}</div>
         ${next ? `<a class="btn" href="#events" data-act="open-event" data-id="${esc(next.id)}">Naar ${esc(next.naam)}</a>` : ''}
@@ -602,6 +1127,12 @@ function vEventDetail(e) {
   return `<div class="wrap">
     <div class="row"><button class="btn ghost small" data-act="close-event">← Alle events</button></div>
     <div class="page-head"><div><h1>${esc(e.naam)}</h1><p>${esc(fmtDateLong(e.datum))}${e.tijd ? ' om ' + esc(e.tijd) : ''} · ${esc(e.locatie || 'locatie nog niet bekend')}</p>${e.doel ? `<p class="small">${esc(e.doel)}</p>` : ''}</div><div class="toolbar">${pill(e.status)}<span class="pill ${d != null && d >= 0 && d <= 14 ? 'warn' : ''}">${esc(dagenTekst(e.datum))}</span>${editBtn('events', e.id)}</div></div>
+    <div class="tiles">
+      ${tile('Aanmeldingen', num(e.aanmeldingen) || 0, (e.verwacht ? 'verwacht ' + num(e.verwacht) : '') + (e.capaciteit ? ' · capaciteit ' + num(e.capaciteit) : ''), 'accent')}
+      ${tile('Coördinator', esc(e.coordinator || '—'), e.presentator ? 'presentator: ' + esc(e.presentator) : '')}
+      ${tile('Open acties', evRows('acties', e.id).filter(a => a.status !== 'Klaar').length, evRows('acties', e.id).filter(a => a.status !== 'Klaar' && !a.wie).length + ' nog niet toegewezen')}
+      ${tile('Begroting', signed(sum(evRows('eventbudget', e.id).filter(r => r.type === 'Opbrengsten'), r => r.begroot) - sum(evRows('eventbudget', e.id).filter(r => r.type === 'Kosten'), r => r.begroot)), 'saldo begroot')}
+    </div>
     <div class="tabs">${tabs.map(t => `<button class="tab${t[0] === tab ? ' active' : ''}" data-act="tab" data-tab="${t[0]}">${t[1]}${t[2] ? `<span class="cnt">${t[2]}</span>` : ''}</button>`).join('')}</div>
     ${({planning: tabPlanning, acties: tabActies, programma: tabProgramma, financieel: tabFinancieel, presentaties: tabPresentaties, samenvatting: tabSamenvatting})[tab](e)}
   </div>`;
@@ -674,10 +1205,11 @@ function vData() {
   const shared = Store.mode === 'shared';
   return `<div class="wrap">
     <div class="page-head"><div><h1>Gegevens</h1><p>Waar de gegevens staan, een kopie maken of terugzetten, en de instellingen.</p></div></div>
-    <div class="notice ${shared ? '' : 'warn'}">${shared ? 'Deze versie bewaart alles in de gedeelde opslag van dit portaal: iedereen die het portaal mag openen ziet dezelfde gegevens, live.' : 'Deze versie bewaart alles alleen in de browser op dit apparaat. Voor samenwerken met zes mensen gebruik je de gedeelde versie (het gepubliceerde portaal) of wissel je via export en import.'}</div>
+    <div class="notice ${shared || Store.mode === 'api' ? '' : 'warn'}">${Store.mode === 'api' ? 'Alles staat op de server. Iedereen met een inlog ziet dezelfde gegevens en wijzigingen verschijnen direct bij de anderen.' : shared ? 'Deze versie bewaart alles in de gedeelde opslag van dit portaal: iedereen die het portaal mag openen ziet dezelfde gegevens, live.' : 'Deze versie bewaart alles alleen in de browser op dit apparaat. Voor samenwerken gebruik je de serverversie met inlog, of je wisselt via export en import.'}</div>
+    ${Store.mode === 'api' && ApiBackend.user ? `<div class="card"><div class="card-head"><h3>Mijn account</h3><button class="btn small" data-act="ww-change">Wachtwoord wijzigen</button></div><div class="card-body"><dl class="kv"><dt>Ingelogd als</dt><dd>${esc(ApiBackend.user.weergave || ApiBackend.user.naam)} (${esc(ApiBackend.user.naam)})</dd><dt>Rol</dt><dd>${esc(ApiBackend.user.rol || '—')}${ApiBackend.user.admin ? ' · beheerder' : ''}</dd></dl></div></div>` : ''}
     ${Store.error ? `<div class="notice bad">De gedeelde opslag gaf een fout (${esc(Store.error.code || '')}). ${esc(Store.error.message || '')}</div>` : ''}
     <div class="cols">
-      <div class="card"><div class="card-head"><h3>Instellingen</h3>${UI.readOnly ? '' : '<button class="btn small" data-act="settings">Bewerk</button>'}</div><div class="card-body"><dl class="kv"><dt>Huidig jaar</dt><dd>${esc(s.jaar || thisYear())}</dd><dt>Sponsordoelen</dt><dd>${Object.keys(s.doelen || {}).sort().map(y => y + ': ' + eur(s.doelen[y])).join(' · ') || '—'}</dd></dl><div class="ring-row">${counts}</div></div></div>
+      <div class="card"><div class="card-head"><h3>Instellingen</h3>${UI.readOnly ? '' : '<button class="btn small" data-act="settings">Bewerk</button>'}</div><div class="card-body"><dl class="kv"><dt>Huidig jaar</dt><dd>${esc(s.jaar || thisYear())}</dd><dt>Volgende vergadering</dt><dd>${esc(fmtDateLong(s.volgendeVergadering))}</dd><dt>Sponsordoelen</dt><dd>${Object.keys(s.doelen || {}).sort().map(y => y + ': ' + eur(s.doelen[y])).join(' · ') || '—'}</dd></dl><div class="ring-row">${counts}</div></div></div>
       <div class="card"><div class="card-head"><h3>Kopie maken (export)</h3><button class="btn small" data-act="export">Maak export</button></div><div class="card-body">${UI.exportText ? `<div class="field"><textarea id="exportBox" readonly style="min-height:160px;font-family:ui-monospace,Menlo,monospace;font-size:12px">${esc(UI.exportText)}</textarea></div><div class="row"><button class="btn small" data-act="copy">Kopieer naar klembord</button>${window.claude ? '' : '<a class="btn small" id="dlLink" download="willembakker-portaal.json">Download JSON</a>'}</div>` : '<p class="muted small">Een export is een JSON-tekst met alle gegevens. Bewaar die als back-up of plak hem in een andere versie van dit portaal.</p>'}</div></div>
     </div>
     ${UI.readOnly ? '' : `<div class="cols">
@@ -687,7 +1219,18 @@ function vData() {
   </div>`;
 }
 
-const VIEWS = {overzicht: vOverzicht, sponsoren: vSponsoren, bv: vBv, prive: vPrive, events: vEvents, team: vTeam, data: vData};
+function vBeheer() {
+  if (Store.mode !== 'api' || !(ApiBackend.user && ApiBackend.user.admin)) return `<div class="wrap"><div class="notice">Beheer is alleen beschikbaar voor beheerders op de serverversie.</div></div>`;
+  if (!UI.usersLoaded && !UI.usersLoading) { UI.usersLoading = true; ApiBackend.req('GET', 'api/gebruikers').then(list => { UI.users = list; UI.usersLoaded = true; UI.usersLoading = false; render(); }).catch(() => { UI.usersLoading = false; toast('Gebruikers laden mislukt'); }); }
+  const users = (UI.users || []).slice().sort(by('naam'));
+  const rows = users.map(u => `<tr><td class="strong">${esc(u.naam)}</td><td>${esc(u.weergave || '')}</td><td>${esc(u.rol || '')}</td><td>${u.admin ? '<span class="pill ok">beheerder</span>' : '<span class="pill">teamlid</span>'}</td><td class="small muted dt">${u.laatsteLogin ? esc(new Date(u.laatsteLogin).toLocaleString('nl-NL', {dateStyle:'short', timeStyle:'short'})) : 'nog nooit'}</td><td class="acts"><button class="btn small ghost" data-act="user-edit" data-naam="${esc(u.naam)}">Bewerk</button><button class="btn small ghost" data-act="user-ww" data-naam="${esc(u.naam)}">Nieuw wachtwoord</button></td></tr>`).join('');
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Beheer</h1><p>Inlogaccounts van het team. Iedereen logt in met de voornaam (kleine letters) en een wachtwoord. Een nieuw wachtwoord wordt één keer getoond; geef het persoonlijk door.</p></div><div class="toolbar"><button class="btn primary" data-act="user-add">Gebruiker toevoegen</button></div></div>
+    ${UI.nieuwWw ? `<div class="notice warn"><div><strong>Wachtwoord voor ${esc(UI.nieuwWw.naam)}:</strong> <code class="ww">${esc(UI.nieuwWw.wachtwoord)}</code><div class="small">Dit wordt niet opnieuw getoond. Geef het door en vraag om het te wijzigen onder Gegevens › Mijn account.</div></div><button class="btn small ghost" data-act="ww-hide">Sluiten</button></div>` : ''}
+    <div class="card"><div class="card-head"><h3>Gebruikers <span class="pill">${users.length}</span></h3></div>${tbl(['Inlognaam', 'Naam', 'Rol', 'Rechten', 'Laatste login', ''], UI.usersLoaded ? rows : '<tr><td class="empty" colspan="6">Laden…</td></tr>')}</div>
+  </div>`;
+}
+const VIEWS = {overzicht: vOverzicht, sponsoren: vSponsoren, bv: vBv, prive: vPrive, events: vEvents, team: vTeam, data: vData, beheer: vBeheer};
 
 /* ---------- formulieren per verzameling ---------- */
 const FORMS = {
@@ -712,21 +1255,25 @@ const FORMS = {
     {key:'bedrag', label:'Bedrag (€)', type:'number', required:true}, {key:'omschrijving', label:'Omschrijving', placeholder:'bijv. stipendium november, prijzengeld EK Antalya'}, {key:'bron', label:'Bron / toernooi'}]}),
   events: v => ({title: v.id ? 'Event bewerken' : 'Event toevoegen', fields: [
     {key:'naam', label:'Naam', required:true}, {key:'datum', label:'Datum', type:'date', required:true, half:true}, {key:'tijd', label:'Aanvang', type:'time', half:true},
-    {key:'locatie', label:'Locatie'}, {key:'status', label:'Status', type:'select', options:EVENT_STATUS}, {key:'doel', label:'Doel van het event', type:'textarea'}, {key:'notulenLink', label:'Link naar notulen', type:'url'}]}),
+    {key:'locatie', label:'Locatie', half:true}, {key:'status', label:'Status', type:'select', options:EVENT_STATUS, half:true},
+    {key:'aanmeldingen', label:'Aanmeldingen tot nu toe', type:'number', half:true}, {key:'verwacht', label:'Verwacht aantal gasten', type:'number', half:true},
+    {key:'capaciteit', label:'Capaciteit locatie', type:'number', half:true}, {key:'coordinator', label:'Coördinator', list:'wieList', half:true},
+    {key:'presentator', label:'Presentator / dagvoorzitter', list:'wieList'},
+    {key:'doel', label:'Doel van het event', type:'textarea'}, {key:'notulenLink', label:'Link naar notulen', type:'url'}]}),
   mijlpalen: v => ({title: v.id ? 'Mijlpaal bewerken' : 'Mijlpaal toevoegen', fields: [
-    {key:'datum', label:'Datum', type:'date', required:true, half:true}, {key:'status', label:'Status', type:'select', options:TAAK_STATUS, half:true}, {key:'mijlpaal', label:'Mijlpaal', required:true}, {key:'wie', label:'Wie', type:'select', options:wieOptions(), allowEmpty:true}]}),
+    {key:'datum', label:'Datum', type:'date', required:true, half:true}, {key:'status', label:'Status', type:'select', options:TAAK_STATUS, half:true}, {key:'mijlpaal', label:'Mijlpaal', required:true}, {key:'wie', label:'Wie', list:'wieList', placeholder:'naam'}]}),
   acties: v => ({title: v.id ? 'Actie bewerken' : 'Actie toevoegen', fields: [
-    {key:'wat', label:'Wat', required:true}, {key:'wie', label:'Wie', type:'select', options:wieOptions(), allowEmpty:true, half:true}, {key:'deadline', label:'Wanneer', type:'date', half:true},
+    {key:'wat', label:'Wat', required:true}, {key:'wie', label:'Wie', list:'wieList', placeholder:'naam', half:true}, {key:'deadline', label:'Wanneer', type:'date', half:true},
     {key:'status', label:'Status', type:'select', options:TAAK_STATUS}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
   programma: v => ({title: v.id ? 'Programma-onderdeel bewerken' : 'Programma-onderdeel toevoegen', fields: [
     {key:'tijd', label:'Tijd', type:'time', required:true, half:true}, {key:'duur', label:'Duur (minuten)', type:'number', half:true}, {key:'onderdeel', label:'Onderdeel', required:true},
-    {key:'wie', label:'Wie', type:'select', options:wieOptions(), allowEmpty:true}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
+    {key:'wie', label:'Wie', list:'wieList', placeholder:'naam'}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
   eventbudget: v => ({title: v.id ? 'Post bewerken' : 'Post toevoegen', fields: [
     {key:'type', label:'Soort', type:'select', options:BUDGET_TYPE, half:true}, {key:'post', label:'Post', required:true, half:true},
     {key:'begroot', label:'Begroot (€)', type:'number', half:true}, {key:'werkelijk', label:'Werkelijk (€)', type:'number', half:true}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
   presentaties: v => ({title: v.id ? 'Presentatie bewerken' : 'Presentatie toevoegen', fields: [
     {key:'titel', label:'Titel', required:true}, {key:'type', label:'Soort', type:'select', options:PRES_TYPES, half:true}, {key:'datum', label:'Datum', type:'date', half:true, default:todayIso()},
-    {key:'eigenaar', label:'Eigenaar', type:'select', options:wieOptions(), allowEmpty:true}, {key:'link', label:'Link naar bestand', type:'url', placeholder:'https://…'},
+    {key:'eigenaar', label:'Eigenaar', list:'wieList', placeholder:'naam'}, {key:'link', label:'Link naar bestand', type:'url', placeholder:'https://…'},
     {key:'samenvatting', label:'Samenvatting', type:'textarea', placeholder:'Waar gaat het over, belangrijkste boodschap, cijfers die erin staan'}]})
 };
 
@@ -761,8 +1308,28 @@ const ACTIONS = {
   },
   settings() {
     const s = Store.settings();
-    openForm({title: 'Instellingen', fields: [{key:'jaar', label:'Huidig jaar (voor de overzichten)', type:'number', required:true}], values: {jaar: s.jaar || thisYear()},
-      onSave: async data => { await Store.put('settings', Object.assign({}, s, {id:'main', jaar: num(data.jaar)})); toast('Opgeslagen'); render(); }});
+    openForm({title: 'Instellingen', fields: [{key:'jaar', label:'Huidig jaar (voor de overzichten)', type:'number', required:true}, {key:'volgendeVergadering', label:'Volgende vergadering', type:'date'}], values: {jaar: s.jaar || thisYear(), volgendeVergadering: s.volgendeVergadering || ''},
+      onSave: async data => { await Store.put('settings', Object.assign({}, s, {id:'main', jaar: num(data.jaar), volgendeVergadering: data.volgendeVergadering})); toast('Opgeslagen'); render(); }});
+  },
+  async logout() { if (Store.mode !== 'api') return; await ApiBackend.logout(); UI.usersLoaded = false; UI.users = []; setMode(); render(); showLogin(); },
+  'ww-hide'() { UI.nieuwWw = null; render(); },
+  'user-add'() {
+    openForm({title: 'Gebruiker toevoegen', fields: [{key:'naam', label:'Inlognaam (voornaam, kleine letters)', required:true, placeholder:'bijv. piet'}, {key:'weergave', label:'Naam zoals getoond', required:true}, {key:'rol', label:'Rol', placeholder:'bijv. Sponsoring'}, {key:'admin', label:'Beheerder', type:'select', options:[{v:'nee', l:'Nee'}, {v:'ja', l:'Ja'}]}, {key:'wachtwoord', label:'Wachtwoord (leeg = automatisch)', type:'text', hint:'Minimaal 8 tekens.'}],
+      onSave: async data => { const j = await ApiBackend.req('POST', 'api/gebruikers', {naam: data.naam.toLowerCase(), weergave: data.weergave, rol: data.rol, admin: data.admin === 'ja', wachtwoord: data.wachtwoord || undefined}); if (j.wachtwoord) UI.nieuwWw = {naam: j.naam, wachtwoord: j.wachtwoord}; UI.usersLoaded = false; toast('Gebruiker toegevoegd'); render(); }});
+  },
+  'user-edit'(d) {
+    const u = (UI.users || []).find(x => x.naam === d.naam); if (!u) return;
+    openForm({title: 'Gebruiker bewerken: ' + u.naam, fields: [{key:'weergave', label:'Naam zoals getoond', required:true}, {key:'rol', label:'Rol'}, {key:'admin', label:'Beheerder', type:'select', options:[{v:'nee', l:'Nee'}, {v:'ja', l:'Ja'}]}], values: {weergave: u.weergave, rol: u.rol, admin: u.admin ? 'ja' : 'nee'},
+      onDelete: async () => { try { await ApiBackend.req('DELETE', 'api/gebruikers/' + encodeURIComponent(u.naam)); UI.usersLoaded = false; toast('Verwijderd'); } catch (e) { toast('Verwijderen mislukt: ' + e.code); } render(); },
+      onSave: async data => { await ApiBackend.req('PUT', 'api/gebruikers/' + encodeURIComponent(u.naam), {weergave: data.weergave, rol: data.rol, admin: data.admin === 'ja'}); UI.usersLoaded = false; toast('Opgeslagen'); render(); }});
+  },
+  async 'user-ww'(d, el) {
+    if (!el.classList.contains('armed')) { el.classList.add('armed'); el.textContent = 'Zeker? Klik nogmaals'; setTimeout(() => { el.classList.remove('armed'); el.textContent = 'Nieuw wachtwoord'; }, 4000); return; }
+    try { const j = await ApiBackend.req('PUT', 'api/gebruikers/' + encodeURIComponent(d.naam), {nieuwWachtwoord: true}); UI.nieuwWw = {naam: d.naam, wachtwoord: j.wachtwoord}; render(); } catch (e) { toast('Mislukt: ' + e.code); }
+  },
+  'ww-change'() {
+    openForm({title: 'Wachtwoord wijzigen', fields: [{key:'huidig', label:'Huidig wachtwoord', type:'password', required:true}, {key:'nieuw', label:'Nieuw wachtwoord', type:'password', required:true, hint:'Minimaal 8 tekens.'}, {key:'herhaal', label:'Nieuw wachtwoord (nogmaals)', type:'password', required:true}],
+      onSave: async data => { if (data.nieuw !== data.herhaal) { toast('De nieuwe wachtwoorden zijn niet gelijk'); throw new Error('ongelijk'); } if (data.nieuw.length < 8) { toast('Minimaal 8 tekens'); throw new Error('kort'); } try { await ApiBackend.req('POST', 'api/wachtwoord', {huidig: data.huidig, nieuw: data.nieuw}); toast('Wachtwoord gewijzigd'); } catch (e) { toast('Mislukt: ' + e.code); throw e; } }});
   },
   export() { UI.exportText = Store.exportJson(); render(); const a = $('#dlLink'); if (a) { try { a.href = URL.createObjectURL(new Blob([UI.exportText], {type:'application/json'})); } catch (e) { a.remove(); } } },
   async copy() { const t = UI.exportText; try { await navigator.clipboard.writeText(t); toast('Gekopieerd'); } catch (e) { const box = $('#exportBox'); if (box) { box.focus(); box.select(); } toast('Selecteer de tekst en kopieer met Ctrl+C'); } },
@@ -770,7 +1337,7 @@ const ACTIONS = {
   async 'import-replace'(d, el) { if (!el.classList.contains('armed')) { el.classList.add('armed'); el.textContent = 'Zeker? Alles wordt gewist. Klik nogmaals'; setTimeout(() => { el.classList.remove('armed'); el.textContent = 'Alles vervangen'; }, 5000); return; } await doImport(true); },
   async reset(d, el) {
     if (!el.classList.contains('armed')) { el.classList.add('armed'); el.textContent = 'Zeker? Klik nogmaals om alles te wissen'; setTimeout(() => { el.classList.remove('armed'); el.textContent = 'Alles wissen en startgegevens terugzetten'; }, 5000); return; }
-    el.disabled = true; try { await Store.clearAll(); for (const c of COLS) for (const d2 of (SEED[c] || [])) await Store.put(c, Object.assign({}, d2)); toast('Startgegevens teruggezet'); } catch (e) { /* al gemeld */ } UI.eventId = null; render();
+    el.disabled = true; try { await Store.resetToSeed(); toast('Startgegevens teruggezet'); } catch (e) { /* al gemeld */ } UI.eventId = null; render();
   }
 };
 async function doImport(replace) {
@@ -799,6 +1366,8 @@ function render() {
   const main = $('#main'); const y = main.scrollTop;
   try { main.innerHTML = VIEWS[UI.view](); } catch (e) { main.innerHTML = `<div class="wrap"><div class="notice bad">Er ging iets mis bij het tonen van dit scherm (${esc(e.message)}).</div></div>`; }
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.view === UI.view));
+  const names = new Set(wieOptions()); ['acties', 'mijlpalen', 'programma', 'presentaties'].forEach(c => Store.all(c).forEach(r => { if (r.wie) names.add(r.wie); if (r.eigenaar) names.add(r.eigenaar); })); Store.all('events').forEach(e => { if (e.coordinator) names.add(e.coordinator); if (e.presentator) names.add(e.presentator); });
+  $('#wieList').innerHTML = Array.from(names).sort().map(n => `<option value="${esc(n)}"></option>`).join('');
   document.querySelectorAll('[data-cnt]').forEach(el => { const c = el.dataset.cnt; const n = c === 'events' ? Store.all('events').filter(ev => ev.status !== 'Afgerond' && ev.status !== 'Geannuleerd').length : Store.all(c).length; el.textContent = n || ''; el.hidden = !n; });
   main.scrollTop = y;
 }
@@ -806,13 +1375,21 @@ function setMode() {
   const b = $('#modeBadge');
   if (Store.error) { b.className = 'pill bad'; b.innerHTML = '<span class="dot"></span>Opslag niet bereikbaar'; }
   else if (Store.mode === 'shared') { b.className = 'pill ok'; b.innerHTML = '<span class="dot"></span>Gedeeld met het team' + (UI.readOnly ? ' · alleen lezen' : ''); }
+  else if (Store.mode === 'api') { const u = ApiBackend.user; b.className = 'pill ' + (u ? 'ok' : 'warn'); b.innerHTML = '<span class="dot"></span>' + (u ? 'Ingelogd als ' + esc(u.weergave || u.naam) : 'Niet ingelogd'); $('#logoutBtn').hidden = !u; $('#navBeheer').hidden = !(u && u.admin); }
   else { b.className = 'pill warn'; b.innerHTML = '<span class="dot"></span>Alleen in deze browser'; }
 }
 window.addEventListener('hashchange', () => { route(); if (UI.view !== 'events') { /* eventkeuze blijft bewaard */ } render(); });
 Store.onChange(() => { renderSoon(); setMode(); });
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); const err = $('#loginErr'); err.hidden = true; const btn = $('#loginBtn'); btn.disabled = true;
+  try { await ApiBackend.login($('#loginNaam').value.trim().toLowerCase(), $('#loginWw').value); $('#loginWw').value = ''; hideLogin(); await ApiBackend.init(); setMode(); render(); }
+  catch (ex) { err.textContent = ex && ex.code === 'ongeldig' ? 'Onbekende naam of verkeerd wachtwoord.' : ex && ex.code === 'geblokkeerd' ? 'Te veel pogingen. Probeer het over een kwartier opnieuw.' : 'Inloggen is niet gelukt (' + esc(ex && ex.code || 'fout') + ').'; err.hidden = false; }
+  btn.disabled = false;
+});
 (async function init() {
   route();
   await Store.init();
+  if (Store.mode === 'api' && !ApiBackend.user) { setMode(); $('#main').innerHTML = '<div class="wrap"><p class="muted">Log in om het portaal te gebruiken.</p></div>'; showLogin(); return; }
   if (Store.mode === 'shared') { try { const user = window.claude && await window.claude.use('user'); if (user) { const w = await user.can('data.write'); if (w === false) UI.readOnly = true; } } catch (e) { /* onbekend: bewerken toestaan */ } }
   setMode(); render();
 })();
