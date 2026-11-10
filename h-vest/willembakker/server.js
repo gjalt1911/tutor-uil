@@ -6,7 +6,8 @@
   Eerste keer:      node server.js --setup            (maakt accounts, toont wachtwoorden)
   Gebruiker erbij:  node server.js --gebruiker <naam> [--admin] ["Naam zoals getoond"] ["Rol"]
   Wachtwoord reset: node server.js --wachtwoord <naam>
-  Instellingen via omgevingsvariabelen: PORT (3010), HOST (0.0.0.0), BASE_PATH (bijv. /willembakker), WB_DATA (map voor data).
+  Doneer-instellingen: node server.js --doneer   (Mollie-sleutel en bankgegevens staan in data/doneer.json; instelbaar onder Beheer)
+  Instellingen via omgevingsvariabelen: PORT (3010), HOST (0.0.0.0), BASE_PATH (bijv. /willembakker), WB_DATA (map voor data), MOLLIE_API_BASE (alleen voor tests).
 */
 'use strict';
 const http = require('http');
@@ -20,7 +21,8 @@ const DATA_DIR = process.env.WB_DATA || path.join(ROOT, 'data');
 const PORT = parseInt(process.env.PORT || '3010', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 const BASE = (process.env.BASE_PATH || '').replace(/\/+$/, '');
-const COLS = ['team', 'sponsors', 'bv', 'prive', 'events', 'mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties', 'settings'];
+const COLS = ['team', 'sponsors', 'bv', 'prive', 'events', 'mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties', 'settings', 'donaties'];
+const MOLLIE_API = process.env.MOLLIE_API_BASE || 'https://api.mollie.com/v2';
 const SESSIE_MS = 90 * 24 * 3600 * 1000;
 const ID_RE = /^[A-Za-z0-9_\-.~:@+]{1,200}$/;
 const NAAM_RE = /^[a-z0-9][a-z0-9._-]{0,30}$/;
@@ -35,7 +37,7 @@ const STANDAARD_GEBRUIKERS = [
 ];
 
 /* ---------- bestanden ---------- */
-const FILES = {db: path.join(DATA_DIR, 'db.json'), users: path.join(DATA_DIR, 'gebruikers.json'), sessies: path.join(DATA_DIR, 'sessies.json')};
+const FILES = {db: path.join(DATA_DIR, 'db.json'), users: path.join(DATA_DIR, 'gebruikers.json'), sessies: path.join(DATA_DIR, 'sessies.json'), doneer: path.join(DATA_DIR, 'doneer.json')};
 function readJson(file, fallback) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return fallback; } }
 function writeJson(file, obj) { fs.mkdirSync(path.dirname(file), {recursive: true}); const tmp = file + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(obj, null, 1)); fs.renameSync(tmp, file); }
 function log(...a) { console.log(new Date().toISOString().slice(0, 19).replace('T', ' '), ...a); }
@@ -52,6 +54,11 @@ let users = readJson(FILES.users, []);
 if (!Array.isArray(users)) users = [];
 let sessies = readJson(FILES.sessies, {});
 if (!sessies || typeof sessies !== 'object') sessies = {};
+/* Instellingen voor "Doneer een pijl" (data/doneer.json): mollieApiKey, publicBaseUrl, iban, tnv, betaallinks, pijlPrijs, setPrijs */
+const DONEER_STANDAARD = {mollieApiKey: '', publicBaseUrl: '', iban: '', tnv: 'Stichting Willem Bakker Archer', betaallinks: {pijl: '', set: '', vrij: ''}, pijlPrijs: 80, setPrijs: 900, actief: true};
+let doneer = Object.assign({}, DONEER_STANDAARD, readJson(FILES.doneer, {}));
+if (!doneer.betaallinks || typeof doneer.betaallinks !== 'object') doneer.betaallinks = Object.assign({}, DONEER_STANDAARD.betaallinks);
+function saveDoneer() { writeJson(FILES.doneer, doneer); }
 
 let saveTimer = null;
 function saveDbSoon() { if (saveTimer) return; saveTimer = setTimeout(() => { saveTimer = null; try { writeJson(FILES.db, db); } catch (e) { log('FOUT bij opslaan database:', e.message); } }, 150); }
@@ -133,14 +140,77 @@ function schrijf(writes, door) {
   return db.versie;
 }
 
+/* ---------- doneer een pijl ---------- */
+const PAKKETTEN = {pijl: {pijlen: 1, label: '1 pijl'}, drie: {pijlen: 3, label: '3 pijlen'}, set: {pijlen: 12, label: 'set van 12 pijlen'}, vrij: {pijlen: 0, label: 'vrij bedrag'}};
+const doneerPogingen = new Map();
+function doneerTeVaak(ip) { const now = Date.now(); const arr = (doneerPogingen.get(ip) || []).filter(t => now - t < 3600 * 1000); doneerPogingen.set(ip, arr); if (arr.length >= 15) return true; arr.push(now); return false; }
+function doneerConfigPubliek() {
+  return {actief: doneer.actief !== false, mollie: !!doneer.mollieApiKey, betaallinks: {pijl: doneer.betaallinks.pijl || '', set: doneer.betaallinks.set || '', vrij: doneer.betaallinks.vrij || ''}, iban: doneer.iban || '', tnv: doneer.tnv || '', pijlPrijs: Number(doneer.pijlPrijs) || 80, setPrijs: Number(doneer.setPrijs) || 900};
+}
+function doneerStand() {
+  const betaald = Object.values(db.data.donaties).filter(d => d.status === 'betaald' || d.status === 'handmatig');
+  return {pijlen: betaald.reduce((t, d) => t + (Number(d.aantalPijlen) || 0), 0), donateurs: betaald.length, bedrag: Math.round(betaald.reduce((t, d) => t + (Number(d.bedrag) || 0), 0))};
+}
+function bedragVoor(pakket, eigen) {
+  const prijs = Number(doneer.pijlPrijs) || 80, setPrijs = Number(doneer.setPrijs) || 900;
+  if (pakket === 'pijl') return {bedrag: prijs, pijlen: 1};
+  if (pakket === 'drie') return {bedrag: prijs * 3, pijlen: 3};
+  if (pakket === 'set') return {bedrag: setPrijs, pijlen: 12};
+  const b = Math.round(Number(eigen) * 100) / 100; if (!isFinite(b) || b < 5 || b > 10000) return null;
+  return {bedrag: b, pijlen: Math.floor(b / prijs)};
+}
+async function mollie(pathname, method, body) {
+  const r = await fetch(MOLLIE_API + pathname, {method: method || 'GET', headers: {Authorization: 'Bearer ' + doneer.mollieApiKey, 'Content-Type': 'application/json', Accept: 'application/json'}, body: body ? JSON.stringify(body) : undefined});
+  let j = null; try { j = await r.json(); } catch (e) { j = null; }
+  if (!r.ok) throw new Error('Mollie ' + r.status + ': ' + (j && (j.detail || j.title) || 'fout'));
+  return j;
+}
+function publiekeBasis(req) { const b = (doneer.publicBaseUrl || '').replace(/\/+$/, ''); if (b) return b; const proto = (req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim(); return proto + '://' + req.headers.host + BASE; }
+async function maakDonatie(req, res, ip) {
+  if (doneer.actief === false) return send(res, 503, {fout: 'doneren staat tijdelijk uit'});
+  if (doneerTeVaak(ip)) return send(res, 429, {fout: 'te veel pogingen, probeer het later'});
+  const b = await readBody(req);
+  const pakket = PAKKETTEN[b.pakket] ? b.pakket : null; if (!pakket) return send(res, 400, {fout: 'onbekend pakket'});
+  const keuze = bedragVoor(pakket, b.bedrag); if (!keuze) return send(res, 400, {fout: 'bedrag ongeldig (minimaal 5 euro)'});
+  const naam = String(b.naam || '').trim().slice(0, 120), email = String(b.email || '').trim().slice(0, 200), bericht = String(b.bericht || '').trim().slice(0, 500);
+  if (!naam) return send(res, 400, {fout: 'naam ontbreekt'});
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, {fout: 'e-mailadres ongeldig'});
+  const id = 'd-' + Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
+  const doc = {datum: new Date().toISOString(), naam, email, bericht, pakket, aantalPijlen: keuze.pijlen, bedrag: keuze.bedrag, status: 'open', methode: doneer.mollieApiKey ? 'mollie' : 'bank', mollieId: ''};
+  if (!doneer.mollieApiKey) { schrijf([{op: 'set', col: 'donaties', id, doc: Object.assign(doc, {status: 'aangekondigd'})}], 'doneerpagina'); return send(res, 200, {id, bank: true, iban: doneer.iban, tnv: doneer.tnv, kenmerk: 'Doneer een pijl ' + id.slice(-6).toUpperCase(), bedrag: keuze.bedrag}); }
+  const basis = publiekeBasis(req);
+  try {
+    const p = await mollie('/payments', 'POST', {amount: {currency: 'EUR', value: keuze.bedrag.toFixed(2)}, description: 'Doneer een pijl – Willem Bakker (' + PAKKETTEN[pakket].label + ')', redirectUrl: basis + '/doneer?terug=' + id, webhookUrl: basis + '/api/mollie/webhook', metadata: {donatieId: id}, locale: 'nl_NL'});
+    doc.mollieId = p.id; schrijf([{op: 'set', col: 'donaties', id, doc}], 'doneerpagina');
+    log('Donatie gestart:', id, keuze.bedrag, 'euro,', pakket);
+    return send(res, 200, {id, checkout: p._links && p._links.checkout && p._links.checkout.href});
+  } catch (e) { log('Mollie-fout:', e.message); return send(res, 502, {fout: 'betaling kon niet worden gestart'}); }
+}
+async function mollieWebhook(req, res) {
+  const chunks = []; for await (const c of req) chunks.push(c);
+  const raw = Buffer.concat(chunks).toString('utf8'); let id = '';
+  try { id = (raw.trim().startsWith('{') ? JSON.parse(raw).id : new URLSearchParams(raw).get('id')) || ''; } catch (e) { id = ''; }
+  if (!/^tr_[A-Za-z0-9]+$/.test(id)) { res.writeHead(400); return res.end(); }
+  try {
+    const p = await mollie('/payments/' + id);
+    const donatieId = p.metadata && p.metadata.donatieId; const d = donatieId && db.data.donaties[donatieId];
+    if (d) { const status = p.status === 'paid' ? 'betaald' : (p.status === 'open' || p.status === 'pending' || p.status === 'authorized') ? 'open' : p.status === 'canceled' ? 'geannuleerd' : p.status === 'expired' ? 'verlopen' : 'mislukt'; if (d.status !== status) { schrijf([{op: 'set', col: 'donaties', id: donatieId, doc: Object.assign({}, d, {status, betaalmethode: p.method || '', betaaldOp: p.paidAt || ''})}], 'mollie'); log('Donatie', donatieId, '->', status); } }
+  } catch (e) { log('Webhook-fout:', e.message); }
+  res.writeHead(200); res.end('ok');
+}
+
 /* ---------- api ---------- */
 async function api(req, res, p, ip) {
   const m = req.method;
+  if (p === '/api/mollie/webhook' && m === 'POST') return mollieWebhook(req, res);
   if (m !== 'GET' && m !== 'HEAD') {
     const origin = req.headers.origin;
     if (origin) { let ok = false; try { ok = new URL(origin).host === req.headers.host; } catch (e) { ok = false; } if (!ok) return send(res, 403, {fout: 'ongeldige oorsprong'}); }
     if (!(req.headers['content-type'] || '').includes('application/json')) return send(res, 415, {fout: 'json verwacht'});
   }
+  if (p === '/api/doneer/config' && m === 'GET') return send(res, 200, Object.assign(doneerConfigPubliek(), {stand: doneerStand()}));
+  if (p === '/api/doneer' && m === 'POST') return maakDonatie(req, res, ip);
+  if (p.startsWith('/api/doneer/status') && m === 'GET') { const id = (req.url.split('?')[1] || '').split('&').map(x => x.split('=')).find(x => x[0] === 'id'); const d = id && db.data.donaties[decodeURIComponent(id[1] || '')]; return send(res, 200, d ? {status: d.status, bedrag: d.bedrag, aantalPijlen: d.aantalPijlen, naam: d.naam} : {status: 'onbekend'}); }
   if (p === '/api/login' && m === 'POST') {
     if (geblokkeerd(ip)) return send(res, 429, {fout: 'geblokkeerd'});
     const b = await readBody(req); const u = userByNaam(b.naam);
@@ -178,6 +248,22 @@ async function api(req, res, p, ip) {
     const col = md[1], id = decodeURIComponent(md[2]);
     try { const w = m === 'PUT' ? {op: 'set', col, id, doc: await readBody(req)} : {op: 'delete', col, id}; return send(res, 200, {versie: schrijf([w], user.naam)}); }
     catch (e) { return send(res, 400, {fout: e.message}); }
+  }
+  /* beheer: doneer-instellingen */
+  if (p === '/api/doneer/instellingen') {
+    if (!user.admin) return send(res, 403, {fout: 'alleen voor beheerders'});
+    if (m === 'GET') return send(res, 200, Object.assign({}, doneer, {mollieApiKey: doneer.mollieApiKey ? '••••' + doneer.mollieApiKey.slice(-4) : ''}));
+    if (m === 'PUT') {
+      const b = await readBody(req);
+      if (typeof b.mollieApiKey === 'string' && !b.mollieApiKey.startsWith('••••')) doneer.mollieApiKey = b.mollieApiKey.trim() === 'wis' ? '' : b.mollieApiKey.trim();
+      ['publicBaseUrl', 'iban', 'tnv'].forEach(k => { if (typeof b[k] === 'string') doneer[k] = b[k].trim(); });
+      if (b.betaallinks && typeof b.betaallinks === 'object') ['pijl', 'set', 'vrij'].forEach(k => { if (typeof b.betaallinks[k] === 'string') doneer.betaallinks[k] = b.betaallinks[k].trim(); });
+      if (b.pijlPrijs != null) doneer.pijlPrijs = Number(b.pijlPrijs) || 80;
+      if (b.setPrijs != null) doneer.setPrijs = Number(b.setPrijs) || 900;
+      if (typeof b.actief === 'boolean') doneer.actief = b.actief;
+      saveDoneer(); log('Doneer-instellingen gewijzigd door', user.naam);
+      return send(res, 200, {ok: true, mollie: !!doneer.mollieApiKey});
+    }
   }
   /* beheer */
   if (p.startsWith('/api/gebruikers')) {
@@ -217,6 +303,7 @@ function handle(req, res) {
   if (BASE) { if (p === BASE) { res.writeHead(302, {Location: BASE + '/'}); return res.end(); } if (!p.startsWith(BASE + '/')) { res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'}); return res.end('Niet gevonden'); } p = p.slice(BASE.length); }
   if (p.startsWith('/api/')) return api(req, res, p, ip).catch(e => { log('API-fout:', e.message); if (!res.headersSent) send(res, 500, {fout: 'serverfout'}); });
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
+  if (p === '/doneer' || p === '/doneer/' || p === '/doneer-een-pijl' || p === '/doneer-een-pijl/') return serveStatic(res, '/doneer.html');
   return serveStatic(res, p);
 }
 
@@ -241,6 +328,10 @@ function cli(args) {
   if (args[0] === '--wachtwoord' && args[1]) {
     const u = userByNaam(args[1]); if (!u) { console.error('Onbekende gebruiker: ' + args[1]); process.exitCode = 1; return true; }
     const ww = genWw(); Object.assign(u, hashWw(ww)); saveUsers(); console.log(`Nieuw wachtwoord voor ${u.naam}: ${ww}`); return true;
+  }
+  if (args[0] === '--doneer') {
+    console.log('Doneer-instellingen (' + FILES.doneer + '):'); console.log(JSON.stringify(Object.assign({}, doneer, {mollieApiKey: doneer.mollieApiKey ? '(ingesteld)' : '(leeg)'}), null, 2));
+    console.log('Aanpassen kan in de site onder Beheer › Doneer een pijl, of door dit bestand te bewerken.'); return true;
   }
   if (args[0] === '--help' || args[0] === '-h') { console.log(fs.readFileSync(__filename, 'utf8').split('*/')[0].replace('#!/usr/bin/env node\n/*', '')); return true; }
   return false;

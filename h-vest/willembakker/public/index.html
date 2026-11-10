@@ -205,6 +205,7 @@ code.ww{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;backgro
   <nav class="nav" id="nav" aria-label="Onderdelen">
     <a href="#overzicht" data-view="overzicht">Overzicht</a>
     <a href="#sponsoren" data-view="sponsoren">Sponsoren <span class="cnt" data-cnt="sponsors"></span></a>
+    <a href="#donaties" data-view="donaties">Doneer een pijl <span class="cnt" data-cnt="donaties"></span></a>
     <a href="#bv" data-view="bv">BV: balans &amp; W&amp;V</a>
     <a href="#prive" data-view="prive">Privé-inkomen</a>
     <a href="#events" data-view="events">Events <span class="cnt" data-cnt="events"></span></a>
@@ -252,7 +253,9 @@ let toastTimer = null;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600); }
 
 /* ---------- vaste gegevens ---------- */
-const COLS = ['team', 'sponsors', 'bv', 'prive', 'events', 'mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties', 'settings'];
+const COLS = ['team', 'sponsors', 'bv', 'prive', 'events', 'mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties', 'settings', 'donaties'];
+const DONATIE_STATUS = ['open', 'betaald', 'handmatig', 'aangekondigd', 'geannuleerd', 'verlopen', 'mislukt'];
+const DONATIE_PAKKET = [{v:'pijl', l:'1 pijl'}, {v:'drie', l:'3 pijlen'}, {v:'set', l:'Set van 12'}, {v:'vrij', l:'Vrij bedrag'}];
 const LS_KEY = 'willembakker.portaal.v1';
 const LS_UI = 'willembakker.portaal.ui';
 const PAKKETTEN = ['Platina', 'Goud', 'Zilver', 'Brons', 'Materiaalsponsor', 'Vriend van Willem', 'Pijl-adoptie', 'Anders'];
@@ -1027,6 +1030,7 @@ function vOverzicht() {
           ${tile(next ? 'Tot ' + esc(next.naam) : 'Volgend event', next ? (daysUntil(next.datum) == null ? '—' : daysUntil(next.datum)) : '—', next ? esc(fmtDateLong(next.datum)) : '')}
         </div>
         ${s.volgendeVergadering ? `<div class="notice"><span>Volgende vergadering: <strong>${esc(fmtDateLong(s.volgendeVergadering))}</strong> (${esc(dagenTekst(s.volgendeVergadering))})</span></div>` : ''}
+        ${Store.all('donaties').length ? `<div class="row"><span class="pill ok">Doneer een pijl: ${sum(Store.all('donaties').filter(d => d.status === 'betaald' || d.status === 'handmatig'), d => d.aantalPijlen)} pijlen gedoneerd</span></div>` : ''}
         <h4>Team (${team.length})</h4>
         <div class="list">${team.length ? team.map(t => `<div class="row"><span class="strong">${esc(t.naam)}</span><span class="muted small">${esc(t.rol || '')}</span></div>`).join('') : '<p class="muted">Nog geen teamleden. Voeg ze toe onder Team.</p>'}</div>
         ${next ? `<a class="btn" href="#events" data-act="open-event" data-id="${esc(next.id)}">Naar ${esc(next.naam)}</a>` : ''}
@@ -1221,6 +1225,7 @@ function vData() {
 
 function vBeheer() {
   if (Store.mode !== 'api' || !(ApiBackend.user && ApiBackend.user.admin)) return `<div class="wrap"><div class="notice">Beheer is alleen beschikbaar voor beheerders op de serverversie.</div></div>`;
+  if (!UI.doneerCfg && !UI.doneerLoading) { UI.doneerLoading = true; ApiBackend.req('GET', 'api/doneer/instellingen').then(c => { UI.doneerCfg = c; UI.doneerLoading = false; render(); }).catch(() => { UI.doneerLoading = false; }); }
   if (!UI.usersLoaded && !UI.usersLoading) { UI.usersLoading = true; ApiBackend.req('GET', 'api/gebruikers').then(list => { UI.users = list; UI.usersLoaded = true; UI.usersLoading = false; render(); }).catch(() => { UI.usersLoading = false; toast('Gebruikers laden mislukt'); }); }
   const users = (UI.users || []).slice().sort(by('naam'));
   const rows = users.map(u => `<tr><td class="strong">${esc(u.naam)}</td><td>${esc(u.weergave || '')}</td><td>${esc(u.rol || '')}</td><td>${u.admin ? '<span class="pill ok">beheerder</span>' : '<span class="pill">teamlid</span>'}</td><td class="small muted dt">${u.laatsteLogin ? esc(new Date(u.laatsteLogin).toLocaleString('nl-NL', {dateStyle:'short', timeStyle:'short'})) : 'nog nooit'}</td><td class="acts"><button class="btn small ghost" data-act="user-edit" data-naam="${esc(u.naam)}">Bewerk</button><button class="btn small ghost" data-act="user-ww" data-naam="${esc(u.naam)}">Nieuw wachtwoord</button></td></tr>`).join('');
@@ -1228,9 +1233,29 @@ function vBeheer() {
     <div class="page-head"><div><h1>Beheer</h1><p>Inlogaccounts van het team. Iedereen logt in met de voornaam (kleine letters) en een wachtwoord. Een nieuw wachtwoord wordt één keer getoond; geef het persoonlijk door.</p></div><div class="toolbar"><button class="btn primary" data-act="user-add">Gebruiker toevoegen</button></div></div>
     ${UI.nieuwWw ? `<div class="notice warn"><div><strong>Wachtwoord voor ${esc(UI.nieuwWw.naam)}:</strong> <code class="ww">${esc(UI.nieuwWw.wachtwoord)}</code><div class="small">Dit wordt niet opnieuw getoond. Geef het door en vraag om het te wijzigen onder Gegevens › Mijn account.</div></div><button class="btn small ghost" data-act="ww-hide">Sluiten</button></div>` : ''}
     <div class="card"><div class="card-head"><h3>Gebruikers <span class="pill">${users.length}</span></h3></div>${tbl(['Inlognaam', 'Naam', 'Rol', 'Rechten', 'Laatste login', ''], UI.usersLoaded ? rows : '<tr><td class="empty" colspan="6">Laden…</td></tr>')}</div>
+    <div class="card"><div class="card-head"><h3>Doneer een pijl: betaalinstellingen</h3><button class="btn small" data-act="doneer-config">Bewerk</button></div><div class="card-body">${UI.doneerCfg ? `<dl class="kv"><dt>Mollie</dt><dd>${UI.doneerCfg.mollieApiKey ? 'sleutel ingesteld (' + esc(UI.doneerCfg.mollieApiKey) + ')' : '<span class="pill warn">nog geen API-sleutel</span>'}</dd><dt>Openbaar adres</dt><dd>${esc(UI.doneerCfg.publicBaseUrl || 'automatisch (adres van deze server)')}</dd><dt>IBAN</dt><dd>${esc(UI.doneerCfg.iban || '—')} ${esc(UI.doneerCfg.tnv || '')}</dd><dt>Betaalverzoeken</dt><dd>${['pijl', 'set', 'vrij'].map(k => k + ': ' + (UI.doneerCfg.betaallinks && UI.doneerCfg.betaallinks[k] ? 'ingesteld' : '—')).join(' · ')}</dd><dt>Prijzen</dt><dd>${eur(UI.doneerCfg.pijlPrijs)} per pijl · set ${eur(UI.doneerCfg.setPrijs)}</dd><dt>Doneren</dt><dd>${UI.doneerCfg.actief === false ? '<span class="pill bad">uit</span>' : '<span class="pill ok">aan</span>'}</dd></dl>` : '<p class="muted small">Laden…</p>'}<p class="small muted">Zonder Mollie-sleutel toont de doneerpagina het rekeningnummer en eventueel een iDEAL-betaalverzoek van de bank. Met Mollie-sleutel betalen donateurs direct met iDEAL en wordt de status automatisch bijgewerkt.</p></div></div>
   </div>`;
 }
-const VIEWS = {overzicht: vOverzicht, sponsoren: vSponsoren, bv: vBv, prive: vPrive, events: vEvents, team: vTeam, data: vData, beheer: vBeheer};
+function vDonaties() {
+  const all = Store.all('donaties').slice().sort(by('datum', 'desc'));
+  const betaald = all.filter(d => d.status === 'betaald' || d.status === 'handmatig');
+  const pijlen = sum(betaald, d => d.aantalPijlen), bedrag = sum(betaald, d => d.bedrag), open = all.filter(d => d.status === 'open' || d.status === 'aangekondigd');
+  const pk = v => (DONATIE_PAKKET.find(x => x.v === v) || {}).l || v || '—';
+  const cls = {betaald:'ok', handmatig:'ok', open:'warn', aangekondigd:'warn', geannuleerd:'bad', verlopen:'bad', mislukt:'bad'};
+  const rows = all.map(d => `<tr><td class="dt">${esc(d.datum ? new Date(d.datum).toLocaleString('nl-NL', {dateStyle:'short', timeStyle:'short'}) : '—')}</td><td><div class="strong">${esc(d.naam || '—')}</div>${d.email ? `<div class="small muted">${esc(d.email)}</div>` : ''}${d.bericht ? `<div class="small">"${esc(d.bericht)}"</div>` : ''}</td><td>${esc(pk(d.pakket))}</td><td class="num">${num(d.aantalPijlen) || '—'}</td><td class="num strong">${eur(d.bedrag)}</td><td><span class="pill ${cls[d.status] || ''}">${esc(d.status || '—')}</span>${d.betaalmethode ? `<div class="small muted">${esc(d.betaalmethode)}</div>` : d.methode ? `<div class="small muted">${esc(d.methode)}</div>` : ''}</td><td class="acts">${editBtn('donaties', d.id)}</td></tr>`).join('');
+  const basis = Store.mode === 'api' ? location.pathname.replace(/\/(index\.html)?$/, '') + '/doneer' : '';
+  return `<div class="wrap">
+    <div class="page-head"><div><h1>Doneer een pijl</h1><p>Donaties via de openbare pagina (QR-code op de tafelkaarten en flesjes) en handmatig ingevoerde giften. Betaalde donaties tellen mee in de stand op de pagina.</p></div><div class="toolbar">${basis ? `<a class="btn" href="${esc(basis)}" target="_blank" rel="noopener">Doneerpagina openen</a>` : ''}${addBtn('donaties', 'Gift handmatig toevoegen')}</div></div>
+    <div class="tiles">
+      ${tile('Pijlen gedoneerd', pijlen, betaald.length + ' betaalde donaties', 'accent')}
+      ${tile('Bedrag binnen', eur(bedrag), 'betaald of handmatig geboekt')}
+      ${tile('Nog open', open.length, open.length ? eur(sum(open, d => d.bedrag)) + ' aangekondigd of in behandeling' : 'niets openstaand')}
+      ${tile('Sets van 12', Math.floor(pijlen / 12), (pijlen % 12) + ' losse pijlen')}
+    </div>
+    <div class="card"><div class="card-head"><h3>Donaties <span class="pill">${all.length}</span></h3></div>${tbl(['Datum', 'Donateur', 'Pakket', {l:'Pijlen', c:'num'}, {l:'Bedrag', c:'num'}, 'Status', ''], rows)}</div>
+  </div>`;
+}
+const VIEWS = {overzicht: vOverzicht, sponsoren: vSponsoren, bv: vBv, prive: vPrive, events: vEvents, team: vTeam, data: vData, beheer: vBeheer, donaties: vDonaties};
 
 /* ---------- formulieren per verzameling ---------- */
 const FORMS = {
@@ -1271,6 +1296,11 @@ const FORMS = {
   eventbudget: v => ({title: v.id ? 'Post bewerken' : 'Post toevoegen', fields: [
     {key:'type', label:'Soort', type:'select', options:BUDGET_TYPE, half:true}, {key:'post', label:'Post', required:true, half:true},
     {key:'begroot', label:'Begroot (€)', type:'number', half:true}, {key:'werkelijk', label:'Werkelijk (€)', type:'number', half:true}, {key:'notitie', label:'Notitie', type:'textarea'}]}),
+  donaties: v => ({title: v.id ? 'Donatie bewerken' : 'Gift handmatig toevoegen', fields: [
+    {key:'datum', label:'Datum', type:'date', required:true, default:todayIso(), half:true}, {key:'status', label:'Status', type:'select', options:DONATIE_STATUS, default:'handmatig', half:true},
+    {key:'naam', label:'Naam donateur', required:true}, {key:'email', label:'E-mail', type:'email'},
+    {key:'pakket', label:'Pakket', type:'select', options:DONATIE_PAKKET, half:true}, {key:'aantalPijlen', label:'Aantal pijlen', type:'number', half:true},
+    {key:'bedrag', label:'Bedrag (€)', type:'number', required:true}, {key:'methode', label:'Betaalwijze', placeholder:'bijv. contant, overboeking, Tikkie'}, {key:'bericht', label:'Bericht', type:'textarea'}]}),
   presentaties: v => ({title: v.id ? 'Presentatie bewerken' : 'Presentatie toevoegen', fields: [
     {key:'titel', label:'Titel', required:true}, {key:'type', label:'Soort', type:'select', options:PRES_TYPES, half:true}, {key:'datum', label:'Datum', type:'date', half:true, default:todayIso()},
     {key:'eigenaar', label:'Eigenaar', list:'wieList', placeholder:'naam'}, {key:'link', label:'Link naar bestand', type:'url', placeholder:'https://…'},
@@ -1281,6 +1311,7 @@ const FORMS = {
 const EVENT_CHILD = ['mijlpalen', 'acties', 'programma', 'eventbudget', 'presentaties'];
 function openRecordForm(col, existing, extra) {
   const values = Object.assign({}, existing || {}, extra || {});
+  if (col === 'donaties' && values.datum) values.datum = String(values.datum).slice(0, 10);
   const spec = FORMS[col](values);
   openForm({title: spec.title, fields: spec.fields, values, onDelete: existing ? async () => { await Store.del(col, existing.id); if (col === 'events') { for (const c of EVENT_CHILD) for (const r of evRows(c, existing.id)) await Store.del(c, r.id); UI.eventId = null; saveUi(); } toast('Verwijderd'); render(); } : null,
     onSave: async data => {
@@ -1326,6 +1357,18 @@ const ACTIONS = {
   async 'user-ww'(d, el) {
     if (!el.classList.contains('armed')) { el.classList.add('armed'); el.textContent = 'Zeker? Klik nogmaals'; setTimeout(() => { el.classList.remove('armed'); el.textContent = 'Nieuw wachtwoord'; }, 4000); return; }
     try { const j = await ApiBackend.req('PUT', 'api/gebruikers/' + encodeURIComponent(d.naam), {nieuwWachtwoord: true}); UI.nieuwWw = {naam: d.naam, wachtwoord: j.wachtwoord}; render(); } catch (e) { toast('Mislukt: ' + e.code); }
+  },
+  'doneer-config'() {
+    const c = UI.doneerCfg || {};
+    openForm({title: 'Betaalinstellingen Doneer een pijl', fields: [
+      {key:'mollieApiKey', label:'Mollie API-sleutel (live_… of test_…)', type:'text', hint:'Leeg laten om de huidige sleutel te houden; "wis" om te verwijderen.'},
+      {key:'publicBaseUrl', label:'Openbaar adres van het portaal', placeholder:'https://h-vest.nl/willembakker', hint:'Nodig voor Mollie (terugkeer- en webhookadres).'},
+      {key:'iban', label:'IBAN van de stichting', half:true}, {key:'tnv', label:'Ten name van', half:true},
+      {key:'linkPijl', label:'iDEAL-betaalverzoek 1 pijl (link)', type:'url'}, {key:'linkSet', label:'Betaalverzoek set van 12 (link)', type:'url'}, {key:'linkVrij', label:'Betaalverzoek vrij bedrag (link)', type:'url'},
+      {key:'pijlPrijs', label:'Prijs per pijl (€)', type:'number', half:true}, {key:'setPrijs', label:'Prijs set van 12 (€)', type:'number', half:true},
+      {key:'actief', label:'Doneren aan', type:'select', options:[{v:'ja', l:'Aan'}, {v:'nee', l:'Uit'}]}],
+      values: {mollieApiKey: '', publicBaseUrl: c.publicBaseUrl || '', iban: c.iban || '', tnv: c.tnv || '', linkPijl: (c.betaallinks || {}).pijl || '', linkSet: (c.betaallinks || {}).set || '', linkVrij: (c.betaallinks || {}).vrij || '', pijlPrijs: c.pijlPrijs || 80, setPrijs: c.setPrijs || 900, actief: c.actief === false ? 'nee' : 'ja'},
+      onSave: async data => { const body = {publicBaseUrl: data.publicBaseUrl, iban: data.iban, tnv: data.tnv, betaallinks: {pijl: data.linkPijl, set: data.linkSet, vrij: data.linkVrij}, pijlPrijs: data.pijlPrijs, setPrijs: data.setPrijs, actief: data.actief === 'ja'}; if (data.mollieApiKey === 'wis') body.mollieApiKey = ''; else if (data.mollieApiKey) body.mollieApiKey = data.mollieApiKey; await ApiBackend.req('PUT', 'api/doneer/instellingen', body); UI.doneerCfg = null; toast('Instellingen opgeslagen'); render(); }});
   },
   'ww-change'() {
     openForm({title: 'Wachtwoord wijzigen', fields: [{key:'huidig', label:'Huidig wachtwoord', type:'password', required:true}, {key:'nieuw', label:'Nieuw wachtwoord', type:'password', required:true, hint:'Minimaal 8 tekens.'}, {key:'herhaal', label:'Nieuw wachtwoord (nogmaals)', type:'password', required:true}],

@@ -5,6 +5,7 @@ const sheets = [
   { id: 'a6-voor',   w: 105, h: 148, name: 'tafelkaart-A6-voorkant' },
   { id: 'a6-achter', w: 105, h: 148, name: 'tafelkaart-A6-achterkant' },
   { id: 'vlag',      w: 200, h: 80,  name: 'tafelvlag-200x80' },
+  { id: 'etiket',    w: 211, h: 71,  name: 'flesetiket-205x65-met-afloop' },
 ];
 const px = mm => Math.round(mm / 25.4 * 96);
 (async () => {

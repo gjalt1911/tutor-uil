@@ -58,6 +58,18 @@ Voor het team buiten het thuisnetwerk zet je de site achter een adres met https.
 
 Instellingen via omgevingsvariabelen: `PORT` (3010), `HOST` (0.0.0.0), `BASE_PATH` (leeg of bijv. `/willembakker`), `WB_DATA` (map voor de data).
 
+## Doneer een pijl (openbare betaalpagina)
+
+`/doneer` is een openbare pagina zonder inlog: donateurs kiezen 1 pijl (€ 80), 3 pijlen, een set van 12 (€ 900) of een eigen bedrag en betalen met iDEAL via Mollie. De QR-code op de tafelkaarten en flesjes verwijst naar deze pagina. Donaties verschijnen live in het portaal onder "Doneer een pijl"; betaalde donaties tellen mee in de stand op de pagina.
+
+Instellen (als beheerder, in de site onder Beheer › Doneer een pijl, of in `data/doneer.json`):
+
+- `mollieApiKey`: de live-API-sleutel uit het Mollie-dashboard (Developers › API keys). Zolang die leeg is, toont de pagina het rekeningnummer van de stichting en eventueel iDEAL-betaalverzoeken van de bank (`betaallinks`).
+- `publicBaseUrl`: het openbare adres van het portaal, bijvoorbeeld `https://h-vest.nl/willembakker`. Mollie stuurt de donateur daarnaar terug en roept `<publicBaseUrl>/api/mollie/webhook` aan; dat adres moet dus vanaf internet bereikbaar zijn via https.
+- `iban`, `tnv`, `pijlPrijs` (80), `setPrijs` (900), `actief`.
+
+Mollie-account: aanvragen op mollie.com op naam van de stichting (KvK-nummer, zakelijke rekening, legitimatie bestuurder). iDEAL wordt meestal binnen een werkdag goedgekeurd; kosten circa € 0,32 per geslaagde iDEAL-betaling, geen vaste kosten. Met een test-sleutel (`test_…`) kun je de hele flow proberen zonder echt geld.
+
 ## Back-up
 
 De map `data/` is alles. Daarnaast kan iedere ingelogde gebruiker onder Gegevens een export (JSON) maken en terugzetten.

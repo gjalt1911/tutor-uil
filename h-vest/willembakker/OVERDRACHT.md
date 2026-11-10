@@ -21,6 +21,12 @@ Eisen van Gjalt: moet op de Mac mini draaien, onder zijn eigen domein (h-vest.nl
 - Getest in de cloud-sandbox: inloggen (goed en fout wachtwoord), live doorgeven van een nieuwe actie naar een tweede ingelogde gebruiker, account aanmaken in Beheer met gegenereerd wachtwoord, wachtwoord wijzigen, uitloggen en opnieuw inloggen, opslag op schijf, api zonder login geeft 401; statische versie zonder fouten op desktop en telefoon, licht en donker; Nederlandse bedragen ("2.500", "2500,50") worden goed gelezen.
 - Voorbeeldweergave als Claude-artifact: https://claude.ai/artifact/JbTFCGv5ZzCGwRmyBgg3Bj (versie 2, alleen browseropslag, niet de echte versie; de oude gedeelde opslag van versie 1 bevat nog 35 verouderde startdocumenten en wordt niet meer gebruikt).
 
+## Toegevoegd op 10 november
+
+- "Adopteer een pijl" heet nu "Doneer een pijl". Ontwerpen (tafelkaart A6, tafelvlag 20×8 cm en flesetiket 205×65 mm) staan in `ontwerp/doneer-een-pijl/`; de QR-code verwijst naar https://h-vest.nl/willembakker/doneer.
+- Openbare doneerpagina `public/doneer.html` op `/doneer`, met iDEAL via Mollie (server: `maakDonatie`, `mollieWebhook`), terugval op rekeningnummer en bankbetaalverzoeken zolang er geen Mollie-sleutel is. Donaties in verzameling `donaties`; portaalscherm "Doneer een pijl" en instellingen onder Beheer. Getest met een nep-Mollie (betalen, annuleren, webhook, stand, beheer).
+- Nog te doen: Mollie-account voor de stichting aanvragen en de live-sleutel invullen; `publicBaseUrl` zetten; pagina live op de mini vóór het drukken; 150 flesjes bestellen (etiketformaat bij leverancier controleren).
+
 ## Wat open staat
 
 1. **Installatie op de Mac mini** en reverse proxy naar h-vest.nl/willembakker. De cloudsessie kan de mini niet bereiken: de sessies op de mini accepteren alleen opdrachten vanaf vertrouwde apparaten en er zijn geen Remote Control-mappen zichtbaar. Doen vanuit een sessie op de mini (telefoon › Claude Code › bijvoorbeeld "★ PA", of `claude remote-control` in een map). Stappen: branch binnenhalen, `node server.js --setup`, server via launchd met `PORT=3010` en `BASE_PATH=/willembakker`, in de webserver van h-vest.nl `/willembakker/` doorsturen naar `http://127.0.0.1:3010/willembakker/` (pad meegeven; buffering uit voor `/willembakker/api/stream`), testen op https://h-vest.nl/willembakker/.
