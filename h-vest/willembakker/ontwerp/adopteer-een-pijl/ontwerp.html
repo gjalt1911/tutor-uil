@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Adopteer een pijl – tafelkaart en tafelvlag</title>
+<style>
+@font-face{font-family:'Anton';src:url('fonts/f1.ttf') format('truetype');font-weight:400}
+@font-face{font-family:'Barlow Condensed';src:url('fonts/f2.ttf') format('truetype');font-weight:700;font-style:normal}
+@font-face{font-family:'Barlow Condensed';src:url('fonts/f3.ttf') format('truetype');font-weight:600;font-style:normal}
+@font-face{font-family:'Barlow Condensed';src:url('fonts/f4.ttf') format('truetype');font-weight:700;font-style:italic}
+@font-face{font-family:'Barlow Condensed';src:url('fonts/f5.ttf') format('truetype');font-weight:800;font-style:italic}
+/* Stijl afgeleid van de uitnodiging: diep donkerblauw met lichtstrepen, oranje penseelvlakken, witte kapitalen, chevrons. */
+:root{
+  --navy:#071536; --navy2:#0c2a68; --blue:#1d4fb3; --streak:rgba(120,170,255,.28);
+  --orange:#f15a22; --orange2:#c7421a; --white:#ffffff; --ink:#0b1b3f;
+  --display:'Anton','Impact',sans-serif; --cond:'Barlow Condensed','Arial Narrow',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#e9ecf1;font-family:var(--cond);color:var(--white)}
+body{display:flex;flex-wrap:wrap;gap:12mm;padding:10mm;align-items:flex-start}
+body[data-sheet] { padding:0; gap:0; background:transparent }
+body[data-sheet] .sheet{display:none}
+body[data-sheet="a6-voor"] #a6-voor, body[data-sheet="a6-achter"] #a6-achter, body[data-sheet="vlag"] #vlag{display:block}
+.sheet{position:relative;overflow:hidden;background:
+  radial-gradient(120% 90% at 85% 20%, rgba(60,110,230,.55), transparent 55%),
+  linear-gradient(160deg, var(--navy2) 0%, var(--navy) 55%, #050e26 100%);
+  box-shadow:0 2px 12px rgba(0,0,0,.25)}
+body[data-sheet] .sheet{box-shadow:none}
+.streaks{position:absolute;inset:-10%;background:
+  linear-gradient(115deg, transparent 38%, var(--streak) 40%, transparent 43%),
+  linear-gradient(115deg, transparent 52%, rgba(120,170,255,.16) 53%, transparent 57%),
+  linear-gradient(115deg, transparent 66%, var(--streak) 67%, transparent 69%),
+  linear-gradient(115deg, transparent 80%, rgba(241,90,34,.22) 82%, transparent 86%);
+  pointer-events:none}
+.photo{position:absolute;right:0;bottom:0;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;filter:saturate(1.1) contrast(1.05)}
+.photo::after{content:"";position:absolute;inset:0;background:
+  linear-gradient(90deg, var(--navy) 0%, rgba(7,21,54,.55) 35%, rgba(7,21,54,0) 70%),
+  linear-gradient(0deg, var(--navy) 0%, rgba(7,21,54,.2) 45%, var(--navy) 100%)}
+.band{display:inline-block;background:var(--orange);color:var(--white);font-weight:700;text-transform:uppercase;letter-spacing:.06em;transform:skew(-12deg);box-shadow:3px 3px 0 rgba(0,0,0,.25)}
+.band span{display:inline-block;transform:skew(12deg)}
+.hero{font-family:var(--cond);font-weight:800;font-style:italic;text-transform:uppercase;color:var(--orange);line-height:.86;letter-spacing:-.01em;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.name{font-family:var(--display);text-transform:uppercase;color:var(--white);line-height:.92;letter-spacing:.01em;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+.tag{font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--white)}
+.chev{font-family:var(--display);color:var(--blue);letter-spacing:-.08em;line-height:1}
+.chev.o{color:var(--orange)}
+.box{background:var(--white);color:var(--ink);border-radius:1.6mm;box-shadow:0 2mm 4mm rgba(0,0,0,.35)}
+.qr{display:flex;flex-direction:column;align-items:center;gap:1.2mm}
+.qr img{display:block;image-rendering:pixelated}
+.qr .lbl{background:var(--orange);color:var(--white);font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.6mm 2.2mm;border-radius:1mm;white-space:nowrap}
+.price .amt{font-family:var(--display);line-height:.9;color:var(--ink)}
+.price .per{font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--orange2)}
+.price .set{font-weight:600;color:var(--ink);line-height:1.15}
+.url{font-weight:700;letter-spacing:.02em;color:var(--white)}
+.foot{font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.78)}
+.row{display:flex;align-items:center;justify-content:space-between}
+
+/* ---------- A6 staand, 105 x 148 mm (tentkaart of acryl L-standaard) ---------- */
+.a6{width:105mm;height:148mm}
+.a6 .photo{width:72mm;height:40mm}
+.a6 .in{position:absolute;inset:0;padding:7mm 7mm 6mm}
+.a6 .band{font-size:3.6mm;padding:1.1mm 3.5mm}
+.a6 .hero{font-size:17.5mm;margin-top:3.2mm}
+.a6 .name{font-size:9.6mm;margin-top:2.6mm}
+.a6 .tag{font-size:3.1mm;margin-top:2.4mm}
+.a6 .mid{display:flex;gap:3.5mm;align-items:stretch;margin-top:5mm}
+.a6 .price{padding:3mm 3.5mm;flex:1;display:flex;flex-direction:column;justify-content:center;gap:.6mm;min-width:0}
+.a6 .price .amt{font-size:15mm}
+.a6 .price .per{font-size:3.6mm}
+.a6 .price .set{font-size:3.3mm;margin-top:1.6mm}
+.a6 .qr{padding:2.4mm 2.4mm 2.2mm;width:40mm}
+.a6 .qr img{width:33mm;height:33mm}
+.a6 .qr .lbl{font-size:3mm}
+.a6 .bottom{position:absolute;left:7mm;right:7mm;bottom:6mm}
+.a6 .url{font-size:4.2mm}
+.a6 .foot{font-size:2.7mm;margin-top:.8mm}
+.a6 .chev{font-size:9mm}
+/* achterkant */
+.a6.back .photo{width:62mm;height:34mm;opacity:.9}
+.a6 .kop{font-family:var(--display);text-transform:uppercase;font-size:9mm;line-height:.95;color:var(--white);margin-top:3mm}
+.a6 .kop em{font-style:normal;color:var(--orange)}
+.a6 .steps{list-style:none;margin-top:4mm;display:flex;flex-direction:column;gap:2.6mm;width:62mm}
+.a6 .steps li{display:flex;gap:2.5mm;align-items:flex-start}
+.a6 .steps .n{flex:none;width:7.5mm;height:7.5mm;border-radius:50%;background:var(--orange);color:var(--white);font-family:var(--display);font-size:4.6mm;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+.a6 .steps b{display:block;font-size:4.2mm;text-transform:uppercase;letter-spacing:.04em;line-height:1.05}
+.a6 .steps span{display:block;font-size:3.3mm;font-weight:600;line-height:1.2;color:rgba(255,255,255,.88);margin-top:.5mm}
+.a6 .steps span.u{font-size:3.05mm;white-space:nowrap}
+.a6 .why{margin-top:4mm;width:60mm;font-size:3.3mm;font-weight:600;line-height:1.25;color:rgba(255,255,255,.9);border-left:1.2mm solid var(--orange);padding-left:2.5mm}
+.a6.back .qr{position:absolute;right:7mm;bottom:17mm;width:34mm;padding:2mm}
+.a6.back .qr img{width:28mm;height:28mm}
+.a6.back .qr .lbl{font-size:2.7mm}
+
+/* ---------- Tafelvlag 200 x 80 mm (liggend) ---------- */
+.vlag{width:200mm;height:80mm}
+.vlag .photo{width:92mm;height:50mm;right:50mm}
+.vlag .photo::after{background:
+  linear-gradient(90deg, var(--navy) 0%, rgba(7,21,54,.6) 30%, rgba(7,21,54,0) 60%, rgba(7,21,54,.7) 100%),
+  linear-gradient(0deg, rgba(7,21,54,.75) 0%, rgba(7,21,54,.1) 40%, var(--navy) 100%)}
+.vlag .in{position:absolute;inset:0;padding:6mm 7mm 5.5mm}
+.vlag .band{font-size:3.4mm;padding:1mm 3.2mm}
+.vlag .hero{font-size:16.5mm;margin-top:2.8mm}
+.vlag .name{font-size:8.4mm;margin-top:2.2mm}
+.vlag .tag{font-size:2.9mm;margin-top:2.2mm}
+.vlag .priceline{margin-top:3.4mm;display:flex;align-items:baseline;gap:2.5mm}
+.vlag .priceline .amt{font-family:var(--display);font-size:12.5mm;color:var(--white);line-height:.9;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+.vlag .priceline .per{font-size:3.6mm;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--orange)}
+.vlag .priceline .set{font-size:3.2mm;font-weight:600;color:rgba(255,255,255,.85)}
+.vlag .qr{position:absolute;right:7mm;top:7mm;width:42mm;padding:2.4mm 2.4mm 2.2mm}
+.vlag .qr img{width:35mm;height:35mm}
+.vlag .qr .lbl{font-size:3mm}
+.vlag .url{position:absolute;right:7mm;bottom:6mm;width:60mm;text-align:right;font-size:3.4mm;white-space:nowrap}
+.vlag .chev{position:absolute;left:7mm;bottom:4mm;font-size:8mm}
+</style>
+</head>
+<body>
+
+<!-- A6 VOORKANT -->
+<section class="sheet a6" id="a6-voor">
+  <div class="streaks"></div>
+  <div class="photo"><img src="willem-crop.jpg" alt=""></div>
+  <div class="in">
+    <div class="band"><span>Steun Willem op weg naar LA 2028</span></div>
+    <div class="hero">Adopteer<br>een pijl</div>
+    <div class="name">Willem Bakker</div>
+    <div class="tag">Precisie. Focus. Winnaarschap.</div>
+    <div class="mid">
+      <div class="box price">
+        <div class="amt">€ 80</div>
+        <div class="per">per pijl</div>
+        <div class="set">Set van 12 pijlen: € 900<br>Eenmalig of maandelijks</div>
+      </div>
+      <div class="box qr"><img src="qr.png" alt="QR-code naar willembakker.eu/adopteer-een-pijl"><div class="lbl">Scan &amp; adopteer</div></div>
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="row">
+      <div><div class="url">willembakker.eu/adopteer-een-pijl</div><div class="foot">Stichting Willem Bakker Archer</div></div>
+      <div class="chev o">&raquo;&raquo;</div>
+    </div>
+  </div>
+</section>
+
+<!-- A6 ACHTERKANT -->
+<section class="sheet a6 back" id="a6-achter">
+  <div class="streaks"></div>
+  <div class="photo"><img src="willem-crop.jpg" alt=""></div>
+  <div class="in">
+    <div class="band"><span>Adopteer een pijl</span></div>
+    <div class="kop">Zo werkt <em>het</em></div>
+    <ol class="steps">
+      <li><div class="n">1</div><div><b>Scan de QR-code</b><span class="u">of ga naar willembakker.eu/adopteer-een-pijl</span></div></li>
+      <li><div class="n">2</div><div><b>Kies je pijl</b><span>€ 80 per pijl, of een hele set van 12 voor € 900. Eenmalig of maandelijks.</span></div></li>
+      <li><div class="n">3</div><div><b>Jouw pijl gaat mee</b><span>Je adopteert symbolisch een pijl waarmee Willem traint en schiet, op weg naar de Olympische Spelen van Los Angeles 2028.</span></div></li>
+    </ol>
+    <div class="why">Pijlen slijten en breken. Elk seizoen zijn nieuwe sets nodig; jouw bijdrage betaalt het materiaal van een Europees kampioen.</div>
+  </div>
+  <div class="box qr"><img src="qr.png" alt=""><div class="lbl">Scan &amp; adopteer</div></div>
+  <div class="bottom">
+    <div class="row">
+      <div><div class="url" style="font-size:3.6mm">Europees kampioen recurve 2026</div><div class="foot">Stichting Willem Bakker Archer</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TAFELVLAG 200 x 80 mm -->
+<section class="sheet vlag" id="vlag">
+  <div class="streaks"></div>
+  <div class="photo"><img src="willem-crop.jpg" alt=""></div>
+  <div class="in">
+    <div class="band"><span>Steun Willem op weg naar LA 2028</span></div>
+    <div class="hero">Adopteer een pijl</div>
+    <div class="name">Willem Bakker</div>
+    <div class="tag">Precisie. Focus. Winnaarschap.</div>
+    <div class="priceline"><div class="amt">€ 80</div><div class="per">per pijl</div><div class="set">· set van 12: € 900 · eenmalig of maandelijks</div></div>
+  </div>
+  <div class="box qr"><img src="qr.png" alt=""><div class="lbl">Scan &amp; adopteer</div></div>
+  <div class="url">willembakker.eu/adopteer-een-pijl</div>
+  <div class="chev">&raquo;&raquo;&raquo;</div>
+</section>
+
+<script>
+  const s = new URLSearchParams(location.search).get('sheet'); if (s) document.body.dataset.sheet = s;
+</script>
+</body>
+</html>
