@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Doneer een pijl – Willem Bakker</title>
 <meta name="description" content="Doneer een pijl aan boogschutter Willem Bakker, Europees kampioen 2026, op weg naar de Olympische Spelen van Los Angeles 2028. € 80 per pijl, betalen met iDEAL.">
+<script>
+/* Statische versie (zonder portaalserver): vul hier de Rabo-betaalverzoeken in. Met de portaalserver erachter wordt dit genegeerd en gelden de instellingen onder Beheer. */
+window.DONEER_STATISCH = null;
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,800&display=swap">
 <style>
@@ -108,14 +112,27 @@ body{font-family:var(--cond);color:var(--white);background:radial-gradient(120% 
   const eur = n => '€ ' + new Intl.NumberFormat('nl-NL', {minimumFractionDigits: 0, maximumFractionDigits: 2}).format(n);
   let cfg = null;
   function bedragEigen() { const s = ($('#eigen').value || '').trim().replace(/[€\s]/g, '').replace(',', '.'); const n = parseFloat(s); return isFinite(n) ? n : 0; }
+  function renderStatisch(st) {
+    const links = st.links || {}; const pijl = st.pijlPrijs || 80, setPrijs = st.setPrijs || 900;
+    $('#pPijl').textContent = eur(pijl); $('#pDrie').textContent = eur(pijl * 3); $('#pSet').textContent = eur(setPrijs);
+    const knop = (href, kop, sub) => href ? '<a class="btn" style="margin-top:10px" href="' + esc(href) + '"><span>' + esc(kop) + '</span></a><div class="small" style="margin-top:4px">' + esc(sub) + '</div>' : '';
+    const geen = !links.pijl && !links.drie && !links.vrij;
+    $('#formCard').innerHTML = '<h2>Doneer <em>met iDEAL</em></h2>' +
+      (geen ? '<div class="small" style="margin-top:10px">De iDEAL-betaalverzoeken worden nog ingesteld. Overmaken kan al:</div>' : '<div class="small" style="margin-top:10px">Kies je pijl; je betaalt via een Rabo-betaalverzoek met iDEAL. Zet je naam in de omschrijving, dan weet Willem wie er doneerde.</div>') +
+      knop(links.pijl, '1 pijl · ' + eur(pijl), 'Eén wedstrijdpijl') + knop(links.drie, '3 pijlen · ' + eur(pijl * 3), 'Een kwart set') + knop(links.vrij, 'Eigen bedrag', 'Je vult zelf het bedrag in, vanaf € 5') +
+      '<div class="bank" style="margin-top:16px"><b>Set van 12 pijlen · ' + esc(eur(setPrijs)) + '</b><br>' + (st.contact ? 'Stuur een bericht naar ' + esc(st.contact) + ', dan krijg je een persoonlijk iDEAL-verzoek.' : 'Maak het bedrag over of vraag de stichting om een persoonlijk iDEAL-verzoek.') + '</div>' +
+      (st.iban ? '<div class="bank" style="margin-top:12px">Overmaken kan ook:<br><code>' + esc(st.iban) + '</code><br>t.n.v. ' + esc(st.tnv || 'Stichting Willem Bakker Archer') + ', o.v.v. "Doneer een pijl" en je naam.</div>' : '');
+  }
   async function laadConfig() {
     try {
-      const r = await fetch(API + 'doneer/config', {headers: {Accept: 'application/json'}}); cfg = await r.json();
+      const r = await fetch(API + 'doneer/config', {headers: {Accept: 'application/json'}});
+      if (!r.ok || !(r.headers.get('content-type') || '').includes('application/json')) throw new Error('geen server');
+      cfg = await r.json();
       $('#pPijl').textContent = eur(cfg.pijlPrijs); $('#pDrie').textContent = eur(cfg.pijlPrijs * 3); $('#pSet').textContent = eur(cfg.setPrijs);
       if (cfg.stand && (cfg.stand.pijlen > 0 || cfg.stand.donateurs > 0)) { $('#standPijlen').textContent = cfg.stand.pijlen; $('#standDonateurs').textContent = cfg.stand.donateurs; $('#stand').hidden = false; }
       if (!cfg.mollie) { $('#betaal').querySelector('span').textContent = 'Doneren via de bank'; $('#uitleg').textContent = 'Na het invullen zie je het rekeningnummer en het kenmerk voor je overboeking.'; }
       if (cfg.actief === false) { $('#formCard').hidden = true; toonStatus('wait', 'Even geduld', 'Doneren staat tijdelijk uit. Probeer het later nog eens.'); }
-    } catch (e) { /* zonder config werken de standaardbedragen */ }
+    } catch (e) { renderStatisch(window.DONEER_STATISCH || {}); }
   }
   function toonStatus(kind, kop, tekst, extra) { $('#statusCard').hidden = false; $('#status').innerHTML = '<div class="big ' + kind + '"></div><p></p>' + (extra || ''); $('#status .big').textContent = kop; $('#status p').textContent = tekst; }
   document.querySelectorAll('input[name=pakket]').forEach(r => r.addEventListener('change', () => { if (r.value === 'vrij' && r.checked) $('#eigen').focus(); }));
@@ -133,7 +150,7 @@ body{font-family:var(--cond);color:var(--white);background:radial-gradient(120% 
       if (!r.ok) throw new Error(j.fout || 'Er ging iets mis. Probeer het nog eens.');
       if (j.checkout) { location.href = j.checkout; return; }
       if (j.bank) {
-        const links = cfg && cfg.betaallinks || {}; const link = pakket === 'set' ? links.set : pakket === 'vrij' ? links.vrij : links.pijl;
+        const links = cfg && cfg.betaallinks || {}; const link = pakket === 'set' ? links.set : pakket === 'vrij' ? links.vrij : pakket === 'drie' ? (links.drie || links.vrij) : links.pijl;
         $('#form').hidden = true; const b = $('#bankBlok'); b.hidden = false;
         b.innerHTML = '<div class="bank"><b>Bedankt, ' + esc(naam) + '!</b><br>Maak <b>' + esc(eur(j.bedrag)) + '</b> over naar<br><code>' + esc(j.iban || 'rekeningnummer volgt') + '</code><br>t.n.v. ' + esc(j.tnv || 'Stichting Willem Bakker Archer') + '<br>onder vermelding van <code>' + esc(j.kenmerk) + '</code></div>' + (link ? '<a class="btn sec" href="' + esc(link) + '">Direct betalen via iDEAL-betaalverzoek</a>' : '') + '<div class="small">Zodra de betaling binnen is, telt jouw pijl mee in de stand.</div>';
         return;

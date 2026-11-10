@@ -55,7 +55,7 @@ if (!Array.isArray(users)) users = [];
 let sessies = readJson(FILES.sessies, {});
 if (!sessies || typeof sessies !== 'object') sessies = {};
 /* Instellingen voor "Doneer een pijl" (data/doneer.json): mollieApiKey, publicBaseUrl, iban, tnv, betaallinks, pijlPrijs, setPrijs */
-const DONEER_STANDAARD = {mollieApiKey: '', publicBaseUrl: '', iban: '', tnv: 'Stichting Willem Bakker Archer', betaallinks: {pijl: '', set: '', vrij: ''}, pijlPrijs: 80, setPrijs: 900, actief: true};
+const DONEER_STANDAARD = {mollieApiKey: '', publicBaseUrl: '', iban: '', tnv: 'Stichting Willem Bakker Archer', betaallinks: {pijl: '', drie: '', set: '', vrij: ''}, pijlPrijs: 80, setPrijs: 900, actief: true};
 let doneer = Object.assign({}, DONEER_STANDAARD, readJson(FILES.doneer, {}));
 if (!doneer.betaallinks || typeof doneer.betaallinks !== 'object') doneer.betaallinks = Object.assign({}, DONEER_STANDAARD.betaallinks);
 function saveDoneer() { writeJson(FILES.doneer, doneer); }
@@ -145,7 +145,7 @@ const PAKKETTEN = {pijl: {pijlen: 1, label: '1 pijl'}, drie: {pijlen: 3, label: 
 const doneerPogingen = new Map();
 function doneerTeVaak(ip) { const now = Date.now(); const arr = (doneerPogingen.get(ip) || []).filter(t => now - t < 3600 * 1000); doneerPogingen.set(ip, arr); if (arr.length >= 15) return true; arr.push(now); return false; }
 function doneerConfigPubliek() {
-  return {actief: doneer.actief !== false, mollie: !!doneer.mollieApiKey, betaallinks: {pijl: doneer.betaallinks.pijl || '', set: doneer.betaallinks.set || '', vrij: doneer.betaallinks.vrij || ''}, iban: doneer.iban || '', tnv: doneer.tnv || '', pijlPrijs: Number(doneer.pijlPrijs) || 80, setPrijs: Number(doneer.setPrijs) || 900};
+  return {actief: doneer.actief !== false, mollie: !!doneer.mollieApiKey, betaallinks: {pijl: doneer.betaallinks.pijl || '', drie: doneer.betaallinks.drie || '', set: doneer.betaallinks.set || '', vrij: doneer.betaallinks.vrij || ''}, iban: doneer.iban || '', tnv: doneer.tnv || '', pijlPrijs: Number(doneer.pijlPrijs) || 80, setPrijs: Number(doneer.setPrijs) || 900};
 }
 function doneerStand() {
   const betaald = Object.values(db.data.donaties).filter(d => d.status === 'betaald' || d.status === 'handmatig');
@@ -257,7 +257,7 @@ async function api(req, res, p, ip) {
       const b = await readBody(req);
       if (typeof b.mollieApiKey === 'string' && !b.mollieApiKey.startsWith('••••')) doneer.mollieApiKey = b.mollieApiKey.trim() === 'wis' ? '' : b.mollieApiKey.trim();
       ['publicBaseUrl', 'iban', 'tnv'].forEach(k => { if (typeof b[k] === 'string') doneer[k] = b[k].trim(); });
-      if (b.betaallinks && typeof b.betaallinks === 'object') ['pijl', 'set', 'vrij'].forEach(k => { if (typeof b.betaallinks[k] === 'string') doneer.betaallinks[k] = b.betaallinks[k].trim(); });
+      if (b.betaallinks && typeof b.betaallinks === 'object') ['pijl', 'drie', 'set', 'vrij'].forEach(k => { if (typeof b.betaallinks[k] === 'string') doneer.betaallinks[k] = b.betaallinks[k].trim(); });
       if (b.pijlPrijs != null) doneer.pijlPrijs = Number(b.pijlPrijs) || 80;
       if (b.setPrijs != null) doneer.setPrijs = Number(b.setPrijs) || 900;
       if (typeof b.actief === 'boolean') doneer.actief = b.actief;

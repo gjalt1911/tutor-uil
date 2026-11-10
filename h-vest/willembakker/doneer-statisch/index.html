@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Doneer een pijl – Willem Bakker</title>
+<meta name="description" content="Doneer een pijl aan boogschutter Willem Bakker, Europees kampioen 2026, op weg naar de Olympische Spelen van Los Angeles 2028. € 80 per pijl, betalen met iDEAL.">
+<script>
+/* Statische versie (zonder portaalserver): vul hier de Rabo-betaalverzoeken in. Met de portaalserver erachter wordt dit genegeerd en gelden de instellingen onder Beheer. */
+window.DONEER_STATISCH = {
+  links: {
+    pijl: '',   /* Rabo-betaalverzoek € 80, meerdere keren te betalen */
+    drie: '',   /* Rabo-betaalverzoek € 240, meerdere keren te betalen */
+    vrij: ''    /* Rabo-betaalverzoek zonder bedrag, meerdere keren te betalen */
+  },
+  iban: '',                                   /* rekening van de stichting, bijv. NL00RABO0123456789 */
+  tnv: 'Stichting Willem Bakker Archer',
+  contact: '',                                /* e-mail of telefoonnummer voor de set van 12 (persoonlijk verzoek) */
+  pijlPrijs: 80, setPrijs: 900
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,800&display=swap">
+<style>
+/* Dezelfde stijl als de uitnodiging en de tafelkaarten: donkerblauw, oranje, witte kapitalen. */
+:root{--navy:#071536;--navy2:#0c2a68;--blue:#1d4fb3;--orange:#f15a22;--orange2:#c7421a;--white:#fff;--ink:#0b1b3f;--grey:#5b6677;--line:#d9dee8;--ok:#22703f;--bad:#b5322a;
+  --display:'Anton','Impact',sans-serif;--cond:'Barlow Condensed','Arial Narrow',Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{background:var(--navy)}
+body{font-family:var(--cond);color:var(--white);background:radial-gradient(120% 70% at 85% 0%,rgba(60,110,230,.55),transparent 55%),linear-gradient(165deg,var(--navy2) 0%,var(--navy) 50%,#050e26 100%);min-height:100vh;font-size:18px;line-height:1.35}
+.streaks{position:fixed;inset:-10%;z-index:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(120,170,255,.22) 40%,transparent 43%),linear-gradient(115deg,transparent 60%,rgba(120,170,255,.12) 61%,transparent 65%),linear-gradient(115deg,transparent 78%,rgba(241,90,34,.18) 80%,transparent 84%)}
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:22px max(18px,env(safe-area-inset-left,0px)) 48px max(18px,env(safe-area-inset-right,0px))}
+.band{display:inline-block;background:var(--orange);color:#fff;font-weight:700;text-transform:uppercase;letter-spacing:.06em;transform:skew(-12deg);padding:5px 14px;font-size:15px;box-shadow:3px 3px 0 rgba(0,0,0,.25)}
+.band span{display:inline-block;transform:skew(12deg)}
+.hero{font-weight:800;font-style:italic;text-transform:uppercase;color:var(--orange);line-height:.86;font-size:clamp(58px,15vw,88px);margin-top:16px;letter-spacing:-.01em;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.name{font-family:var(--display);text-transform:uppercase;font-size:clamp(30px,8vw,46px);line-height:.95;margin-top:10px;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+.tag{font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:14px;margin-top:10px}
+.stand{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.stand div{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:8px 14px;min-width:110px}
+.stand b{display:block;font-family:var(--display);font-size:30px;line-height:1}
+.stand span{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.8)}
+.intro{margin-top:22px;font-size:19px;font-weight:500;color:rgba(255,255,255,.92);border-left:5px solid var(--orange);padding-left:14px;max-width:60ch}
+.card{background:#fff;color:var(--ink);border-radius:12px;padding:20px;margin-top:24px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.card h2{font-family:var(--display);text-transform:uppercase;font-size:28px;line-height:1;color:var(--ink)}
+.card h2 em{font-style:normal;color:var(--orange)}
+.opties{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.opt{position:relative;border:2px solid var(--line);border-radius:10px;padding:12px 12px 10px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
+.opt:has(input:checked){border-color:var(--orange);background:#fff3ec}
+.opt .p{font-family:var(--display);font-size:30px;line-height:1;color:var(--ink)}
+.opt .l{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--orange2)}
+.opt .s{font-size:14px;color:var(--grey);line-height:1.2}
+.opt.vrij{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
+.opt.vrij .amt{display:flex;align-items:center;gap:6px;margin-left:auto;position:relative;z-index:1}
+.opt.vrij input[type=text]{position:static;opacity:1;width:110px;height:auto;font:inherit;font-size:22px;font-weight:700;padding:6px 10px;border:2px solid var(--line);border-radius:8px;color:var(--ink);background:#fff}
+.field{margin-top:14px;display:flex;flex-direction:column;gap:5px}
+.field label{font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:13px;color:var(--grey)}
+.field input,.field textarea{font:inherit;font-size:18px;padding:10px 12px;border:2px solid var(--line);border-radius:8px;color:var(--ink);background:#fff;width:100%}
+.field textarea{min-height:70px;resize:vertical}
+.field input:focus,.field textarea:focus,.opt.vrij input[type=text]:focus{outline:none;border-color:var(--blue)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:18px;padding:16px;border:none;border-radius:10px;background:var(--orange);color:#fff;font:inherit;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;box-shadow:0 4px 0 var(--orange2)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--orange2)}
+.btn[disabled]{opacity:.6;cursor:wait}
+.btn.sec{background:var(--blue);box-shadow:0 4px 0 #143a85;font-size:18px;margin-top:10px}
+.small{font-size:14px;color:var(--grey);margin-top:12px;line-height:1.35}
+.err{margin-top:12px;color:var(--bad);font-weight:700}
+.bank{margin-top:14px;background:#f3f5f9;border-radius:10px;padding:14px;font-size:17px;line-height:1.5}
+.bank b{font-family:var(--display);font-size:22px;letter-spacing:.02em}
+.bank code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:2px 8px;user-select:all}
+.status{text-align:center;padding:10px 0}
+.status .big{font-family:var(--display);font-size:40px;line-height:1;color:var(--ok);text-transform:uppercase}
+.status .big.bad{color:var(--bad)}
+.status .big.wait{color:var(--blue)}
+.status p{margin-top:10px;font-size:19px}
+.foot{margin-top:28px;font-size:14px;color:rgba(255,255,255,.75);line-height:1.5}
+.foot a{color:#fff}
+.chev{font-family:var(--display);color:var(--orange);font-size:34px;letter-spacing:-.08em;line-height:1;margin-top:18px}
+@media (max-width:420px){.opties{grid-template-columns:1fr}.opt.vrij{flex-wrap:wrap}.opt.vrij .amt{margin-left:0}}
+@media (prefers-reduced-motion:no-preference){.btn{transition:transform .08s,box-shadow .08s}}
+</style>
+</head>
+<body>
+<div class="streaks"></div>
+<main class="wrap">
+  <div class="band"><span>Steun Willem op weg naar LA 2028</span></div>
+  <h1 class="hero">Doneer<br>een pijl</h1>
+  <div class="name">Willem Bakker</div>
+  <div class="tag">Precisie. Focus. Winnaarschap.</div>
+  <div class="stand" id="stand" hidden><div><b id="standPijlen">0</b><span>pijlen gedoneerd</span></div><div><b id="standDonateurs">0</b><span>supporters</span></div></div>
+  <p class="intro">Pijlen slijten en breken. Elk seizoen zijn nieuwe sets nodig. Met jouw pijl betaal je het materiaal van een Europees kampioen op weg naar de Olympische Spelen van Los Angeles 2028.</p>
+
+  <section class="card" id="formCard">
+    <h2>Kies je <em>pijl</em></h2>
+    <form id="form" novalidate>
+      <div class="opties" id="opties">
+        <label class="opt"><input type="radio" name="pakket" value="pijl" checked><span class="p" id="pPijl">€ 80</span><span class="l">1 pijl</span><span class="s">Eén wedstrijdpijl</span></label>
+        <label class="opt"><input type="radio" name="pakket" value="drie"><span class="p" id="pDrie">€ 240</span><span class="l">3 pijlen</span><span class="s">Een kwart set</span></label>
+        <label class="opt"><input type="radio" name="pakket" value="set"><span class="p" id="pSet">€ 900</span><span class="l">Set van 12</span><span class="s">Een complete wedstrijdset</span></label>
+        <label class="opt vrij"><input type="radio" name="pakket" value="vrij"><div><span class="l">Eigen bedrag</span><span class="s">Vanaf € 5, elk bedrag helpt</span></div><div class="amt"><span class="p" style="font-size:24px">€</span><input type="text" id="eigen" inputmode="decimal" placeholder="50"></div></label>
+      </div>
+      <div class="field"><label for="naam">Je naam</label><input id="naam" name="naam" autocomplete="name" required></div>
+      <div class="field"><label for="email">E-mailadres (voor de bevestiging)</label><input id="email" name="email" type="email" autocomplete="email"></div>
+      <div class="field"><label for="bericht">Bericht voor Willem (mag leeg)</label><textarea id="bericht" name="bericht" maxlength="500"></textarea></div>
+      <div class="err" id="err" hidden></div>
+      <button class="btn" type="submit" id="betaal"><span>Betaal met iDEAL</span></button>
+      <div class="small" id="uitleg">Je betaalt veilig via Mollie met iDEAL, Apple Pay of creditcard. Je naam en e-mailadres gebruiken we alleen voor de bevestiging en om je te bedanken.</div>
+    </form>
+    <div id="bankBlok" hidden></div>
+  </section>
+
+  <section class="card" id="statusCard" hidden><div class="status" id="status"></div></section>
+
+  <div class="chev">&raquo;&raquo;&raquo;</div>
+  <p class="foot">Stichting Willem Bakker Archer · <a href="https://willembakker.eu/" target="_blank" rel="noopener">willembakker.eu</a><br>Vragen over je donatie? Mail de stichting via de contactgegevens op willembakker.eu.</p>
+</main>
+<script>
+(function () {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const API = location.pathname.replace(/\/doneer(-een-pijl)?\/?$/, '') + '/api/';
+  const eur = n => '€ ' + new Intl.NumberFormat('nl-NL', {minimumFractionDigits: 0, maximumFractionDigits: 2}).format(n);
+  let cfg = null;
+  function bedragEigen() { const s = ($('#eigen').value || '').trim().replace(/[€\s]/g, '').replace(',', '.'); const n = parseFloat(s); return isFinite(n) ? n : 0; }
+  function renderStatisch(st) {
+    const links = st.links || {}; const pijl = st.pijlPrijs || 80, setPrijs = st.setPrijs || 900;
+    $('#pPijl').textContent = eur(pijl); $('#pDrie').textContent = eur(pijl * 3); $('#pSet').textContent = eur(setPrijs);
+    const knop = (href, kop, sub) => href ? '<a class="btn" style="margin-top:10px" href="' + esc(href) + '"><span>' + esc(kop) + '</span></a><div class="small" style="margin-top:4px">' + esc(sub) + '</div>' : '';
+    const geen = !links.pijl && !links.drie && !links.vrij;
+    $('#formCard').innerHTML = '<h2>Doneer <em>met iDEAL</em></h2>' +
+      (geen ? '<div class="small" style="margin-top:10px">De iDEAL-betaalverzoeken worden nog ingesteld. Overmaken kan al:</div>' : '<div class="small" style="margin-top:10px">Kies je pijl; je betaalt via een Rabo-betaalverzoek met iDEAL. Zet je naam in de omschrijving, dan weet Willem wie er doneerde.</div>') +
+      knop(links.pijl, '1 pijl · ' + eur(pijl), 'Eén wedstrijdpijl') + knop(links.drie, '3 pijlen · ' + eur(pijl * 3), 'Een kwart set') + knop(links.vrij, 'Eigen bedrag', 'Je vult zelf het bedrag in, vanaf € 5') +
+      '<div class="bank" style="margin-top:16px"><b>Set van 12 pijlen · ' + esc(eur(setPrijs)) + '</b><br>' + (st.contact ? 'Stuur een bericht naar ' + esc(st.contact) + ', dan krijg je een persoonlijk iDEAL-verzoek.' : 'Maak het bedrag over of vraag de stichting om een persoonlijk iDEAL-verzoek.') + '</div>' +
+      (st.iban ? '<div class="bank" style="margin-top:12px">Overmaken kan ook:<br><code>' + esc(st.iban) + '</code><br>t.n.v. ' + esc(st.tnv || 'Stichting Willem Bakker Archer') + ', o.v.v. "Doneer een pijl" en je naam.</div>' : '');
+  }
+  async function laadConfig() {
+    try {
+      const r = await fetch(API + 'doneer/config', {headers: {Accept: 'application/json'}});
+      if (!r.ok || !(r.headers.get('content-type') || '').includes('application/json')) throw new Error('geen server');
+      cfg = await r.json();
+      $('#pPijl').textContent = eur(cfg.pijlPrijs); $('#pDrie').textContent = eur(cfg.pijlPrijs * 3); $('#pSet').textContent = eur(cfg.setPrijs);
+      if (cfg.stand && (cfg.stand.pijlen > 0 || cfg.stand.donateurs > 0)) { $('#standPijlen').textContent = cfg.stand.pijlen; $('#standDonateurs').textContent = cfg.stand.donateurs; $('#stand').hidden = false; }
+      if (!cfg.mollie) { $('#betaal').querySelector('span').textContent = 'Doneren via de bank'; $('#uitleg').textContent = 'Na het invullen zie je het rekeningnummer en het kenmerk voor je overboeking.'; }
+      if (cfg.actief === false) { $('#formCard').hidden = true; toonStatus('wait', 'Even geduld', 'Doneren staat tijdelijk uit. Probeer het later nog eens.'); }
+    } catch (e) { renderStatisch(window.DONEER_STATISCH || {}); }
+  }
+  function toonStatus(kind, kop, tekst, extra) { $('#statusCard').hidden = false; $('#status').innerHTML = '<div class="big ' + kind + '"></div><p></p>' + (extra || ''); $('#status .big').textContent = kop; $('#status p').textContent = tekst; }
+  document.querySelectorAll('input[name=pakket]').forEach(r => r.addEventListener('change', () => { if (r.value === 'vrij' && r.checked) $('#eigen').focus(); }));
+  $('#eigen').addEventListener('focus', () => { document.querySelector('input[name=pakket][value=vrij]').checked = true; });
+  $('#form').addEventListener('submit', async e => {
+    e.preventDefault(); const err = $('#err'); err.hidden = true;
+    const pakket = document.querySelector('input[name=pakket]:checked').value;
+    const naam = $('#naam').value.trim(), email = $('#email').value.trim(), bericht = $('#bericht').value.trim();
+    if (!naam) { err.textContent = 'Vul je naam in.'; err.hidden = false; $('#naam').focus(); return; }
+    if (pakket === 'vrij' && bedragEigen() < 5) { err.textContent = 'Vul een bedrag in van minimaal € 5.'; err.hidden = false; $('#eigen').focus(); return; }
+    const btn = $('#betaal'); btn.disabled = true;
+    try {
+      const r = await fetch(API + 'doneer', {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json'}, body: JSON.stringify({pakket, bedrag: bedragEigen(), naam, email, bericht})});
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.fout || 'Er ging iets mis. Probeer het nog eens.');
+      if (j.checkout) { location.href = j.checkout; return; }
+      if (j.bank) {
+        const links = cfg && cfg.betaallinks || {}; const link = pakket === 'set' ? links.set : pakket === 'vrij' ? links.vrij : pakket === 'drie' ? (links.drie || links.vrij) : links.pijl;
+        $('#form').hidden = true; const b = $('#bankBlok'); b.hidden = false;
+        b.innerHTML = '<div class="bank"><b>Bedankt, ' + esc(naam) + '!</b><br>Maak <b>' + esc(eur(j.bedrag)) + '</b> over naar<br><code>' + esc(j.iban || 'rekeningnummer volgt') + '</code><br>t.n.v. ' + esc(j.tnv || 'Stichting Willem Bakker Archer') + '<br>onder vermelding van <code>' + esc(j.kenmerk) + '</code></div>' + (link ? '<a class="btn sec" href="' + esc(link) + '">Direct betalen via iDEAL-betaalverzoek</a>' : '') + '<div class="small">Zodra de betaling binnen is, telt jouw pijl mee in de stand.</div>';
+        return;
+      }
+      throw new Error('Onverwacht antwoord van de server.');
+    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+    btn.disabled = false;
+  });
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c])); }
+  async function terug(id) {
+    $('#formCard').hidden = true; toonStatus('wait', 'Even geduld', 'We controleren je betaling…');
+    for (let i = 0; i < 12; i++) {
+      try { const r = await fetch(API + 'doneer/status?id=' + encodeURIComponent(id), {headers: {Accept: 'application/json'}}); const j = await r.json();
+        if (j.status === 'betaald' || j.status === 'handmatig') { toonStatus('', 'Bedankt' + (j.naam ? ', ' + j.naam : '') + '!', 'Je hebt ' + (j.aantalPijlen === 1 ? 'een pijl' : j.aantalPijlen > 1 ? j.aantalPijlen + ' pijlen' : eur(j.bedrag)) + ' gedoneerd. Willem neemt je mee richting Los Angeles 2028.', '<div class="chev" style="color:var(--orange)">&raquo;&raquo;&raquo;</div>'); laadConfig(); return; }
+        if (['geannuleerd', 'verlopen', 'mislukt'].includes(j.status)) { toonStatus('bad', 'Niet afgerond', 'De betaling is niet gelukt of afgebroken. Je kunt het opnieuw proberen.', '<a class="btn" href="' + esc(location.pathname) + '">Opnieuw proberen</a>'); return; }
+      } catch (e) { /* opnieuw proberen */ }
+      await new Promise(r => setTimeout(r, 2500));
+    }
+    toonStatus('wait', 'Nog in behandeling', 'De bank heeft je betaling nog niet bevestigd. Dat kan een paar minuten duren; je hoeft niets te doen.');
+  }
+  laadConfig();
+  const q = new URLSearchParams(location.search); if (q.get('terug')) terug(q.get('terug'));
+})();
+</script>
+</body>
+</html>
